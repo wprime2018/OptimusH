@@ -70,9 +70,9 @@
 
     <script src="{{ asset('plugins/DataTables/DataTables-1.10.16/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('plugins/DataTables/DataTables-1.10.16/js/dataTables.bootstrap.min.js') }}"></script>
-    <script src="{{ asset('plugins/DataTables/buttons-1.5.1/js/dataTables.buttons.min.js')}}"></script>
+    <script src="{{ asset('plugins/DataTables/Buttons-1.5.1/js/dataTables.buttons.min.js')}}"></script>
 	<script src="{{ asset('plugins/DataTables/JSZip-2.5.0/jszip.min.js')}}"></script>
-	<script src="{{ asset('plugins/DataTables/buttons-1.5.1/js/buttons.html5.min.js')}}"></script>
+	<script src="{{ asset('plugins/DataTables/Buttons-1.5.1/js/buttons.html5.min.js')}}"></script>
 
 @endif
 
