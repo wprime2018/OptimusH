@@ -34,7 +34,7 @@ class SicTabEst1Controller extends Controller
                                 ->get();
         $ListFiliais = Filiais::where('ativo','=', '1')->get();
         $totCountFiliais = Filiais::where('ativo','=', '1')->count();
-        return view('Painel.Produtos.Produtos', compact('ListFiliais','Produtos','totCountFiliais'));
+        return view('painel.produtos.Produtos', compact('ListFiliais','Produtos','totCountFiliais'));
     }
     public function indexVendas()
     {

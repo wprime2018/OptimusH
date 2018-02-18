@@ -111,7 +111,7 @@ class PedidosEstoque extends Controller
                                     ->groupby('filial_id')
                                     ->get(['filial_id']);
 
-        return view ('Painel.Produtos.PedidoCompra',compact('prodDanger','filiaisAcomprar','prodDangerFilial', 'prodDanger2'));
+        return view ('painel.produtos.PedidoCompra',compact('prodDanger','filiaisAcomprar','prodDangerFilial', 'prodDanger2'));
     }
     public function ProdutosEstoqueAtual()
     {
@@ -128,7 +128,7 @@ class PedidosEstoque extends Controller
                                 ->groupby('filial_id')
                                 ->get(['filial_id']);
 
-        return view ('Painel.Produtos.EstoqueAtual',compact('prod', 'filiaisAcomprar','prodFilial'));
+        return view ('painel.produtos.EstoqueAtual',compact('prod', 'filiaisAcomprar','prodFilial'));
     }
     public function ProdutosMaisVendidos()
     {
@@ -145,7 +145,7 @@ class PedidosEstoque extends Controller
                                 ->groupby('filial_id')
                                 ->get(['filial_id']);
 
-        return view ('Painel.Produtos.MaisVendidos',compact('prod', 'filiaisAcomprar','prodFilial'));
+        return view ('painel.produtos.MaisVendidos',compact('prod', 'filiaisAcomprar','prodFilial'));
     }
     public function ProdutosNaoVendidos()
     {
@@ -164,6 +164,6 @@ class PedidosEstoque extends Controller
                                 ->groupby('filial_id')
                                 ->get(['filial_id']);
 
-        return view ('Painel.Produtos.NaoVendidos',compact('prod', 'filiaisAcomprar','prodFilial'));
+        return view ('painel.produtos.NaoVendidos',compact('prod', 'filiaisAcomprar','prodFilial'));
     }
 }

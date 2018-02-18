@@ -26,7 +26,7 @@ class DespesasController extends Controller
                                     ->select('tb_despesas.*', 'tb_filiais.fantasia','tb_tpdespesas.descricao as desc_tipo')
                                     ->get();
        
-        return view('Painel.Despesas.index', compact('Despesas', 'title'));
+        return view('painel.despesas.index', compact('Despesas', 'title'));
     }
 
     public function create()
@@ -35,7 +35,7 @@ class DespesasController extends Controller
         $ListFiliais= Filiais::where('ativo','=', '1')->get();
         $ListTpDespesas = TpDespesas::get();
         //$CurrentUser =  Auth::user()->name;
-        return view('Painel.Despesas.create-edit', compact('title','ListFiliais','ListTpDespesas'));
+        return view('painel.despesas.create-edit', compact('title','ListFiliais','ListTpDespesas'));
     }
 
     public function store(Request $request)
@@ -64,7 +64,7 @@ class DespesasController extends Controller
 
         $title = "Deletando: {$Despesas->tipo_desp}";
 
-        return view('Painel.Despesas.show', compact('title', 'Despesas'));
+        return view('painel.despesas.show', compact('title', 'Despesas'));
     }
 
     public function edit($id)
@@ -79,7 +79,7 @@ class DespesasController extends Controller
 
         $ListFiliais= Filiais::get();
         $ListTpDespesas = TpDespesas::get();
-        return view('Painel.Despesas.create-edit', compact('title', 'Despesas', 'ListFiliais', 'ListTpDespesas'));
+        return view('painel.despesas.create-edit', compact('title', 'Despesas', 'ListFiliais', 'ListTpDespesas'));
     }
 
     public function update(Request $request, $id)

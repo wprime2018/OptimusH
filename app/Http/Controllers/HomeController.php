@@ -129,7 +129,7 @@ class HomeController extends Controller
                 }
             }
         }
-        return view('Painel.DashBoard.DashFiliais',compact('lblTotFilial', 'Filiais','totRecebPorFilial','TipoRecebimentos'));
+        return view('painel.dashboard.DashFiliais',compact('lblTotFilial', 'Filiais','totRecebPorFilial','TipoRecebimentos'));
     }
 
     public function index_Produtos()
@@ -169,7 +169,7 @@ class HomeController extends Controller
                 }
             }
         }
-        return view('Painel.DashBoard.DashFiliais',compact('lblTotFilial', 'Filiais','totRecebPorFilial','TipoRecebimentos'));
+        return view('painel.dashboard.DashFiliais',compact('lblTotFilial', 'Filiais','totRecebPorFilial','TipoRecebimentos'));
     }
 
 }
