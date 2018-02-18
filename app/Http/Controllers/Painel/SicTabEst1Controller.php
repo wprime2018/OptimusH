@@ -10,8 +10,8 @@ use Carbon\Carbon;
 use App\Models\Painel\MSicTabEst1;      //Produtos
 use App\Models\Painel\MSicTabEst7;      //Tipos de Recebimentos
 use App\Models\Painel\MSicTabVend;      //Vendedores
-use App\Models\Painel\MSicTabEst3a;     //Vendas
-use App\Models\Painel\MSicTabEst3b;     //Produtos Vendidos
+use App\Models\Painel\MSicTabEst3A;     //Vendas
+use App\Models\Painel\MSicTabEst3B;     //Produtos Vendidos
 use App\Models\Painel\Estoque;     //Produtos Vendidos
 use App\Models\Painel\Filiais;
 use App\Models\Painel\ImportFileSic;
@@ -46,7 +46,7 @@ class SicTabEst1Controller extends Controller
                                 ->limit(100)
                                 ->get();
         $ListFiliais = Filiais::get();
-        return view('Painel.Vendas', compact('ListFiliais','Vendas'));
+        return view('painel.Vendas', compact('ListFiliais','Vendas'));
     }
     public function importTabEst1(Request $request)
     {
