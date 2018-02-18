@@ -115,15 +115,14 @@ class PedidosEstoque extends Controller
     }
     public function ProdutosEstoqueAtual()
     {
-        $prod         = Estoque::distinct('LkProduto')
+        $prod       = Estoque::distinct('LkProduto')
                                 ->with('produto')
                                 ->orderby('LkProduto')
                                 ->get(['LkProduto']);
                                 
-        $prodFilial   = Estoque::orderby('LkProduto')
-                                ->get();
+        $prodFilial = Estoque::orderby('LkProduto')->get();
 
-        $filiaisAcomprar        = Estoque::with('filial')
+        $filiaisAcomprar = Estoque::with('filial')
                                 ->distinct()
                                 ->groupby('filial_id')
                                 ->get(['filial_id']);

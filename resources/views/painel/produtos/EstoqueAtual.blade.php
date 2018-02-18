@@ -62,7 +62,7 @@
 							->orderby('LkProduto')
 							->first();
 						@endphp
-						<td align="center" style="width: 15px;">{{number_format($prod->Atual,0)}}</td>
+						<td align="center" style="width: 15px;">{{number_format($prodFilial->Atual,0,',', '.')}}</td>
 					@endforeach
 				</tr>
 				@endforeach

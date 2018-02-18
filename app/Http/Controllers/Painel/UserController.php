@@ -6,9 +6,13 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
 use App\Models\Painel\Filiais;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Auth\RegistersUsers;
 
 class UserController extends Controller
 {
+
+    use RegistersUsers;
 
     public function index()
     {
@@ -28,6 +32,24 @@ class UserController extends Controller
         $ListFiliais= Filiais::where('ativo','=', '1')->get();
         return view('painel.users.create-edit', compact('title','ListFiliais'));
     }
+    
+    protected function validator(array $data)
+    {
+        return Validator::make($data, [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+    }
+
+    protected function create2(array $data)
+    {
+        return User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => bcrypt($data['password']),
+        ]);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -37,16 +59,14 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-       /** $dataForm = $request->except('_token');
+        $this->validator($request->all())->validate();
 
-        $insert = User::create($dataForm);
+        event(new Registered($user = $this->create($request->all())));
 
-        if ($insert) {
-            return redirect()->route('user.index');
-        } else {
-            return redirect()->route('user.create');
-        }*/
-        dd($request);
+        $this->guard()->login($user);
+
+        return $this->registered($request, $user)
+                        ?: redirect($this->redirectPath());
     }
 
     /**
