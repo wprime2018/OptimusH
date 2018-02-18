@@ -27,7 +27,7 @@
 	<!-- /.box-header -->
 
 	<div class="box-body">
-		@include('Painel.includes.alerts')
+		@include('painel.includes.alerts')
 		<div class="form-group col-md-12">
 			<a data-toggle="modal" data-target="b1" id="btnModal1" class="btn btn-primary btn-lg active btn-add">
 				<span class="glyphicon glyphicon-plus"></span>Importar Vendas</a>
@@ -88,7 +88,7 @@
 	</div>
 </div>
 
-	@component('Painel.modal_primary')
+	@component('painel.modal_primary')
 		@slot('txtBtnModal')
 			Importar do SIC
 		@endslot
@@ -146,7 +146,7 @@
 		@endslot
 	@endcomponent
 
-	@component('Painel.modal_primary')
+	@component('painel.modal_primary')
 		@slot('txtBtnModal')
 			Importar do SIC
 		@endslot
@@ -174,7 +174,7 @@
 		@endslot
 	@endcomponent
 
-	@component('Painel.modal_primary')
+	@component('painel.modal_primary')
 	@slot('txtBtnModal')
 		Importar do SIC
 	@endslot
@@ -202,7 +202,7 @@
 	@endslot
 	@endcomponent
 
-	@component('Painel.modal_primary')
+	@component('painel.modal_primary')
 	@slot('icoBtnModal')
 		glyphicon glyphicon-plus
 	@endslot

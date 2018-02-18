@@ -26,7 +26,7 @@
 	</div>
 	<!-- /.box-header -->
 	<div class="box-body">
-		@include('Painel.includes.alerts')
+		@include('painel.includes.alerts')
 		<a href="{{route('user.create')}}" class="btn btn-primary btn-lg active btn-add">
 			<span class="glyphicon glyphicon-plus"></span> Cadastrar</a>
 			<p></p>
@@ -79,7 +79,7 @@
 	</div>
 </div>
 
-@include('Painel.modal_confirm')
+@include('painel.modal_confirm')
 
 @stop
 

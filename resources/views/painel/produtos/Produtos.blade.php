@@ -136,7 +136,7 @@
 	</div>
 </div>
 
-	@component('Painel.modal_primary')
+	@component('painel.modal_primary')
 		@slot('icoBtnModal')
 			glyphicon glyphicon-plus
 		@endslot
@@ -183,7 +183,7 @@
 		@endslot
 	@endcomponent
 
-	@component('Painel.modal_primary')
+	@component('painel.modal_primary')
 		@slot('icoBtnModal')
 			glyphicon glyphicon-plus
 		@endslot
