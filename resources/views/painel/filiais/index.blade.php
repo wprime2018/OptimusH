@@ -76,14 +76,14 @@
 	</div>
 </div>
 
-@include('Painel.modal_confirm')
+@include('painel.modal_confirm')
 
 @stop
 
 
 
 @section ('js')
-	<script src="{{ asset('js/Painel/config_datatables.js') }}"> </script>
-	<script src="{{ asset('js/Painel/modal_confirm.js') }}"></script>
-	<!--<script src="{{ asset('js/Painel/BS3DialogMaster.js') }}"></script>-->
+	<script src="{{ asset('js/painel/config_datatables.js') }}"> </script>
+	<script src="{{ asset('js/painel/modal_confirm.js') }}"></script>
+	<!--<script src="{{ asset('js/painel/BS3DialogMaster.js') }}"></script>-->
 @stop
