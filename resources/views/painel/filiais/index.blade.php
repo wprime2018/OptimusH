@@ -33,15 +33,15 @@
 			<thead>
 				<tr role="row">
 					<th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending"
-					 style="width: 100.8px;">Código</th>
+						style="width: 100.8px;">Código</th>
 					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-					 style="width: 150.2px;">Fantasia</th>
+						style="width: 150.2px;">Fantasia</th>
 					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending"
-					 style="width: 350.8px;">Razão Social</th>
+						style="width: 350.8px;">Razão Social</th>
 					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
-					 style="width: 187.4px;">C.N.P.J.</th>
+						style="width: 187.4px;">C.N.P.J.</th>
 					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="CSS grade: activate to sort column ascending"
-					 style="width: 135.6px;">Ações</th>
+						style="width: 135.6px;">Ações</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -56,9 +56,12 @@
 							<span class="btn btn-primary btn-xs glyphicon glyphicon-pencil"></span>
 						</a>
 
-						{!! Form::open(['method' => 'DELETE', 'route'=>['filial.destroy', $filial->id], 'style'=> 'display:inline']) !!}
+						<a data-toggle="modal" data-target="b1" id="btnModal1" class="btn btn-xs btn-danger btnDelete">
+							<span class="glyphicon glyphicon-remove"></span></a>
+
+					<!--{!! Form::open(['method' => 'DELETE', 'route'=>['filial.destroy', $filial->id], 'style'=> 'display:inline']) !!}
 						{!! Form::submit('Excluir',['class'=> 'btn btn-xs btn-danger']) !!}
-						{!! Form::close() !!}
+						{!! Form::close() !!}-->
                   	</td>
 				</tr>
 				@endforeach
@@ -76,7 +79,38 @@
 	</div>
 </div>
 
-@include('painel.modal_confirm')
+@if( isset($filial) ) 
+	@component('painel.modals.modal_danger')
+	@slot('txtBtnModal')
+		Exclusão de Registros
+	@endslot
+	@slot('triggerModal')
+		b1
+	@endslot
+	@slot('tituloModal')
+		Excluindo Registros ... 
+	@endslot
+	@slot('routeModal')
+		filial.destroy
+	@endslot
+	@slot('actionModal')
+		{{$filial->id}}
+	@endslot
+	@slot('methodModal')
+		DELETE
+	@endslot
+	@slot('bodyModal')
+	<div class='row'>	
+		<div class="form-group col-md-12">  <!-- testando tudo -->
+			<p>Deseja excluir a filial: {{$filial->codigo}} - {{$filial->fantasia}}?</p>
+		</div>
+
+	@endslot
+	@slot('btnConfirmar')
+		Excluir
+	@endslot
+	@endcomponent
+@endif 
 
 @stop
 
@@ -84,6 +118,12 @@
 
 @section ('js')
 	<script src="{{ asset('js/painel/config_datatables.js') }}"> </script>
-	<script src="{{ asset('js/painel/modal_confirm.js') }}"></script>
-	<!--<script src="{{ asset('js/painel/BS3DialogMaster.js') }}"></script>-->
+	<script type="text/javascript">
+		$('a.btnDelete').on('click', function (e) {
+			e.preventDefault();
+			var id = $(this).closest('tr').data('id');
+		   //aqui passamos a ID do registro para dentro do modal, atraveś do click do botão...
+			$('#b1').data('id', id).modal('show');
+		});
+	</script>
 @stop
