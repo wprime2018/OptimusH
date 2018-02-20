@@ -32,34 +32,32 @@
 		<table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
 			<thead>
 				<tr role="row">
-					<th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending"
-					 style="width: 217.8px;">Descrição</th>
-					 <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending"
-					 style="width: 217.8px;">Compartilhada</th>
-					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="CSS grade: activate to sort column ascending"
-					 style="width: 135.6px;">Ações</th>
+					<th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending" style="width: 217.8px;">Descrição</th>
+					<th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending" style="width: 217.8px;">Compartilhada</th>
+					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="CSS grade: activate to sort column ascending" style="width: 135.6px;">Ações</th>
 				</tr>
 			</thead>
 			<tbody>
 				@foreach($TpDespesas as $tpDespesas)
 				<tr role="row" class="odd" id="{{$tpDespesas->id}}">
 					<td class="sorting_1">{{$tpDespesas->descricao}}</td>
-					<td >{{$tpDespesas->compartilhada}}</td>
+					<td >@if ($tpDespesas->compartilhada = 1) Sim @else Não @endif </td>
 					<td>
 						<a href="{{ route ( 'tpDespesa.edit', $tpDespesas->id ) }}" class="actions edit">
 							<span class="btn btn-primary btn-xs glyphicon glyphicon-pencil"></span>
 						</a>
 
-						{!! Form::open(['method' => 'DELETE', 'route'=>['tpDespesa.destroy', $tpDespesas->id], 'style'=> 'display:inline']) !!}
-						{!! Form::submit('Excluir',['class'=> 'btn btn-xs btn-danger']) !!}
-						{!! Form::close() !!}
-                  	</td>
+						<a data-toggle="modal" data-target="b1" id="btnModal1" class="btn btn-xs btn-danger btnDelete">
+							<span class="glyphicon glyphicon-remove"></span>
+						</a>
+                	</td>
 				</tr>
 				@endforeach
 			</tbody>
 			<tfoot>
 				<tr>
 					<th rowspan="1" colspan="1">Descrição</th>
+					<th rowspan="1" colspan="1">Compartilhada</th>
 					<th rowspan="1" colspan="1">Ações</th>
 				</tr>
 			</tfoot>
@@ -67,7 +65,38 @@
 	</div>
 </div>
 
-@include('painel.modal_confirm')
+@if( isset($tpDespesas) ) 
+	@component('painel.modals.modal_danger')
+	@slot('txtBtnModal')
+		Exclusão de Registros
+	@endslot
+	@slot('triggerModal')
+		b1
+	@endslot
+	@slot('tituloModal')
+		Excluindo Registros ... 
+	@endslot
+	@slot('routeModal')
+		tpDespesa.destroy
+	@endslot
+	@slot('actionModal')
+		{{$tpDespesas->id}}
+	@endslot
+	@slot('methodModal')
+		DELETE
+	@endslot
+	@slot('bodyModal')
+	<div class='row'>	
+		<div class="form-group col-md-12">  <!-- testando tudo -->
+			<p>Deseja excluir o tipo: {{$tpDespesas->descricao}}?</p>
+		</div>
+
+	@endslot
+	@slot('btnConfirmar')
+		Excluir
+	@endslot
+	@endcomponent
+@endif
 
 @stop
 
@@ -75,6 +104,12 @@
 
 @section ('js')
 	<script src="{{ asset('js/Painel/config_datatables.js') }}"> </script>
-	<script src="{{ asset('js/Painel/modal_confirm.js') }}"></script>
-	<!--<script src="{{ asset('js/Painel/BS3DialogMaster.js') }}"></script>-->
+	<script type="text/javascript">
+		$('a.btnDelete').on('click', function (e) {
+			e.preventDefault();
+			var id = $(this).closest('tr').data('id');
+		   //aqui passamos a ID do registro para dentro do modal, atraveś do click do botão...
+			$('#b1').data('id', id).modal('show');
+		});
+	</script>
 @stop

@@ -57,7 +57,7 @@
 					<td>{{$dadosProd->Fabricante}}</td>
 					<td align="right">R$ {{number_format($dadosProd->PrecoCusto, 2, ',', '.')}}</td>
 					<td align="right">R$ {{number_format($dadosProd->PrecoVenda, 2, ',', '.')}}</td>
-					<td>{{$dadosProd->DataInc}}</td>
+					<td>{{date_format(new DateTime($dadosProd->DataInc), 'd/m/Y H:i:s')}}</td>
 					@foreach($filiaisAcomprar as $f)
 						@php
 							$prodFilial   = App\Models\Painel\Estoque::where('filial_id',$f->filial_id)

@@ -62,10 +62,11 @@
 							<span class="btn btn-primary btn-xs glyphicon glyphicon-pencil"></span>
 						</a>
 
-						{!! Form::open(['method' => 'DELETE', 'route'=>['despesas.destroy', $despesa->id], 'style'=> 'display:inline']) !!}
-						{!! Form::submit('Excluir',['class'=> 'btn btn-xs btn-danger']) !!}
-						{!! Form::close() !!}
-                  	</td>
+						<a data-toggle="modal" data-target="b1" id="btnModal1" class="btn btn-xs btn-danger btnDelete">
+							<span class="glyphicon glyphicon-remove"></span>
+						</a>
+
+                    </td>
 				</tr>
 				@endforeach
 			</tbody>
@@ -81,14 +82,50 @@
 	</div>
 </div>
 
-@include('painel.modal_confirm')
+@if( isset($despesa) ) 
+	@component('painel.modals.modal_danger')
+	@slot('txtBtnModal')
+		Exclusão de Registros
+	@endslot
+	@slot('triggerModal')
+		b1
+	@endslot
+	@slot('tituloModal')
+		Excluindo Registros ... 
+	@endslot
+	@slot('routeModal')
+		despesas.destroy
+	@endslot
+	@slot('actionModal')
+		{{$despesa->id}}
+	@endslot
+	@slot('methodModal')
+		DELETE
+	@endslot
+	@slot('bodyModal')
+	<div class='row'>	
+		<div class="form-group col-md-12">  <!-- testando tudo -->
+			<p>Deseja excluir a despesa: {{$despesa->fantasia}} - {{$despesa->descricao}}?</p>
+		</div>
+
+	@endslot
+	@slot('btnConfirmar')
+		Excluir
+	@endslot
+	@endcomponent
+@endif
+
 
 @stop
 
-
-
 @section ('js')
 	<script src="{{ asset('js/Painel/config_datatables.js') }}"> </script>
-	<script src="{{ asset('js/Painel/modal_confirm.js') }}"></script>
-	<!--<script src="{{ asset('js/Painel/BS3DialogMaster.js') }}"></script>-->
+	<script type="text/javascript">
+		$('a.btnDelete').on('click', function (e) {
+			e.preventDefault();
+			var id = $(this).closest('tr').data('id');
+			//aqui passamos a ID do registro para dentro do modal, atraveś do click do botão...
+			$('#b1').data('id', id).modal('show');
+		});
+	</script>
 @stop

@@ -32,7 +32,7 @@ Route::get('produtos'                   , 'Painel\SicTabEst1Controller@index')->
 Route::post('produtos/importtabest1'    , 'Painel\SicTabEst1Controller@importtabest1')->middleware('auth');
 Route::post('produtos/importVendas'     , 'Painel\SicTabEst1Controller@importVendas')->middleware('auth');
 Route::post('produtos/edit'             , 'Painel\SicTabEst1Controller@edit')->middleware('auth');
-Route::post('produtos/destroy'          , 'Painel\SicTabEst1Controller@destroy')->middleware('auth');
+Route::post('produtos/destroy'          , 'Painel\PedidosEstoque@destroy')->middleware('auth')->name('estoques.destroy');
 
 Route::post('produtos/calculaEstoque'   , 'Painel\PedidosEstoque@calculaEstoque')->middleware('auth')->name('CalculaEstoque');
 Route::get('produtos/pedComprar'        , 'Painel\PedidosEstoque@pedidosComprarTotal')->middleware('auth')->name('PedComprarTotal');

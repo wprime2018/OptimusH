@@ -46,7 +46,7 @@ class SicTabEst1Controller extends Controller
                                 ->limit(100)
                                 ->get();
         $ListFiliais = Filiais::get();
-        return view('painel.Vendas', compact('ListFiliais','Vendas'));
+        return view('painel.vendas.Vendas', compact('ListFiliais','Vendas'));
     }
     public function importTabEst1(Request $request)
     {

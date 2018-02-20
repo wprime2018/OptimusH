@@ -84,7 +84,7 @@
 					<td>{{$produto->Fabricante}}</td>
 					<td align="right">R$ {{number_format($produto->PrecoCusto, 2, ',', '.')}}</td>
 					<td align="right">R$ {{number_format($produto->PrecoVenda, 2, ',', '.')}}</td>
-					<td>{{$produto->DataInc}}</td>
+					<td>{{date_format(new DateTime($dadosProd->DataInc), 'd/m/Y H:i:s')}}</td>
 					@for ($i = 1; $i <= $totCountFiliais; $i++)
 						@foreach($produto->prodEstoque()->where('filial_id',$i)->orderby('filial_id')->get() as $pE)
 							@if (count($pE) > 0)
@@ -136,7 +136,7 @@
 	</div>
 </div>
 
-	@component('painel.modal_primary')
+	@component('painel.modals.modal_primary')
 		@slot('icoBtnModal')
 			glyphicon glyphicon-plus
 		@endslot
@@ -183,7 +183,7 @@
 		@endslot
 	@endcomponent
 
-	@component('painel.modal_primary')
+	@component('painel.modals.modal_primary')
 		@slot('icoBtnModal')
 			glyphicon glyphicon-plus
 		@endslot

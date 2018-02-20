@@ -88,7 +88,7 @@
 	</div>
 </div>
 
-	@component('painel.modal_primary')
+	@component('painel.modals.modal_primary')
 		@slot('txtBtnModal')
 			Importar do SIC
 		@endslot
@@ -146,7 +146,7 @@
 		@endslot
 	@endcomponent
 
-	@component('painel.modal_primary')
+	@component('painel.modals.modal_primary')
 		@slot('txtBtnModal')
 			Importar do SIC
 		@endslot
@@ -174,7 +174,7 @@
 		@endslot
 	@endcomponent
 
-	@component('painel.modal_primary')
+	@component('painel.modals.modal_primary')
 	@slot('txtBtnModal')
 		Importar do SIC
 	@endslot
@@ -202,7 +202,7 @@
 	@endslot
 	@endcomponent
 
-	@component('painel.modal_primary')
+	@component('painel.modals.modal_primary')
 	@slot('icoBtnModal')
 		glyphicon glyphicon-plus
 	@endslot

@@ -59,7 +59,7 @@
 					<td>{{$dadosProd->Fabricante}}</td>
 					<td align="right">R$ {{number_format($dadosProd->PrecoCusto, 2, ',', '.')}}</td>
 					<td align="right">R$ {{number_format($dadosProd->PrecoVenda, 2, ',', '.')}}</td>
-					<td>{{$dadosProd->DataInc}}</td>
+					<td>{{date_format(new DateTime($dadosProd->DataInc), 'd/m/Y H:i:s')}}</td>
 					<td align="center" style="width: 15px;">{{number_format($p->Total_comprar,0)}}</td>
 					@foreach($filiaisAcomprar as $f)
 						@php
@@ -126,6 +126,8 @@
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
 							style="width: 50.4px;">Comprar</th>
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
+							style="width: 50.4px;">Ações</th>
+						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
 							style="width: 50.4px;">Atual</th>
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
 							style="width: 50.4px;">Minimo</th>
@@ -151,8 +153,13 @@
 								<td>{{$p->produto->Produto}}</td>
 								<td>{{$p->produto->Fabricante}}</td>
 								<td align="right">R$ {{number_format($p->produto->PrecoVenda, 2, ',', '.')}}</td>
-								<td>{{$p->produto->DataInc}}</td>
+								<td>{{date_format(new DateTime($dadosProd->DataInc), 'd/m/Y H:i:s')}}</td>
 								<td align="center" style="width: 15px;">{{number_format($p->Comprar,0)}}</td>
+								<td>
+									<a data-toggle="modal" data-target="b1" id="btnModal1" class="btn btn-xs btn-danger btnDelete">
+										<span class="glyphicon glyphicon-remove"></span>
+									</a>
+								</td>
 								<td align="center" style="width: 15px;">{{number_format($p->Atual,0)}}</td>
 								<td align="center" style="width: 15px;">{{number_format($p->Minimo,0)}}</td>
 								<td align="center" style="width: 15px;">{{number_format($p->Ideal,0)}}</td>
@@ -169,6 +176,7 @@
 						<th rowspan="1" colspan="1">Preço de Venda</th>
 						<th rowspan="1" colspan="1">Data de Cadastro</th>
 						<th rowspan="1" colspan="1">Comprar</th>
+						<th rowspan="1" colspan="1">Ações</th>
 						<th rowspan="1" colspan="1">Atual</th>
 						<th rowspan="1" colspan="1">Minimo</th>
 						<th rowspan="1" colspan="1">Ideal</th>
@@ -179,6 +187,38 @@
 		</div>
 	</div>
 
+	@if( isset($p) ) 
+		@component('painel.modals.modal_danger')
+		@slot('txtBtnModal')
+			Exclusão de Registros
+		@endslot
+		@slot('triggerModal')
+			b1
+		@endslot
+		@slot('tituloModal')
+			Excluindo Registros ... 
+		@endslot
+		@slot('routeModal')
+			estoques.destroy
+		@endslot
+		@slot('actionModal')
+			{{$p->id}}
+		@endslot
+		@slot('methodModal')
+			DELETE
+		@endslot
+		@slot('bodyModal')
+			<div class='row'>	
+				<div class="form-group col-md-12">  <!-- testando tudo -->
+					<p>Deseja excluir: {{$p->produto->Codigo}} - {{$p->produto->Produto}}?</p>
+				</div>
+			</div>
+		@endslot
+		@slot('btnConfirmar')
+			Excluir
+		@endslot
+		@endcomponent
+	@endif
 @endforeach
 
 
@@ -190,14 +230,11 @@
 	<script src="{{ asset('js/Painel/config_datatables.js') }}"> </script>
 	
 	<script type="text/javascript">
-		$(document).ready(function(){
-			$("#btnModal1").click(function(){
-				$("#b1").modal('show');
-			});
-			$("#btnModal2").click(function(){
-				$("#b2").modal('show');
-			});
-		});
-		
+		$('a.btnDelete').on('click', function (e) {
+			e.preventDefault();
+			var id = $(this).closest('tr').data('id');
+			//aqui passamos a ID do registro para dentro do modal, atraveś do click do botão...
+			$('#b1').data('id', id).modal('show');
+		});		
 	</script>
 @stop

@@ -165,4 +165,16 @@ class PedidosEstoque extends Controller
 
         return view ('painel.produtos.NaoVendidos',compact('prod', 'filiaisAcomprar','prodFilial'));
     }
+
+    public function destroy($id)
+    {
+        $delete = Estoque::destroy($id);
+
+        if ($delete) {
+            return redirect()->route('PedComprarTotal')->with('success','Quantidade atualizada com sucesso!');
+        } else {
+            return redirect()->route('estoques.destroy', $id)->with(['errors' => 'Falha ao deletar']);
+        }
+        
+    }
 }
