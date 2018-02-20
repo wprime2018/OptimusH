@@ -47,12 +47,21 @@ class HomeController extends Controller
         */
         $countProdDanger    = Estoque::distinct()->where('Status',"Urgente!")->count(['LkProduto']);
         $sumProdDanger      = Estoque::where('Status',"Urgente!")->sum('Comprar');
-        $porcProdDanger     = round(($countProdDanger / $lblTotProdutos) * 100,0);
+        if ($lblTotProdutos > 0) {
+            $porcProdDanger     = round(($countProdDanger / $lblTotProdutos) * 100,0);
+        } else { 
+            $porcProdDanger = 0;
+        }
         $fatiaProdDanger    = round(((2600 * $porcProdDanger) / 100),0);
 
         $countProdWarning   = Estoque::where('Status',"Atenção")->count();
         $sumProdWarning     = Estoque::where('Status',"Atenção")->sum('Comprar');
-        $porcProdWarning     = round(($countProdWarning / $lblTotProdutos) * 100,0);
+        if ($lblTotProdutos > 0 ){
+            $porcProdWarning     = round(($countProdWarning / $lblTotProdutos) * 100,0);
+        } else {
+            $porcProdWarning = 0;
+        }
+        
         $fatiaProdWarning    = round(((2600 * $porcProdWarning) / 100),0);
 
         $countProdSuccess   = Estoque::where('Status',"Não comprar")->count();
@@ -65,7 +74,8 @@ class HomeController extends Controller
                                     ->select('LkProduto','filial_id')
                                     ->distinct('LkProduto')
                                     ->sum('Atual');
-        $porcProdNoVend     = round(($countProdNoVend / $lblTotProdutos) * 100,0);
+        if ($lblTotProdutos > 0)
+            $porcProdNoVend     = round(($countProdNoVend / $lblTotProdutos) * 100,0);
         $fatiaProdNoVend    = round(((2600 * $porcProdNoVend) / 100),0);
         
         $fatiaRestante      = round((2600 - $fatiaProdDanger - $fatiaProdWarning - $fatiaProdNoVend),0);
