@@ -79,7 +79,7 @@
 	</div>
 </div>
 
-@include('painel.modal_confirm')
+@include('painel.modals.modal_confirm')
 
 @stop
 
