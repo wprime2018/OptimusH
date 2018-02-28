@@ -36,7 +36,7 @@ class TpDespesasController extends Controller
         $dataForm = $request->except('_token');
 
         $dataForm['compartilhada'] = ($dataForm['compartilhada'] == '') ? 0 : 1;
-
+        
         $insert = $this->TpDespesas->create($dataForm);
         
         if ($insert)

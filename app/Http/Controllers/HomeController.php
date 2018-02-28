@@ -76,6 +76,9 @@ class HomeController extends Controller
                                     ->sum('Atual');
         if ($lblTotProdutos > 0)
             $porcProdNoVend     = round(($countProdNoVend / $lblTotProdutos) * 100,0);
+        else 
+            $porcProdNoVend = 0;
+                
         $fatiaProdNoVend    = round(((2600 * $porcProdNoVend) / 100),0);
         
         $fatiaRestante      = round((2600 - $fatiaProdDanger - $fatiaProdWarning - $fatiaProdNoVend),0);
