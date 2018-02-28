@@ -37,7 +37,7 @@
 	{!! Form::open(['route' => 'tpDespesa.store', 'class' => 'form'])!!} 
 @endif
 
-<input type="hidden" name="ativo" value="0" />
+<input type="hidden" name="compartilhada" value="0" />
 	
 	<div class="box box-primary">
 		<div class="box-header with-border">
