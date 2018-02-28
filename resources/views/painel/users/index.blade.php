@@ -32,7 +32,6 @@
 			<p></p>
 		<table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
 			<thead>
-				<tr role="row">
 					<th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending"
 					 style="width: 100.8px;">Nome</th>
 					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
@@ -79,7 +78,7 @@
 	</div>
 </div>
 
-@include('painel.modals.modal_confirm')
+<!-- @include('painel.modals.modal_confirm')-->
 
 @stop
 
