@@ -115,6 +115,38 @@
 	@endcomponent
 @endif
 
+@if( isset($despesa) ) 
+	@component('painel.modals.modal_danger')
+	@slot('txtBtnModal')
+		Exclusão de Registros
+	@endslot
+	@slot('triggerModal')
+		b1
+	@endslot
+	@slot('tituloModal')
+		Excluindo Registros ... 
+	@endslot
+	@slot('routeModal')
+		despesas.destroy
+	@endslot
+	@slot('actionModal')
+		{{$despesa->id}}
+	@endslot
+	@slot('methodModal')
+		DELETE
+	@endslot
+	@slot('bodyModal')
+	<div class='row'>	
+		<div class="form-group col-md-12">  <!-- testando tudo -->
+			<p>Deseja excluir a despesa: {{$despesa->fantasia}} - {{$despesa->descricao}}?</p>
+		</div>
+
+	@endslot
+	@slot('btnConfirmar')
+		Excluir
+	@endslot
+	@endcomponent
+@endif
 
 @stop
 

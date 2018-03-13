@@ -10,11 +10,11 @@ class Despesas extends Model
 {
     public function filial()
     {
-        return $this->hasOne(Filiais::class);
+        return $this->hasOne(Filiais::class, 'filial_id', 'id');
     }
     public function tipo_despesa()
     {
-        return $this->hasOne(TpDespesas::class);
+        return $this->hasOne(TpDespesas::class, 'id', 'tp_desp_id');
     }
 
     protected $table = 'tb_despesas';
@@ -24,7 +24,8 @@ class Despesas extends Model
             'filial_id', 
             'valor', 
             'tp_pgto', 
-            'tp_desp_id', 
+            'tp_desp_id',
+            'documento', 
             'qtde_parcelas',
             'fixa',
             'obs',

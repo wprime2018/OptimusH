@@ -62,7 +62,7 @@
 					<!--{!! Form::open(['method' => 'DELETE', 'route'=>['filial.destroy', $filial->id], 'style'=> 'display:inline']) !!}
 						{!! Form::submit('Excluir',['class'=> 'btn btn-xs btn-danger']) !!}
 						{!! Form::close() !!}-->
-                  	</td>
+                	</td>
 				</tr>
 				@endforeach
 			</tbody>
@@ -122,7 +122,7 @@
 		$('a.btnDelete').on('click', function (e) {
 			e.preventDefault();
 			var id = $(this).closest('tr').data('id');
-		   //aqui passamos a ID do registro para dentro do modal, atraveś do click do botão...
+			//aqui passamos a ID do registro para dentro do modal, atraveś do click do botão...
 			$('#b1').data('id', id).modal('show');
 		});
 	</script>
