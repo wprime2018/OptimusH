@@ -5,7 +5,7 @@ namespace App\Models\Painel;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Painel\MSicTabEst1;
 
-class tb_setores extends Model
+class Setores extends Model
 {
     public function produtos()
     {

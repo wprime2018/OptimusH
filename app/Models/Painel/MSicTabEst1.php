@@ -4,6 +4,7 @@ namespace App\Models\Painel;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Painel\Estoque;
+use App\Models\Painel\Setores;
 
 class MSicTabEst1 extends Model
 {
@@ -62,5 +63,8 @@ class MSicTabEst1 extends Model
       ];
         public function prodEstoque() {
             return $this->hasMany(Estoque::Class, 'LkProduto', 'Controle')->orderBy('filial_id');
+        }
+        public function setor()  {
+            return $this->hasOne(Setores::class, 'LkSetor', 'Controle');
         }
 }

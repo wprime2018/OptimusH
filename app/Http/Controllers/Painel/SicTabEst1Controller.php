@@ -12,7 +12,7 @@ use App\Models\Painel\MSicTabEst7;      //Tipos de Recebimentos
 use App\Models\Painel\MSicTabVend;      //Vendedores
 use App\Models\Painel\MSicTabEst3A;     //Vendas
 use App\Models\Painel\MSicTabEst3B;     //Produtos Vendidos
-use App\Models\Painel\Estoque;     //Produtos Vendidos
+use App\Models\Painel\Estoque;          //Produtos Vendidos com estoque calculado
 use App\Models\Painel\Filiais;
 use App\Models\Painel\Setores;
 use App\Models\Painel\ImportFileSic;
@@ -827,7 +827,9 @@ class SicTabEst1Controller extends Controller
                 $message = $message . "e produtos vendidos importados com sucesso!"; 
             }
             return redirect()->back()->with('success', $message);
-        } else {$message = $message . ", você não informou o arquivo de produtos vendidos";  }
+        } else {
+            $message = $message . ", você não informou o arquivo de produtos vendidos";  
+        }
     }
     public function importTabEst8(Request $request) //Setores
     {
@@ -853,7 +855,6 @@ class SicTabEst1Controller extends Controller
                     {
                         // Começando os testes dos dados para ajustar ao DB Atual
                         
-                        if($row['fixo'] == 'True') { $row['fixo'] = 1; } else { $row['fixo'] = 0;}
                         $dataAtual = Carbon::now();
 
                         $dataArray[] =

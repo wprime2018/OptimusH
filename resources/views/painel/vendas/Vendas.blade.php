@@ -22,7 +22,7 @@
 @section('content')
 <div class="box">
 	<div class="box-header">
-		<h3 class="box-title">Vendas Importadas</h3>
+		<h3 class="box-title">Importações</h3>
 	</div>
 	<!-- /.box-header -->
 
@@ -30,11 +30,13 @@
 		@include('painel.includes.alerts')
 		<div class="form-group col-md-12">
 			<a data-toggle="modal" data-target="b1" id="btnModal1" class="btn btn-primary btn-lg active btn-add">
-				<span class="glyphicon glyphicon-plus"></span>Importar Vendas</a>
+				<span class="glyphicon glyphicon-plus"></span>Vendas</a>
 			<a data-toggle="modal" data-target="b2" id="btnModal2" class="btn btn-warning btn-lg active btn-add">
-				<span class="glyphicon glyphicon-plus"></span>Importar Vendedores</a>
+				<span class="glyphicon glyphicon-plus"></span>Vendedores</a>
 			<a data-toggle="modal" data-target="b3" id="btnModal3" class="btn btn-danger btn-lg active btn-add">
-				<span class="glyphicon glyphicon-plus"></span>Importar Tipos de Recebimentos</a>
+				<span class="glyphicon glyphicon-plus"></span>Tipos de Recebimentos</a>
+			<a data-toggle="modal" data-target="b5" id="btnModal5" class="btn btn-primary btn-lg active btn-add">
+				<span class="glyphicon glyphicon-plus"></span>Setores</a>
 			<a data-toggle="modal" data-target="b4" id="btnModal4" class="btn btn-success active btn-lg btn-add">
 				<span class="glyphicon glyphicon-plus"></span>Calcular Estoque</a>
 	
@@ -236,6 +238,35 @@
 		Calcular
 	@endslot
 	@endcomponent
+
+	@component('painel.modals.modal_primary')
+	@slot('txtBtnModal')
+		Importar do SIC
+	@endslot
+	@slot('triggerModal')
+		b5
+	@endslot
+	@slot('tituloModal')
+		Importar Setores dos Produtos SIC (TabEst8)
+	@endslot
+	@slot('actionModal')
+		Painel\SicTabEst1Controller@importTabEst8
+	@endslot
+	@slot('methodModal')
+		post
+	@endslot
+	@slot('bodyModal')
+		<div class="col-md-6">
+			<div class="row">
+				<input type="file" name="imported-file"/>
+			</div>
+		</div>
+	@endslot
+	@slot('btnConfirmar')
+		Importar
+	@endslot
+	@endcomponent
+	
 @stop
 @section ('js')
 	<script src="{{ asset('js/Painel/config_datatables.js') }}"> </script>
@@ -253,6 +284,9 @@
 			});
 			$("#btnModal4").click(function(){
 				$("#b4").modal('show');
+			});
+			$("#btnModal5").click(function(){
+				$("#b5").modal('show');
 			});
 		});
 	</script>
