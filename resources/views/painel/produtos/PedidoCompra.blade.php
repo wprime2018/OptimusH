@@ -55,7 +55,7 @@
 			<tbody>
 				@foreach($prodDanger as $p)
 				@foreach($p->produto()->get(['Codigo','Produto', 'Fabricante', 'PrecoCusto', 'PrecoVenda', 'DataInc']) as $dadosProd)
-				<tr role="row" class="odd" id="{{$p->id}}">	
+				<tr role="row" class="odd" id="{{$dadosProd->id}}">	
 					<td class="sorting_1">{{$dadosProd->Codigo}}</td>
 					<td>{{$dadosProd->Produto}}</td>
 					<td>{{$dadosProd->Fabricante}}</td>
@@ -204,7 +204,7 @@
 		estoques.destroy
 	@endslot
 	@slot('actionModal')
-		{{$p->id}}
+		{{$dadosProd->id}}
 	@endslot
 	@slot('methodModal')
 		DELETE

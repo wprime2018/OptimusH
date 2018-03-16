@@ -14,6 +14,7 @@ use App\Models\Painel\MSicTabEst3A;     //Vendas
 use App\Models\Painel\MSicTabEst3B;     //Produtos Vendidos
 use App\Models\Painel\Estoque;     //Produtos Vendidos
 use App\Models\Painel\Filiais;
+use App\Models\Painel\Setores;
 use App\Models\Painel\ImportFileSic;
 
 
@@ -827,5 +828,52 @@ class SicTabEst1Controller extends Controller
             }
             return redirect()->back()->with('success', $message);
         } else {$message = $message . ", você não informou o arquivo de produtos vendidos";  }
+    }
+    public function importTabEst8(Request $request) //Setores
+    {
+        
+        if($request->file('imported-file'))
+        {
+            $path = $request->file('imported-file')->getRealPath();
+            $data = Excel::load($path, function($reader) {})->get();
+
+            $dataImport[] = [
+                'path_file' => $path
+            ];
+    
+            if(!empty($data) && $data->count())
+            {
+                DB::statement("SET foreign_key_checks=0");
+                Setores::truncate();
+                DB::statement("SET foreign_key_checks=1");
+                
+                foreach ($data->toArray() as $row)
+                {
+                    if(!empty($row))
+                    {
+                        // Começando os testes dos dados para ajustar ao DB Atual
+                        
+                        if($row['fixo'] == 'True') { $row['fixo'] = 1; } else { $row['fixo'] = 0;}
+                        $dataAtual = Carbon::now();
+
+                        $dataArray[] =
+                        [
+                            'Controle' => $row['controle'],
+                            'Setor' => $row['setor'],
+                            'created_at' => $dataAtual
+                        ];
+                    }
+                }
+                if(!empty($dataArray))
+                {
+                    Setores::insert($dataArray);
+                }
+                if(!empty($dataImport))
+                {
+                    ImportFileSic::create($dataImport);
+                }    
+                return back();
+            }
+        }
     }
 }

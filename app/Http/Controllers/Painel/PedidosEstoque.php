@@ -74,7 +74,7 @@ class PedidosEstoque extends Controller
                                             ]);
                 }
                 $message = "Estoque calculado de " . $data1 . " até ". $data2 . " com Sucesso.";
-            } 
+            }
         }
         return redirect()->back()->with('success', $message);
     }

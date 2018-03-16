@@ -31,6 +31,7 @@ Route::get('est3B_ManyToOne_est3A'      , 'Painel\SicTabEst1Controller@est3B_Man
 Route::get('produtos'                   , 'Painel\SicTabEst1Controller@index')->middleware('auth');
 Route::post('produtos/importtabest1'    , 'Painel\SicTabEst1Controller@importtabest1')->middleware('auth');
 Route::post('produtos/importVendas'     , 'Painel\SicTabEst1Controller@importVendas')->middleware('auth');
+Route::post('produtos/setor'            , 'Painel\SicTabEst1Controller@importTabEst8')->middleware('auth');
 Route::post('produtos/edit'             , 'Painel\SicTabEst1Controller@edit')->middleware('auth');
 Route::post('produtos/destroy'          , 'Painel\PedidosEstoque@destroy')->middleware('auth')->name('estoques.destroy');
 
