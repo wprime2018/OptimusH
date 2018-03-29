@@ -67,10 +67,9 @@
 					@php
 						$prodSetor   = App\Models\Painel\Setores::where('Controle',$dadosProd->LkSetor)
 						->first();
+						if (is_null($prodSetor['Setor'])) { $prodSetor['Setor'] = "ND"; }
+
 					@endphp
-					@if (is_null($prodSetor['Setor']))
-						$prodSetor['Setor'] = "ND";
-					@endif
 					<td>{{$prodSetor['Setor']}}</td>
 					<td align="center" style="width: 15px;">{{number_format($p->Total_comprar,0)}}</td>
 					<td>
@@ -176,10 +175,8 @@
 								@php
 									$prodSetor   = App\Models\Painel\Setores::where('Controle',$p->produto->LkSetor)
 																			->first();
+									if (is_null($prodSetor['Setor'])) { $prodSetor['Setor'] = "ND"; }
 								@endphp
-								@if (is_null($prodSetor['Setor']))
-									$prodSetor['Setor'] = "ND";
-								@endif
 								<td>{{$prodSetor['Setor']}}</td>
 								<td align="center" style="width: 15px;">{{number_format($p->Comprar,0)}}</td>
 								<td align="center" style="width: 15px;">{{number_format($p->Atual,0)}}</td>
