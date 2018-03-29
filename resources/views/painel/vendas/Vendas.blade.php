@@ -34,7 +34,7 @@
 			<a data-toggle="modal" data-target="b2" id="btnModal2" class="btn btn-warning btn-lg active btn-add">
 				<span class="glyphicon glyphicon-plus"></span>Vendedores</a>
 			<a data-toggle="modal" data-target="b3" id="btnModal3" class="btn btn-danger btn-lg active btn-add">
-				<span class="glyphicon glyphicon-plus"></span>Tipos de Recebimentos</a>
+				<span class="glyphicon glyphicon-plus"></span>Tipos de Pagamentos</a>
 			<a data-toggle="modal" data-target="b5" id="btnModal5" class="btn btn-primary btn-lg active btn-add">
 				<span class="glyphicon glyphicon-plus"></span>Setores</a>
 			<a data-toggle="modal" data-target="b4" id="btnModal4" class="btn btn-success active btn-lg btn-add">

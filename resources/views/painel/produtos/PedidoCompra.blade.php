@@ -43,6 +43,8 @@
 					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
 						style="width: 100px;">Data de Cadastro</th>
 					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
+						style="width: 100px;">Setor</th>
+					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
 						style="width: 50.4px;">Total</th>
 					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
 						style="width: 50.4px;">Ações</th>
@@ -54,7 +56,7 @@
 			</thead>
 			<tbody>
 				@foreach($prodDanger as $p)
-				@foreach($p->produto()->get(['Codigo','Produto', 'Fabricante', 'PrecoCusto', 'PrecoVenda', 'DataInc']) as $dadosProd)
+				@foreach($p->produto()->get(['Codigo','Produto', 'LkSetor', 'Fabricante', 'PrecoCusto', 'PrecoVenda', 'DataInc']) as $dadosProd)
 				<tr role="row" class="odd" id="{{$dadosProd->id}}">	
 					<td class="sorting_1">{{$dadosProd->Codigo}}</td>
 					<td>{{$dadosProd->Produto}}</td>
@@ -62,6 +64,14 @@
 					<td align="right">R$ {{number_format($dadosProd->PrecoCusto, 2, ',', '.')}}</td>
 					<td align="right">R$ {{number_format($dadosProd->PrecoVenda, 2, ',', '.')}}</td>
 					<td>{{date_format(new DateTime($dadosProd->DataInc), 'd/m/Y H:i:s')}}</td>
+					@php
+						$prodSetor   = App\Models\Painel\Setores::where('Controle',$dadosProd->LkSetor)
+						->first();
+					@endphp
+					@if (is_null($prodSetor['Setor']))
+						$prodSetor['Setor'] = "ND";
+					@endif
+					<td>{{$prodSetor['Setor']}}</td>
 					<td align="center" style="width: 15px;">{{number_format($p->Total_comprar,0)}}</td>
 					<td>
 						<a data-toggle="modal" data-target="b1" id="btnModal1" class="btn btn-xs btn-danger btnDelete">
@@ -89,6 +99,7 @@
 					<th rowspan="1" colspan="1">Preço de Custo</th>
 					<th rowspan="1" colspan="1">Preço de Venda</th>
 					<th rowspan="1" colspan="1">Data de Cadastro</th>
+					<th rowspan="1" colspan="1">Setor</th>
 					<th rowspan="1" colspan="1">Comprar</th>
 					<th rowspan="1" colspan="1">Ações</th>
 					@foreach($filiaisAcomprar as $f)
@@ -132,6 +143,8 @@
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
 							style="width: 100px;">Data de Cadastro</th>
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
+							style="width: 100px;">Setor</th>	
+						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
 							style="width: 50.4px;">Comprar</th>
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
 							style="width: 50.4px;">Atual</th>
@@ -159,7 +172,15 @@
 								<td>{{$p->produto->Produto}}</td>
 								<td>{{$p->produto->Fabricante}}</td>
 								<td align="right">R$ {{number_format($p->produto->PrecoVenda, 2, ',', '.')}}</td>
-								<td>{{date_format(new DateTime($dadosProd->DataInc), 'd/m/Y H:i:s')}}</td>
+								<td>{{date_format(new DateTime($p->produto->DataInc), 'd/m/Y H:i:s')}}</td>
+								@php
+									$prodSetor   = App\Models\Painel\Setores::where('Controle',$p->produto->LkSetor)
+																			->first();
+								@endphp
+								@if (is_null($prodSetor['Setor']))
+									$prodSetor['Setor'] = "ND";
+								@endif
+								<td>{{$prodSetor['Setor']}}</td>
 								<td align="center" style="width: 15px;">{{number_format($p->Comprar,0)}}</td>
 								<td align="center" style="width: 15px;">{{number_format($p->Atual,0)}}</td>
 								<td align="center" style="width: 15px;">{{number_format($p->Minimo,0)}}</td>
@@ -176,6 +197,7 @@
 						<th rowspan="1" colspan="1">Fabricante</th>
 						<th rowspan="1" colspan="1">Preço de Venda</th>
 						<th rowspan="1" colspan="1">Data de Cadastro</th>
+						<th rowspan="1" colspan="1">Setor</th>
 						<th rowspan="1" colspan="1">Comprar</th>
 						<th rowspan="1" colspan="1">Atual</th>
 						<th rowspan="1" colspan="1">Minimo</th>

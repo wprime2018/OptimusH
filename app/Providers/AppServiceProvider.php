@@ -53,7 +53,24 @@ class AppServiceProvider extends ServiceProvider
             $event->menu->add([
                 'text'    => 'Vendas',
                 'icon'    => 'area-chart',
-                'url'         => 'vendas/',
+                'submenu' => [
+                    [
+                        'text'        => 'Lista',
+                        'url'         => 'vendas/',
+                    ],
+                    [
+                        'text'        => 'Comissões de Vendedores',
+                        'url'         => 'vendas/comissoes',
+                    ],
+                    [
+                        'text'        => 'Resumo de Forma de PGTO',
+                        'url'         => 'vendas/fpgto',
+                    ],
+                    [
+                        'text'        => 'Tipos de Pagamentos',
+                        'url'         => 'vendas/tp_pgto',
+                    ]
+                ]
             ]);
             $event->menu->add([
                 'text'    => 'Produtos',

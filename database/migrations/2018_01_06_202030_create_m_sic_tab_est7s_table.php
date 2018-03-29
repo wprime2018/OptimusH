@@ -20,6 +20,7 @@ class CreateMSicTabEst7sTable extends Migration
             $table->boolean('fixo')->nullable();
             $table->string('frEcf',41)->nullable();
             $table->string('frID',3)->nullable();
+            $table->string('tipo',1)->nullable();
             $table->timestamps();
         });
     }
