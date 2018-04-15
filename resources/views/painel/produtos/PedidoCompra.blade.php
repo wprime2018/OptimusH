@@ -56,7 +56,7 @@
 			</thead>
 			<tbody>
 				@foreach($prodDanger as $p)
-				@foreach($p->produto()->get(['Codigo','Produto', 'LkSetor', 'Fabricante', 'PrecoCusto', 'PrecoVenda', 'DataInc']) as $dadosProd)
+				@foreach($p->produto()->get(['id','Codigo','Produto', 'LkSetor', 'Fabricante', 'PrecoCusto', 'PrecoVenda', 'DataInc']) as $dadosProd)
 				<tr role="row" class="odd" id="{{$dadosProd->id}}">	
 					<td class="sorting_1">{{$dadosProd->Codigo}}</td>
 					<td>{{$dadosProd->Produto}}</td>
@@ -73,7 +73,7 @@
 					<td>{{$prodSetor['Setor']}}</td>
 					<td align="center" style="width: 15px;">{{number_format($p->Total_comprar,0)}}</td>
 					<td>
-						<a data-toggle="modal" data-target="b1" id="btnModal1" class="btn btn-xs btn-danger btnDelete">
+						<a data-toggle="modal" data-target="b1" data-id="{{$dadosProd->id}}" id="btnModal1" class="btn btn-xs btn-danger btnDelete">
 							<span class="glyphicon glyphicon-remove"></span>
 						</a>
 					</td>
@@ -252,6 +252,7 @@
 		$('a.btnDelete').on('click', function (e) {
 			e.preventDefault();
 			var id = $(this).closest('tr').data('id');
+			//var id = $(this).parent().find('td').attr('id');
 			//aqui passamos a ID do registro para dentro do modal, atraveś do click do botão...
 			$('#b1').data('id', id).modal('show');
 		});		

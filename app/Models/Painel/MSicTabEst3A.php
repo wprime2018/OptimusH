@@ -50,4 +50,8 @@ class MSicTabEst3A extends Model
     public function prodVendidos() {
         return $this->hasMany(MSicTabEst3B::Class, 'LkEst3A', 'Controle');
     }
+    public function Receb() {
+        return $this->OneToOne(MSicTabEst7::Class, 'Controle', 'LkReceb');
+    }
+
 }

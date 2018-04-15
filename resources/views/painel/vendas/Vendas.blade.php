@@ -39,57 +39,150 @@
 				<span class="glyphicon glyphicon-plus"></span>Setores</a>
 			<a data-toggle="modal" data-target="b4" id="btnModal4" class="btn btn-success active btn-lg btn-add">
 				<span class="glyphicon glyphicon-plus"></span>Calcular Estoque</a>
-	
-	
 		</div>
+	</div>
+	<div class="box-body"
 		<p></p>
 		<table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
 			<thead>
 				<tr role="row">
 					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-						style="width: 100px;">Filial</th>
-					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-						style="width: 100px;">Data e Hora</th>
-					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending"
-						style="width: 400px;">Vendedor</th>
-					<th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Rendering engine: activate to sort column descending"
-						style="width: 150.0px;">Valor Comissão</th>
-					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Platform(s): activate to sort column ascending"
-						style="width: 100px;">Tipo de Recebimento</th>
-					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
-						style="width: 100px;">Preço de Venda</th>
-					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
-						style="width: 187.4px;">Nota Fiscal</th>
+						style="width: 100px;">Descrição</th>
+					@foreach($Filiais as $f)	
+						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
+							style="width: 100px;">{{$f->codigo}}</th>
+					@endforeach
 				</tr>
 			</thead>
 			<tbody>
-				@foreach($Vendas as $venda)
-				<tr role="row" class="odd" id="{{$venda->id}}">
-					<td class="sorting_1">{{$venda->fantasia}}</td>
-					<td>{{$venda->Data}}</td>
-					<td>{{$venda->Nome}}</td>
-					<td align="right">% {{number_format($venda->ComissaoVend, 2, ',', '.')}}</td>
-					<td>{{$venda->Recebimento}}</td>
-					<td align="right">R$ {{number_format($venda->PrecoVenda, 2, ',', '.')}}</td>
-					<td>{{$venda->DataInc}}</td>
-				</tr>
+				@foreach($TipoRecebimentos as $Tr)	
+					<tr role="row" class="odd" id="{{$Tr->Recebimento}}">
+						<td class="sorting_1">{{$Tr->Recebimento}}</td>
+						@foreach($Filiais as $f)
+							<td>R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Total"],2,',','.')}}</td>
+						@endforeach
+					</tr>
 				@endforeach
 			</tbody>
 			<tfoot>
+				<tr >
+					<th rowspan="1" colspan="1"><font color="red">Crédito</th>
+					@foreach($Filiais as $f)	
+						<th rowspan="1" colspan="1"><font color="red">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Cred"],2,',','.')}}</th>
+					@endforeach
+				</tr>
 				<tr>
-					<th rowspan="1" colspan="1">Filial</th>
-					<th rowspan="1" colspan="1">Data e Hora</th>
-					<th rowspan="1" colspan="1">Vendedor</th>
-					<th rowspan="1" colspan="1">Valor Comissão</th>
-					<th rowspan="1" colspan="1">Tipo de Recebimento</th>
-					<th rowspan="1" colspan="1">Preço de Venda</th>
-					<th rowspan="1" colspan="1">Data de Cadastro</th>
+					<th rowspan="1" colspan="1"><font color="orange">Débito</th>
+					@foreach($Filiais as $f)	
+						<th rowspan="1" colspan="1"><font color="orange">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Deb"],2,',','.')}}</th>
+					@endforeach
+				</tr>
+				<tr>
+					<th rowspan="1" colspan="1"><font color="blue">Total de Vendas</th>
+					@foreach($Filiais as $f)	
+						<th rowspan="1" colspan="1"><font color="blue">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TotalVendas"],2,',','.')}}</th>
+					@endforeach
+				</tr>
+				<tr>
+					<th rowspan="1" colspan="1"><font color="pink">Ticket Médio</th>
+					@foreach($Filiais as $f)	
+						<th rowspan="1" colspan="1"><font color="pink">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TicketM"],2,',','.')}}</th>
+					@endforeach
 				</tr>
 			</tfoot>
 		</table>
 	</div>
 </div>
 
+<div class="box box-info">
+	<div class="box-header with-border">
+	  <h3 class="box-title">Ranking Vendas</h3>
+
+	  <div class="box-tools pull-right">
+		<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+		</button>
+		<button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+	  </div>
+	</div>
+	<!-- /.box-header -->
+	<div class="box-body">
+	  <div class="table-responsive">
+		<table class="table no-margin">
+		  <thead>
+		  <tr>
+			<th>Filial</th>
+			<th>Vendas</th>
+		  </tr>
+		  </thead>
+		  <tbody>
+		  <tr>
+			<td><a href="pages/examples/invoice.html">OR9842</a></td>
+			<td>Call of Duty IV</td>
+			<td><span class="label label-success">Shipped</span></td>
+			<td>
+			  <div class="sparkbar" data-color="#00a65a" data-height="20"><canvas width="34" height="20" style="display: inline-block; width: 34px; height: 20px; vertical-align: top;"></canvas></div>
+			</td>
+		  </tr>
+		  <tr>
+			<td><a href="pages/examples/invoice.html">OR1848</a></td>
+			<td>Samsung Smart TV</td>
+			<td><span class="label label-warning">Pending</span></td>
+			<td>
+			  <div class="sparkbar" data-color="#f39c12" data-height="20"><canvas width="34" height="20" style="display: inline-block; width: 34px; height: 20px; vertical-align: top;"></canvas></div>
+			</td>
+		  </tr>
+		  <tr>
+			<td><a href="pages/examples/invoice.html">OR7429</a></td>
+			<td>iPhone 6 Plus</td>
+			<td><span class="label label-danger">Delivered</span></td>
+			<td>
+			  <div class="sparkbar" data-color="#f56954" data-height="20"><canvas width="34" height="20" style="display: inline-block; width: 34px; height: 20px; vertical-align: top;"></canvas></div>
+			</td>
+		  </tr>
+		  <tr>
+			<td><a href="pages/examples/invoice.html">OR7429</a></td>
+			<td>Samsung Smart TV</td>
+			<td><span class="label label-info">Processing</span></td>
+			<td>
+			  <div class="sparkbar" data-color="#00c0ef" data-height="20"><canvas width="34" height="20" style="display: inline-block; width: 34px; height: 20px; vertical-align: top;"></canvas></div>
+			</td>
+		  </tr>
+		  <tr>
+			<td><a href="pages/examples/invoice.html">OR1848</a></td>
+			<td>Samsung Smart TV</td>
+			<td><span class="label label-warning">Pending</span></td>
+			<td>
+			  <div class="sparkbar" data-color="#f39c12" data-height="20"><canvas width="34" height="20" style="display: inline-block; width: 34px; height: 20px; vertical-align: top;"></canvas></div>
+			</td>
+		  </tr>
+		  <tr>
+			<td><a href="pages/examples/invoice.html">OR7429</a></td>
+			<td>iPhone 6 Plus</td>
+			<td><span class="label label-danger">Delivered</span></td>
+			<td>
+			  <div class="sparkbar" data-color="#f56954" data-height="20"><canvas width="34" height="20" style="display: inline-block; width: 34px; height: 20px; vertical-align: top;"></canvas></div>
+			</td>
+		  </tr>
+		  <tr>
+			<td><a href="pages/examples/invoice.html">OR9842</a></td>
+			<td>Call of Duty IV</td>
+			<td><span class="label label-success">Shipped</span></td>
+			<td>
+			  <div class="sparkbar" data-color="#00a65a" data-height="20"><canvas width="34" height="20" style="display: inline-block; width: 34px; height: 20px; vertical-align: top;"></canvas></div>
+			</td>
+		  </tr>
+		  </tbody>
+		</table>
+	  </div>
+	  <!-- /.table-responsive -->
+	</div>
+	<!-- /.box-body -->
+	<div class="box-footer clearfix">
+	  <a href="javascript:void(0)" class="btn btn-sm btn-info btn-flat pull-left">Place New Order</a>
+	  <a href="javascript:void(0)" class="btn btn-sm btn-default btn-flat pull-right">View All Orders</a>
+	</div>
+	<!-- /.box-footer -->
+  </div>
 	@component('painel.modals.modal_primary')
 		@slot('txtBtnModal')
 			Importar do SIC

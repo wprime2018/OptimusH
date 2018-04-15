@@ -97,6 +97,7 @@ class PedidosEstoque extends Controller
                                     ->orWhere('Status',"Atenção")
                                     ->orderby('LkProduto')
                                     ->get();
+
         $prodDanger2         = Estoque::where('Comprar','>','0')
                                     ->with('produto')
                                     ->get();
@@ -110,6 +111,7 @@ class PedidosEstoque extends Controller
                                     ->distinct()
                                     ->groupby('filial_id')
                                     ->get(['filial_id']);
+        dd($filiaisAcomprar);
 
         return view ('painel.produtos.PedidoCompra',compact('prodDanger','filiaisAcomprar','prodDangerFilial', 'prodDanger2'));
     }

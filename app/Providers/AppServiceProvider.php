@@ -64,7 +64,7 @@ class AppServiceProvider extends ServiceProvider
                     ],
                     [
                         'text'        => 'Resumo de Forma de PGTO',
-                        'url'         => 'vendas/fpgto',
+                        'url'         => 'vendas_pgto',
                     ],
                     [
                         'text'        => 'Tipos de Pagamentos',

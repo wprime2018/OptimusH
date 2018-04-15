@@ -94,7 +94,7 @@
 		filial.destroy
 	@endslot
 	@slot('actionModal')
-		{{$filial->id}}
+		$filial->id
 	@endslot
 	@slot('methodModal')
 		DELETE

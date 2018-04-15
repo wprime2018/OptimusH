@@ -23,6 +23,7 @@ Route::get('/home/filiais'              , 'HomeController@index_Filiais')->name(
 //Route::post('register'                  , 'RegisterController')->middleware('auth');
 
 Route::get('vendas'                     , 'Painel\SicTabEst1Controller@indexVendas')->middleware('auth');
+Route::get('vendas_pgto'                , 'Painel\Vendas@index_vendas_pgto')->middleware('auth');
 Route::post('vendas/importVendas'       , 'Painel\SicTabEst1Controller@importTabEst3A')->middleware('auth');
 Route::post('vendas/importProdVend'     , 'Painel\SicTabEst1Controller@importTabEst3B')->middleware('auth');
 Route::post('vendas/vendedores'         , 'Painel\SicTabEst1Controller@importTabVend')->middleware('auth');
