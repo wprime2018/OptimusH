@@ -56,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
                 'submenu' => [
                     [
                         'text'        => 'Lista',
-                        'url'         => 'vendas/',
+                        'url'         => 'vendas_pgto',
                     ],
                     [
                         'text'        => 'Comissões de Vendedores',
