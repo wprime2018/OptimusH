@@ -26,6 +26,7 @@ class PedidosEstoque extends Controller
                             ->with('prodVendidos')
                             ->where('m_sic_tab_est3_as.filial_id',$Filiais->id)
                             ->where('m_sic_tab_est3_as.cancelada','0')
+                            ->where('m_sic_tab_est3_as.LkTipo','2')
                             ->wherebetween('m_sic_tab_est3_as.Data',[$data1,$data2])
                             ->groupby('m_sic_tab_est3_bs.LkProduto')
                             ->get();
