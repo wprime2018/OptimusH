@@ -38,7 +38,13 @@ class Vendas extends Controller
         $data1 = '2018-03-01 00:00:00';
         $data2 = '2018-03-31 23:59:59';
         $formas = array();
- 
+        $tot_vendas = 0;
+        $gran_total = 0;
+        $gran_qtde = 0;
+        $gran_cred = 0;
+        $gran_deb = 0;
+        $gran_ticket = 0;
+
         foreach ($Filiais as $f) {
             /*$test =& $array[1]['test'];
 
@@ -93,15 +99,24 @@ class Vendas extends Controller
             } else {
                 $ticket_medio = 0;
             }
+            $gran_total = $gran_total + $tot_filial_valor;
+            $gran_qtde = $gran_qtde + $tot_filial_qtde;
+            $gran_cred = $gran_cred + $tot_filial_cred;
+            $gran_deb = $gran_deb + $tot_filial_deb;
+        
             $formas[$Tr->Recebimento][$f->codigo]['Qtde_Vendas'] = $tot_filial_qtde;
             $formas[$Tr->Recebimento][$f->codigo]['TicketM'] = $ticket_medio;
             $formas[$Tr->Recebimento][$f->codigo]['Cred'] = $tot_filial_cred;
             $formas[$Tr->Recebimento][$f->codigo]['Deb'] = $tot_filial_deb;
             $formas[$Tr->Recebimento][$f->codigo]['TotalVendas'] = $tot_filial_valor;
+            
             /*echo 'Totais da Filial -->' . $tot_filial_qtde . ' - ' . $tot_filial_valor . ' Ticket Médio = ' . $ticket_medio . "</br>";
             echo "<hr>";*/
-            
         }
+        $formas['GranTotalVendas'] = $gran_total;
+        $formas['GranTotalQtde'] = $gran_qtde;
+        $formas['GranTotalCred'] = $gran_cred;
+        $formas['GranTotalDeb'] = $gran_deb;
         return view('painel.vendas.Vendas', compact('ListFiliais','Filiais','TipoRecebimentos','data1','data2','formas'));
     }
 }

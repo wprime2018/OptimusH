@@ -148,5 +148,6 @@ return [
         'inputmasks' => true,
         'BS3Dialogs' => true,
         'iCheck'     => true,
+        'DataRangePicker' => true
     ],
 ];

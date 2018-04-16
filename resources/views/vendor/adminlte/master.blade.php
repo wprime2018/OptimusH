@@ -29,14 +29,16 @@
 
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ asset('css/AdminLTE.min.css') }}">
+    
+    @if(config('adminlte.plugins.DateRangePicker'))
+        <link rel="stylesheet" href="{{asset('plugins/bootstrap-daterangepicker/daterangepicker.css')}}" />
+    @endif
 
     @if(config('adminlte.plugins.datatables'))
         <!-- DataTables 
         <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css">
-    <link rel="stylesheet" href="{{ asset('css/dataTables.bootstrap.css') }}">-->
-    <link rel="stylesheet" type="text/css" href="{{ asset('plugins/DataTables/datatables.min.css') }}"/>
-     
-        
+        <link rel="stylesheet" href="{{ asset('css/dataTables.bootstrap.css') }}">-->
+        <link rel="stylesheet" type="text/css" href="{{ asset('plugins/DataTables/datatables.min.css') }}"/>
     @endif
 
     @yield('adminlte_css')
@@ -72,8 +74,14 @@
     <script src="{{ asset('plugins/DataTables/DataTables-1.10.16/js/dataTables.bootstrap.min.js') }}"></script>
     <script src="{{ asset('plugins/DataTables/Buttons-1.5.1/js/dataTables.buttons.min.js')}}"></script>
 	<script src="{{ asset('plugins/DataTables/JSZip-2.5.0/jszip.min.js')}}"></script>
-	<script src="{{ asset('plugins/DataTables/Buttons-1.5.1/js/buttons.html5.min.js')}}"></script>
+    <script src="{{ asset('plugins/DataTables/Buttons-1.5.1/js/buttons.html5.min.js')}}"></script>
+    
+@endif
 
+@if(config('adminlte.plugins.DateRangePicker'))
+    <!-- DateRangePicker -->
+    <script type="text/javascript" src="{{ asset('plugins/bootstrap-daterangepicker/daterangepicker.js')}}"></script>
+    <script type="text/javascript" src="{{ asset('plugins/moment/moment.js')}}"></script>
 @endif
 
 @if(config('adminlte.plugins.inputmasks'))
@@ -84,14 +92,14 @@
 @endif
 
 @if(config('adminlte.plugins.iCheck'))
-    <!-- InputMasks -->
+    <!-- iCheck -->
     <script src="{{ asset('plugins/iCheck/icheck.js') }}"></script>
     <script src="{{ asset('plugins/iCheck/icheck.min.js') }}"></script>
     
 @endif
 
 @if(config('adminlte.plugins.ChartJS'))
-    <!-- InputMasks -->
+    <!-- ChartJS -->
     <script src="{{ asset('plugins/chart.js/Chart.js') }}"></script>
     <script src="{{ asset('plugins/chart.js/Chart.min.js') }}"></script>
     
@@ -99,10 +107,9 @@
 
 
 @if(config('adminlte.plugins.BS3Dialogs'))
-    <!-- InputMasks -->
+    <!-- Bs3Dialogs -->
     <script src="{{ asset('BS3DialogMaster\dist\js\bootstrap-dialog.js') }}"></script>
     <script src="{{ asset('BS3DialogMaster\dist\js\bootstrap-dialog.min.js') }}"></script>
-    
 @endif
 
 @yield('adminlte_js')
