@@ -93,9 +93,9 @@
 					@endforeach
 				</tr>
 				<tr>
-					<th rowspan="1" colspan="1"><font color="pink">Ticket Médio</th>
+					<th rowspan="1" colspan="1"><font color="#C71585">Ticket Médio</th>
 					@foreach($Filiais as $f)	
-						<th rowspan="1" colspan="1"><font color="pink">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TicketM"],2,',','.')}}</th>
+						<th rowspan="1" colspan="1"><font color="#C71585">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TicketM"],2,',','.')}}</th>
 					@endforeach
 				</tr>
 			</tfoot>
@@ -129,16 +129,19 @@
 							style="width: 100px;">Débito</th>
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
 							style="width: 100px;">Qtde Vendas</th>
+						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
+							style="width: 100px;">Ticket Médio</th>
 					</tr>
 				</thead>
 				<tbody>
 					@foreach($Filiais as $f)	
 						<tr role="row" class="odd" id="{{$f->id}}">
 							<td class="sorting_1">{{$f->codigo}}-{{$f->fantasia}}</td>
-							<td>R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TotalVendas"],2,',','.')}}</td>
-							<td>R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Cred"],2,',','.')}}</td>
-							<td>R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Deb"],2,',','.')}}</td>
-							<td>{{$formas["$Tr->Recebimento"]["$f->codigo"]["Qtde_Vendas"]}} Vendas</td>
+							<td><font color="blue">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TotalVendas"],2,',','.')}}</td>
+							<td><font color="red">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Cred"],2,',','.')}}</td>
+							<td><font color="#CC9900">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Deb"],2,',','.')}}</td>
+							<td><font color="green">{{$formas["$Tr->Recebimento"]["$f->codigo"]["Qtde_Vendas"]}} Vendas</td>
+							<td><font color="#C71585">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TicketM"],2,',','.')}}</td>
 						</tr>
 					@endforeach
 				</tbody>
@@ -149,6 +152,7 @@
 						<th rowspan="1" colspan="1"><font color="blue">R$ {{number_format($formas['GranTotalCred'],2,',','.')}}</th>
 						<th rowspan="1" colspan="1"><font color="blue">R$ {{number_format($formas['GranTotalDeb'],2,',','.')}}</th>
 						<th rowspan="1" colspan="1"><font color="blue">{{number_format($formas['GranTotalQtde'],0,',','.')}} Vendas</th>
+						<th rowspan="1" colspan="1"><font color="blue">Ticket Médio</th>
 					</tr>
 				</tfoot>
 			</table>
