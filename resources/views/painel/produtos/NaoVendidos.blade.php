@@ -50,7 +50,8 @@
 			</thead>
 			<tbody>
 				@foreach($prod as $p)
-				@foreach($p->produto()->get(['Codigo','Produto', 'Fabricante', 'PrecoCusto', 'PrecoVenda', 'DataInc']) as $dadosProd)
+				@foreach($p->produto()->get(['Codigo','Produto', 'Fabricante', 'PrecoCusto', 'PrecoVenda', 'DataInc','Inativo']) as $dadosProd)
+				@if($p->Inativo == 0)
 				<tr role="row" class="odd" id="{{$p->id}}">	
 					<td class="sorting_1">{{$dadosProd->Codigo}}</td>
 					<td>{{$dadosProd->Produto}}</td>
@@ -70,6 +71,7 @@
 						<td align="center" style="width: 15px;">{{number_format($prodFilial->Atual,0)}}</td>
 					@endforeach
 				</tr>
+				@endif
 				@endforeach
 				@endforeach
 			</tbody>

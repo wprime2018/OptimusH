@@ -52,7 +52,8 @@
 			</thead>
 			<tbody>
 				@foreach($prodDanger as $p)
-				@foreach($p->produto()->get(['Codigo','Produto', 'Fabricante', 'PrecoCusto', 'PrecoVenda', 'DataInc']) as $dadosProd)
+				@foreach($p->produto()->get(['Codigo','Produto', 'Fabricante', 'PrecoCusto', 'PrecoVenda', 'DataInc','Inativo']) as $dadosProd)
+				@if($p->Inativo == 0)
 				<tr role="row" class="odd" id="{{$p->id}}">	
 					<td class="sorting_1">{{$dadosProd->Codigo}}</td>
 					<td>{{$dadosProd->Produto}}</td>
@@ -71,6 +72,7 @@
 						<td align="center" style="width: 15px;">{{number_format($prodDangerFilial->Comprar,0)}}</td>
 					@endforeach
 				</tr>
+				@endif
 				@endforeach
 				@endforeach
 			</tbody>
@@ -148,6 +150,7 @@
 
 					@if(count($prodDangerFilial) > 0)
 						@foreach($prodDangerFilial as $p)
+						@if($p->Inativo == 0)
 							<tr role="row" class="odd" id="{{$p->id}}">	
 								<td class="sorting_1">{{$p->produto->Codigo}}</td>
 								<td>{{$p->produto->Produto}}</td>
@@ -161,6 +164,7 @@
 								<td align="center" style="width: 15px;">{{number_format($p->Ideal,0)}}</td>
 								<td align="center" style="width: 15px;">{{number_format($p->Vendidos,0)}}</td>
 							</tr>
+						@endif
 						@endforeach
 					@endif
 				</tbody>
