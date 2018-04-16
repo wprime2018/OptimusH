@@ -335,7 +335,6 @@ class SicTabEst1Controller extends Controller
             {
                 DB::statement("SET foreign_key_checks=0");
                 MSicTabEst3A::where('filial_id','=',$request['filial_id'])->delete();
-                Estoque::where('filial_id','=',$request['filial_id'])->delete();
                 DB::statement("SET foreign_key_checks=1");
                 
                 foreach ($data2->toArray() as $row2)
