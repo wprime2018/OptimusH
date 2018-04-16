@@ -57,266 +57,7 @@ class SicTabEst1Controller extends Controller
         $ListFiliais = Filiais::get();
         return view('painel.vendas.Vendas', compact('ListFiliais','Vendas'));
     }
-    public function importTabEst1(Request $request)
-    {
         
-        if($request->file('imported-file'))
-        {
-            $path = $request->file('imported-file')->getRealPath();
-            $data = Excel::load($path, function($reader) {})->get();
-
-            $dataImport[] = [
-                'filial_id' => $request['filial_id'],
-                'path_file' => $path
-            ];
-
-            if(!empty($data) && $data->count())
-            {
-                DB::statement("SET foreign_key_checks=0");
-                MSicTabEst1::truncate();
-                Estoque::where('filial_id','=',$request['filial_id'])->delete();
-                DB::statement("SET foreign_key_checks=1");
-                foreach ($data->toArray() as $row)
-                {
-                    if(!empty($row)) {
-                        //dd($row);
-                        if (empty($row['ultreaj'])) { 
-                            $row['ultreaj'] = "2000-01-01 00:00:00"; 
-                        } else {
-                            $dataHoraCSV    = $row['ultreaj'] . " 00:00:00";
-                            $dt  = Carbon::createFromFormat('d/m/Y H:i:s', $dataHoraCSV);
-                            $row['ultreaj']     = $dt->toDateTimeString(); 
-                        }
-
-                        if (empty($row['qntembalagem'])) { 
-                            $row['qntembalagem'] = "2000-01-01 00:00:00"; 
-                        } else {
-                            $dataHoraCSV2   = $row['qntembalagem'] . " 00:00:00";
-                            $dt2 = Carbon::createFromFormat('d/m/Y H:i:s', $dataHoraCSV2);
-                            $row['qntembalagem']    = $dt2->toDateTimeString(); 
-                        }
-
-                        if (empty($row['previsao'])) { 
-                            $row['previsao'] = "2000-01-01 00:00:00"; 
-                        } else {
-                            $dataHoraCSV2   = $row['previsao'];
-                            $dt2 = Carbon::createFromFormat('d/m/Y H:i:s', $dataHoraCSV2);
-                            $row['previsao']    = $dt2->toDateTimeString(); 
-                        }
-
-                        if (empty($row['ippt'])) { 
-                            $row['ippt'] = "2000-01-01 00:00:00"; 
-                        } else {
-                            $dataHoraCSV3   = $row['ippt'] . " 00:00:00";
-                            $dt3 = Carbon::createFromFormat('d/m/Y H:i:s', $dataHoraCSV3);
-                            $row['ippt']  = $dt3->toDateTimeString(); 
-                        }
-                        if($row['obs'] == 'True'){ $row['obs'] = 1;} else { $row['obs'] = 0;}
-                        if($row['foto'] == 'True'){ $row['foto'] = 1;} else { $row['foto'] = 0;}
-                        if($row['armazenamento'] == 'True'){ $row['armazenamento'] = 1;} else { $row['armazenamento'] = 0;}
-                        // Começando os testes dos dados para ajustar ao DB Atual
-                        $dataAtual = Carbon::now();
-                        
-                        $dataEstoque[] = [
-                            'filial_id' => $request['filial_id'],
-                            'LkProduto' => $row['controle'],
-                            'Atual' => $row['quantidade'],
-                            'Minimo' => 0,
-                            'Ideal' => 0,
-                            'created_at' => $dataAtual
-                        ];
-                    
-                    
-                        $dataArray[] =
-                        [
-                            'Controle' => $row['controle'],
-                            //'filial_id' => $request['filial_id'],
-                            'Codigo' => $row['codigo'],
-                            'CodInterno' => $row['codinterno'],
-                            'Produto' => $row['produto'],
-                            'LkSetor' => $row['lksetor'],
-                            'Fabricante' => $row['fabricante'],
-                            'LkFornec' => $row['lkfornec'],
-                            'PrecoCusto' => $row['precocusto'],
-                            'CustoMedio' => $row['customedio'],
-                            'PrecoVenda' => $row['precovenda'],
-                            'Quantidade' => $row['quantidade'],
-                            'EstMinimo' => $row['estminimo'],
-                            'Unidade' => $row['unidade'],
-                            'Lucro' => $row['lucro'],
-                            'Comissao' => $row['comissao'],
-                            'Moeda' => $row['moeda'],
-                            'UltReaj' => $row['ultreaj'],
-                            'NaoSaiTabela' => $row['foto'],
-                            'Inativo' => $row['obs'],
-                            'CodIPI' => $row['naosaitabela'],
-                            'IPI' => $row['inativo'],
-                            'CST' => $row['codipi'],
-                            'ICMS' => $row['ipi'],
-                            'BaseCalculo' => $row['cst'],
-                            'PesoBruto' => $row['icms'],
-                            'PesoLiq' => $row['basecalculo'],
-                            'LkModulo' => $row['pesobruto'],
-                            'Armazenamento' => $row['pesoliq'],
-                            'QntEmbalagem' => $row['lkmodulo'],
-                            'ELV' => $row['armazenamento'],
-                            'Previsao' => $row['qntembalagem'],
-                            'DataFoto' => $row['elv'],
-                            'DataInc' => $row['previsao'],
-                            'LkUserInc' => $row['datafoto'],
-                            'CodEx' => $row['datainc'],
-                            'IVA_ST' => $row['lkuserinc'],
-                            'PFC' => $row['codex'],
-                            'IPI_CST' => $row['iva_st'],
-                            'IPI_BaseCalc' => $row['pfc'],
-                            'IPPT' => $row['ipi_cst'],
-                            'IAT' => $row['ipi_basecalc'],
-                            'DataUltMov' => $row['ippt'],
-                            'EAD' => $row['iat'],
-                            'cEAN' => $row['dataultmov'],
-                            'cEANTrib' => $row['ead'],
-                            'cProdANP' => $row['cean'],
-                            'CEST' => $row['ceantrib'],
-                            'Origem' => $row['cprodanp'],
-                            'created_at' => $dataAtual
-                        ];
-                    }
-                }
-                if(!empty($dataArray))
-                {
-                    //dd($dataArray);
-                    foreach (array_chunk($dataArray,1000) as $t) {
-                        MSicTabEst1::insert($t);
-                    }
-                    if(!empty($dataEstoque))
-                    {
-                        foreach (array_chunk($dataEstoque,1000) as $e) {
-                            Estoque::insert($e);
-                        }    
-                    }
-                    if(!empty($dataImport))
-                    {
-                        ImportFileSic::create($dataImport);
-                    }    
-                    return back();
-                }
-            }
-        }
-    }
-    public function importTabEst3A(Request $request)
-    {
-        
-        if($request->file('imported-file'))
-        {
-            $path = $request->file('imported-file')->getRealPath();
-            $data = Excel::load($path, function($reader) {})->get();
-
-            $dataImport[] = [
-                'filial_id' => $request['filial_id'],
-                'path_file' => $request->file('imported-file')->path()
-            ];
-
-            if(!empty($data) && $data->count())
-            {
-                DB::statement("SET foreign_key_checks=0");
-                MSicTabEst3A::where('filial_id','=',$request['filial_id'])->delete();
-                DB::statement("SET foreign_key_checks=1");
-                
-                foreach ($data->toArray() as $row)
-                {
-                    if(!empty($row))
-                    {
-                        // Começando os testes dos dados para ajustar ao DB Atual
-                        if(empty($row['data'])) { 
-                            $row['data'] = "2000-01-01 00:00:00"; 
-                        } else {
-                            if(empty($row['hora'])) { $row['hora'] = "00:00:00"; }
-                            $dataHoraCSV = $row['data'] . " " . $row['hora'];
-                            $dt = Carbon::createFromFormat('d/m/Y H:i:s', $dataHoraCSV);
-                            $row['data'] = $dt->toDateTimeString(); 
-                        }
-                        
-                        if(empty($row['datanota'])) { 
-                            $row['datanota'] = 0; 
-                        } else {
-                            if($row['datanota'] == 'True'){ $row['datanota'] = 1;} else { $row['datanota'] = 0;}
-                        }
-                        if(empty($row['cfop'])) { 
-                            $row['cfop'] = "2000-01-01 00:00:00"; 
-                        } else {
-                            $datanota = $row['cfop'] . " 00:00:00";
-                            $dt2 = Carbon::createFromFormat('d/m/Y H:i:s', $datanota);
-                            $row['cfop'] = $dt2->toDateTimeString(); 
-                        }
-
-                        if(empty($row['tipodoc'])) { $row['tipodoc'] = ""; }
-                        if(empty($row['lkvendedor'])) {$row['lkvendedor'] = 999; }
-                        if($row['lkvendedor'] == '') {$row['lkvendedor'] = 999; }
-                        if($row['lkvendedor'] == 0) {$row['lkvendedor'] = 999; }
-                        if($row['obs'] == 'True'){ $row['obs'] = 1;} else { $row['obs'] = 0;}
-                        if($row['tipodoc'] == 'True'){ $row['tipodoc'] = 1;} else { $row['tipodoc'] = 0;}
-
-                        $dataAtual = Carbon::now();
-                        
-                        $row['controle'] = ($request['filial_id'] * 1000000) + $row['controle'];
-
-                        $dataArray[] =
-                        [
-                            'Controle' => $row['controle'],
-                            'Data' => $row['data'],
-                            'filial_id' => $request['filial_id'],
-                            'LkTipo' => $row['lktipo'],
-                            'Nota' => $row['nota'],
-                            'Serie' => $row['serie'],
-                            'Pedido' => $row['pedido'],
-                            'LkReceb' => $row['lkreceb'],
-                            'LkVendedor' => $row['lkvendedor'],
-                            'LkCliente' => $row['lkcliente'],
-                            'LkFornec' => $row['lkfornec'],
-                            'TagCliente' => $row['tagcliente'],
-                            'Comissao' => $row['comissao'],
-                            'ComissaoVend' => $row['comissaovend'],
-                            'Venda' => $row['obs'],
-                            'LkUser' => $row['venda'],
-                            'CFOP' => $row['lkuser'],
-                            'DataNota' => $row['cfop'],
-                            'Cancelada' => $row['datanota'],
-                            'TipoDoc' => $row['cancelada'],
-                            'Frete' => $row['tipodoc'],
-                            'ValorFrete' => $row['frete'],
-                            'LkTrans' => $row['valorfrete'],
-                            'CGI' => $row['lktrans'],
-                            'RetTrib' => $row['cgi'],
-                            'LkLoja' => $row['rettrib'],
-                            'LkCliM' => $row['lkloja'],
-                            'nfe' => $row['lkclim'],
-                            'NumCF' => $row['nfe'],
-                            'NFE_CHAVE_TEST' => $row['numcf'],
-                            'NFE_CHAVE_PROD' => $row['nfe_chave_test'],
-                            'NFE_CHAVE' => $row['nfe_chave_prod'],
-                            'NFE_AMBIENTE' => $row['nfe_chave'],
-                            'ID' => $row['nfe_ambiente'],
-                            'StatusPagamento' => $row['id'],
-                            'Revenda' => $row['statuspagamento'],
-                            'RevendaComissao' => $row['revenda'],
-                            'created_at' => $dataAtual
-                        ];
-                    }
-                }
-                if(!empty($dataArray))
-                {
-                    foreach (array_chunk($dataArray,1000) as $t) {
-                        MSicTabEst3A::insert($t);
-                    }
-                }
-                if(!empty($dataImport))
-                {
-                    ImportFileSic::insert($dataImport);
-                }    
-                return back();
-            }
-        }
-    }
     public function importTabVend(Request $request) //Vendedores
     {
         
@@ -426,80 +167,6 @@ class SicTabEst1Controller extends Controller
                 if(!empty($dataArray))
                 {
                     MSicTabEst7::insert($dataArray);
-                }
-                if(!empty($dataImport))
-                {
-                    ImportFileSic::create($dataImport);
-                }    
-                return back();
-            }
-        }
-    }
-    public function importTabEst3B(Request $request)
-    {
-        if($request->file('imported-file'))
-        {
-            $path = $request->file('imported-file')->getRealPath();
-            $data = Excel::load($path, function($reader) {})->get();
-
-            $dataImport[] = [
-                'filial_id' => $request['filial_id'],
-                'path_file' => $path
-            ];
-    
-            if(!empty($data) && $data->count())
-            {
-                DB::statement("SET foreign_key_checks=0");
-                MSicTabEst3B::where('filial_id','=',$request['filial_id'])->delete();
-                DB::statement("SET foreign_key_checks=1");
-
-                foreach ($data->toArray() as $row)
-                {
-                    if(!empty($row)) {
-
-                        if (empty($row['datainc'])) { $row['datainc'] = "2000-01-01 00:00:00"; } else {
-                            $dataHoraCSV = $row['datainc'] . " " . "00:00:00";
-                            $dt  = Carbon::createFromFormat('d/m/Y H:i:s', $dataHoraCSV);
-                            $row['datainc'] = $dt->toDateTimeString(); 
-                        }
-                        if (empty($row['previsao'])) { $row['datainc'] = "2000-01-01 00:00:00"; } else {
-                            $dataHoraCSV2 = $row['previsao'] . " " . "00:00:00";
-                            $dt2 = Carbon::createFromFormat('d/m/Y H:i:s', $dataHoraCSV2);
-                            $row['previsao'] = $dt2->toDateTimeString(); 
-                        } 
-                        $dataAtual = Carbon::now();
-
-                        $row['controle']    = $row['controle'] + ($request['filial_id'] * 1000000) ;
-                        $row['lkest3a']     = $row['lkest3a'] + ($request['filial_id'] * 1000000);
-
-                        $dataArray[] =
-                        [
-                            'Controle' => $row['controle'],
-                            'filial_id' => $request['filial_id'],
-                            'LkEst3A' => $row['lkest3a'],
-                            'Quantidade' => $row['quantidade'],
-                            'LkProduto' => $row['lkproduto'],
-                            'Total' => $row['total'],
-                            'TotVenda' => $row['totvenda'],
-                            'Lucro' => $row['lucro'],
-                            'Acrescimo' => $row['acrescimo'],
-                            'DataInc' => $row['datainc'],
-                            'ICMS' => $row['icms'],
-                            'QuantCanc' => $row['quantcanc'],
-                            'ValorCanc' => $row['valorcanc'],
-                            'CFOPProd' => $row['cfopprod'],
-                            'LkPrecoProd' => $row['lkprecoprod'],
-                            'ComissaoProd' => $row['comissaoprod'],
-                            'Previsao' => $row['previsao'],
-                            'created_at' => $dataAtual
-                        ];
-                    }
-                }
-                if(!empty($dataArray))
-                {
-                    foreach (array_chunk($dataArray,1000) as $t) {
-                        MSicTabEst3B::insert($t);
-                    }
                 }
                 if(!empty($dataImport))
                 {
@@ -668,6 +335,7 @@ class SicTabEst1Controller extends Controller
             {
                 DB::statement("SET foreign_key_checks=0");
                 MSicTabEst3A::where('filial_id','=',$request['filial_id'])->delete();
+                Estoque::where('filial_id','=',$request['filial_id'])->delete();
                 DB::statement("SET foreign_key_checks=1");
                 
                 foreach ($data2->toArray() as $row2)
@@ -701,6 +369,7 @@ class SicTabEst1Controller extends Controller
                         if(empty($row2['lkvendedor'])) {$row2['lkvendedor'] = 999; }
                         if($row2['lkvendedor'] == '') {$row2['lkvendedor'] = 999; }
                         if($row2['lkvendedor'] == 0) {$row2['lkvendedor'] = 999; }
+                        if($row2['lkreceb'] == 0) {$row2['lkreceb'] = null; }
                         if($row2['obs'] == 'True'){ $row2['obs'] = 1;} else { $row2['obs'] = 0;}
                         if($row2['tipodoc'] == 'True'){ $row2['tipodoc'] = 1;} else { $row2['tipodoc'] = 0;}
 
@@ -751,7 +420,7 @@ class SicTabEst1Controller extends Controller
                         ];
                     }
                 }
-                if(!empty($dataArray2))
+                if(!empty($dataArray2) && $row2['lktipo'] <> 5)
                 {
                     foreach (array_chunk($dataArray2,1000) as $t) {
                         MSicTabEst3A::insert($t);

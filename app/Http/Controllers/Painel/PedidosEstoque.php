@@ -111,7 +111,6 @@ class PedidosEstoque extends Controller
                                     ->distinct()
                                     ->groupby('filial_id')
                                     ->get(['filial_id']);
-        dd($filiaisAcomprar);
 
         return view ('painel.produtos.PedidoCompra',compact('prodDanger','filiaisAcomprar','prodDangerFilial', 'prodDanger2'));
     }

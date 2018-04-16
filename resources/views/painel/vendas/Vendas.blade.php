@@ -119,7 +119,7 @@
 			<td><a href="pages/examples/invoice.html">OR9842</a></td>
 			<td>Call of Duty IV</td>
 			<td><span class="label label-success">Shipped</span></td>
-			<td>
+				<td>
 			  <div class="sparkbar" data-color="#00a65a" data-height="20"><canvas width="34" height="20" style="display: inline-block; width: 34px; height: 20px; vertical-align: top;"></canvas></div>
 			</td>
 		  </tr>
