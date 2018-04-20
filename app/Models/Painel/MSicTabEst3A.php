@@ -4,6 +4,8 @@ namespace App\Models\Painel;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Painel\MSicTabEst3B;
+use App\Models\Painel\MSicTabEst7;
+use App\Models\Painel\MSicTabVend;
 
 class MSicTabEst3A extends Model
 {
@@ -51,7 +53,9 @@ class MSicTabEst3A extends Model
         return $this->hasMany(MSicTabEst3B::Class, 'LkEst3A', 'Controle');
     }
     public function Receb() {
-        return $this->OneToOne(MSicTabEst7::Class, 'Controle', 'LkReceb');
+        return $this->OneToOne(MSicTabEst7::Class, 'LkReceb', 'Controle');
     }
-
+    public function vendedor() {
+        return $this->OneToMany(MSicTabEstVend::Class, 'LkVendedor', 'Controle');
+    }
 }

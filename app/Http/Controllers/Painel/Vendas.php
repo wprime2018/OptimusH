@@ -119,4 +119,190 @@ class Vendas extends Controller
         $formas['GranTotalDeb'] = $gran_deb;
         return view('painel.vendas.Vendas', compact('ListFiliais','Filiais','TipoRecebimentos','data1','data2','formas'));
     }
+
+    public function ranking_vendas()
+    {
+        $Filiais            = Filiais::where('ativo', '=', 1)->get();
+        $ListFiliais        = $Filiais;
+        $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
+        //$data1 = $request->initial_date . ' 00:00:00';
+        //$data2 = $request->final_date   . ' 23:59:59';
+        $data1 = '2018-03-01 00:00:00';
+        $data2 = '2018-03-31 23:59:59';
+        $formas = array();
+        $tot_vendas = 0;
+        $gran_total = 0;
+        $gran_qtde = 0;
+        $gran_cred = 0;
+        $gran_deb = 0;
+        $gran_ticket = 0;
+
+        foreach ($Filiais as $f) {
+            /*$test =& $array[1]['test'];
+
+            $test[] = 'stack';
+
+            $test[] = 'overflow';*/
+
+            $tot_filial_qtde = 0;
+            $tot_filial_valor = 0;
+            $tot_filial_cred = 0;
+            $tot_filial_qtde_cred = 0;
+            $tot_filial_deb = 0;
+            $tot_filial_qtde_deb = 0;
+            foreach($TipoRecebimentos  as $Tr ) {
+                $tot_pgto = 0;
+                //$formas[$f->codigo][] = $Tr->Recebimento;
+                $Vendas = MSicTabEst3A::where('LkReceb',$Tr->Controle)
+                                        ->orderBy('LkReceb')
+                                        ->where('filial_id',$f->id)
+                                        ->where('Cancelada','0')
+                                        ->wherebetween('Data',[$data1,$data2])
+                                        ->with('prodVendidos')
+                                        ->get();
+                $tot_qtde_receb = $Vendas->count();
+                if(count($Vendas)>0){
+                    foreach($Vendas as $V){
+                        $tot_pgto = $tot_pgto +     $V->prodVendidos->sum('Total');
+                    }
+                    $formas[$Tr->Recebimento][$f->codigo] = Array ('Qtde' => $tot_qtde_receb, 'Total' => $tot_pgto) ;
+                    $tot_filial_qtde = $tot_filial_qtde + $tot_qtde_receb;
+                    $tot_filial_valor = $tot_filial_valor + $tot_pgto; 
+                }else{
+                    $formas[$Tr->Recebimento][$f->codigo] = Array ('Qtde' => $tot_qtde_receb, 'Total' => 0) ;
+                }
+                if ($Tr->tipo == 'C') { 
+                        $tot_filial_cred = $tot_filial_cred + $tot_pgto;
+                        $tot_filial_qtde_cred = $tot_filial_qtde_cred + 1;
+                }
+                if ($Tr->tipo == 'D') {
+                        $tot_filial_deb = $tot_filial_deb + $tot_pgto; 
+                        $tot_filial_qtde_deb = $tot_filial_qtde_deb + 1;
+                }
+                if ($Tr->tipo == null) {
+                        $tot_filial_cred = $tot_filial_cred + 0; 
+                        $tot_filial_deb = $tot_filial_deb + 0;
+                        $tot_filial_qtde_cred = $tot_filial_qtde_cred + 0;
+                        $tot_filial_qtde_deb = $tot_filial_qtde_deb + 0;
+                }
+            }
+            if ($tot_filial_qtde > 0){
+                $ticket_medio = $tot_filial_valor / $tot_filial_qtde;
+            } else {
+                $ticket_medio = 0;
+            }
+            $gran_total = $gran_total + $tot_filial_valor;
+            $gran_qtde = $gran_qtde + $tot_filial_qtde;
+            $gran_cred = $gran_cred + $tot_filial_cred;
+            $gran_deb = $gran_deb + $tot_filial_deb;
+        
+            $formas[$Tr->Recebimento][$f->codigo]['Qtde_Vendas'] = $tot_filial_qtde;
+            $formas[$Tr->Recebimento][$f->codigo]['TicketM'] = $ticket_medio;
+            $formas[$Tr->Recebimento][$f->codigo]['Cred'] = $tot_filial_cred;
+            $formas[$Tr->Recebimento][$f->codigo]['Deb'] = $tot_filial_deb;
+            $formas[$Tr->Recebimento][$f->codigo]['TotalVendas'] = $tot_filial_valor;
+            
+            /*echo 'Totais da Filial -->' . $tot_filial_qtde . ' - ' . $tot_filial_valor . ' Ticket Médio = ' . $ticket_medio . "</br>";
+            echo "<hr>";*/
+        }
+        $formas['GranTotalVendas'] = $gran_total;
+        $formas['GranTotalQtde'] = $gran_qtde;
+        $formas['GranTotalCred'] = $gran_cred;
+        $formas['GranTotalDeb'] = $gran_deb;
+        return view('painel.vendas.ranking', compact('ListFiliais','Filiais','TipoRecebimentos','data1','data2','formas'));
+    }
+    public function ranking_vendedores()
+    {
+        $Filiais            = Filiais::where('ativo', '=', 1)->get();
+        $ListFiliais        = $Filiais;
+        $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
+        $listVend           = MSicTabVend::get(['id','Controle','Nome','Comissao', 'DataInc']);
+        //$data1 = $request->initial_date . ' 00:00:00';
+        //$data2 = $request->final_date   . ' 23:59:59';
+        $data1 = '2018-03-01 00:00:00';
+        $data2 = '2018-03-31 23:59:59';
+        $formas = array();
+        $tot_vendas = 0;
+        $gran_total = 0;
+        $gran_qtde = 0;
+        $gran_cred = 0;
+        $gran_deb = 0;
+        $gran_ticket = 0;
+
+        foreach ($Filiais as $f) {
+            /*$test =& $array[1]['test'];
+
+            $test[] = 'stack';
+
+            $test[] = 'overflow';*/
+
+            $tot_filial_qtde = 0;
+            $tot_filial_valor = 0;
+            $tot_filial_cred = 0;
+            $tot_filial_qtde_cred = 0;
+            $tot_filial_deb = 0;
+            $tot_filial_qtde_deb = 0;
+            foreach($TipoRecebimentos  as $Tr ) {
+                $tot_pgto = 0;
+                //$formas[$f->codigo][] = $Tr->Recebimento;
+                $Vendas = MSicTabEst3A::where('LkReceb',$Tr->Controle)
+                                        ->orderBy('LkReceb')
+                                        ->where('filial_id',$f->id)
+                                        ->where('Cancelada','0')
+                                        ->wherebetween('Data',[$data1,$data2])
+                                        ->with('prodVendidos')
+                                        ->with('vendedor')
+                                        ->get();
+                $tot_qtde_receb = $Vendas->count();
+                if(count($Vendas)>0){
+                    foreach($Vendas as $V){
+                        $tot_pgto = $tot_pgto +     $V->prodVendidos->sum('Total');
+                    }
+                    $formas[$Tr->Recebimento][$f->codigo] = Array ('Qtde' => $tot_qtde_receb, 'Total' => $tot_pgto) ;
+                    $tot_filial_qtde = $tot_filial_qtde + $tot_qtde_receb;
+                    $tot_filial_valor = $tot_filial_valor + $tot_pgto; 
+                }else{
+                    $formas[$Tr->Recebimento][$f->codigo] = Array ('Qtde' => $tot_qtde_receb, 'Total' => 0) ;
+                }
+                if ($Tr->tipo == 'C') { 
+                        $tot_filial_cred = $tot_filial_cred + $tot_pgto;
+                        $tot_filial_qtde_cred = $tot_filial_qtde_cred + 1;
+                }
+                if ($Tr->tipo == 'D') {
+                        $tot_filial_deb = $tot_filial_deb + $tot_pgto; 
+                        $tot_filial_qtde_deb = $tot_filial_qtde_deb + 1;
+                }
+                if ($Tr->tipo == null) {
+                        $tot_filial_cred = $tot_filial_cred + 0; 
+                        $tot_filial_deb = $tot_filial_deb + 0;
+                        $tot_filial_qtde_cred = $tot_filial_qtde_cred + 0;
+                        $tot_filial_qtde_deb = $tot_filial_qtde_deb + 0;
+                }
+            }
+            if ($tot_filial_qtde > 0){
+                $ticket_medio = $tot_filial_valor / $tot_filial_qtde;
+            } else {
+                $ticket_medio = 0;
+            }
+            $gran_total = $gran_total + $tot_filial_valor;
+            $gran_qtde = $gran_qtde + $tot_filial_qtde;
+            $gran_cred = $gran_cred + $tot_filial_cred;
+            $gran_deb = $gran_deb + $tot_filial_deb;
+        
+            $formas[$Tr->Recebimento][$f->codigo]['Qtde_Vendas'] = $tot_filial_qtde;
+            $formas[$Tr->Recebimento][$f->codigo]['TicketM'] = $ticket_medio;
+            $formas[$Tr->Recebimento][$f->codigo]['Cred'] = $tot_filial_cred;
+            $formas[$Tr->Recebimento][$f->codigo]['Deb'] = $tot_filial_deb;
+            $formas[$Tr->Recebimento][$f->codigo]['TotalVendas'] = $tot_filial_valor;
+            
+            /*echo 'Totais da Filial -->' . $tot_filial_qtde . ' - ' . $tot_filial_valor . ' Ticket Médio = ' . $ticket_medio . "</br>";
+            echo "<hr>";*/
+        }
+        $formas['GranTotalVendas'] = $gran_total;
+        $formas['GranTotalQtde'] = $gran_qtde;
+        $formas['GranTotalCred'] = $gran_cred;
+        $formas['GranTotalDeb'] = $gran_deb;
+        dd($Vendas);
+        return view('painel.vendas.ranking', compact('ListFiliais','Filiais','TipoRecebimentos','data1','data2','formas'));
+    }
 }

@@ -55,16 +55,16 @@ class AppServiceProvider extends ServiceProvider
                 'icon'    => 'area-chart',
                 'submenu' => [
                     [
-                        'text'        => 'Lista',
+                        'text'        => 'Resumo de Vendas',
                         'url'         => 'vendas_pgto',
                     ],
                     [
                         'text'        => 'Comissões de Vendedores',
-                        'url'         => 'vendas/comissoes',
+                        'url'         => 'ranking_vend',
                     ],
                     [
-                        'text'        => 'Resumo de Forma de PGTO',
-                        'url'         => 'vendas_pgto',
+                        'text'        => 'Ranking',
+                        'url'         => 'ranking',
                     ],
                     [
                         'text'        => 'Tipos de Pagamentos',

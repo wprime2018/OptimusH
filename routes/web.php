@@ -24,6 +24,8 @@ Route::get('/home/filiais'              , 'HomeController@index_Filiais')->name(
 
 Route::get('vendas'                     , 'Painel\SicTabEst1Controller@indexVendas')->middleware('auth');
 Route::get('vendas_pgto'                , 'Painel\Vendas@index_vendas_pgto')->middleware('auth');
+Route::get('ranking'                    , 'Painel\Vendas@ranking_vendas')->middleware('auth');
+Route::get('ranking_vend'               , 'Painel\Vendas@ranking_vendedores')->middleware('auth');
 Route::post('vendas/importVendas'       , 'Painel\SicTabEst1Controller@importTabEst3A')->middleware('auth');
 Route::post('vendas/importProdVend'     , 'Painel\SicTabEst1Controller@importTabEst3B')->middleware('auth');
 Route::post('vendas/vendedores'         , 'Painel\SicTabEst1Controller@importTabVend')->middleware('auth');
