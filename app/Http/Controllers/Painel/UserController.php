@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Painel;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
 use App\Models\Painel\Filiais;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Auth\Events\Registered;
 
 class UserController extends Controller
 {

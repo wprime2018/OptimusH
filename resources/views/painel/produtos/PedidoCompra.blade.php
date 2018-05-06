@@ -85,7 +85,11 @@
 							->orderby('LkProduto')
 							->first();
 						@endphp
-						<td align="center" style="width: 15px;">{{number_format($prodDangerFilial->Comprar,0)}}</td>
+						@if (count($prodDangerFilial) > 0)
+							<td align="center" style="width: 15px;">{{number_format($prodDangerFilial->Comprar,0)}}</td>
+						@else 
+							<td align="center" style="width: 15px;">PNE</td>
+						@endif
 					@endforeach
 				</tr>
 				@endif
