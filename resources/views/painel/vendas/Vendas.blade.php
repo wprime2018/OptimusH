@@ -75,6 +75,12 @@
 			</tbody>
 			<tfoot>
 				<tr >
+					<th rowspan="1" colspan="1"><font color="green">Dinheiro</th>
+					@foreach($Filiais as $f)	
+						<th rowspan="1" colspan="1"><font color="green">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Din"],2,',','.')}}</th>
+					@endforeach
+				</tr>
+				<tr >
 					<th rowspan="1" colspan="1"><font color="green">Crédito</th>
 					@foreach($Filiais as $f)	
 						<th rowspan="1" colspan="1"><font color="green">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Cred"],2,',','.')}}</th>
@@ -124,6 +130,8 @@
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
 							style="width: 100px;">Vendas</th>
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
+							style="width: 100px;">Dinheiro</th>
+						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
 							style="width: 100px;">Crédito</th>
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
 							style="width: 100px;">Débito</th>
@@ -138,6 +146,7 @@
 						<tr role="row" class="odd" id="{{$f->id}}">
 							<td class="sorting_1">{{$f->codigo}}-{{$f->fantasia}}</td>
 							<td><font color="blue">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TotalVendas"],2,',','.')}}</td>
+								<td><font color="green">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Din"],2,',','.')}}</td>
 							<td><font color="green">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Cred"],2,',','.')}}</td>
 							<td><font color="#CC9900">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Deb"],2,',','.')}}</td>
 							<td><font color="green">{{$formas["$Tr->Recebimento"]["$f->codigo"]["Qtde_Vendas"]}} Vendas</td>
@@ -149,6 +158,7 @@
 					<tr>
 						<th rowspan="1" colspan="1">Totais</th>
 						<th rowspan="1" colspan="1"><font color="blue">R$ {{number_format($formas['GranTotalVendas'],2,',','.')}}</th>
+						<th rowspan="1" colspan="1"><font color="blue">R$ {{number_format($formas['GranTotalDin'],2,',','.')}}</th>
 						<th rowspan="1" colspan="1"><font color="blue">R$ {{number_format($formas['GranTotalCred'],2,',','.')}}</th>
 						<th rowspan="1" colspan="1"><font color="blue">R$ {{number_format($formas['GranTotalDeb'],2,',','.')}}</th>
 						<th rowspan="1" colspan="1"><font color="blue">{{number_format($formas['GranTotalQtde'],0,',','.')}} Vendas</th>

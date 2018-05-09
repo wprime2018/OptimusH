@@ -46,8 +46,8 @@
 						style="width: 100px;">Setor</th>
 					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
 						style="width: 50.4px;">Total</th>
-					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
-						style="width: 50.4px;">Ações</th>
+					<!-- <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
+						style="width: 30.4px;">Ações</th> -->
 					@foreach($filiaisAcomprar as $f)
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Engine version: activate to sort column ascending"
 							style="width: 25.4px;">{{$f->filial->codigo}}</th>
@@ -73,10 +73,10 @@
 					@endphp
 					<td>{{$prodSetor['Setor']}}</td>
 					<td align="center" style="width: 15px;">{{number_format($p->Total_comprar,0)}}</td>
-					<td>
+					<!--<td>
 						<a data-toggle="modal" data-target="b1" data-id="{{$dadosProd->id}}" id="btnModal1" class="btn btn-xs btn-danger btnDelete">
 							<span class="glyphicon glyphicon-remove"></span>
-						</a>
+						</a>-->
 					</td>
 					@foreach($filiaisAcomprar as $f)
 						@php
@@ -106,7 +106,7 @@
 					<th rowspan="1" colspan="1">Data de Cadastro</th>
 					<th rowspan="1" colspan="1">Setor</th>
 					<th rowspan="1" colspan="1">Comprar</th>
-					<th rowspan="1" colspan="1">Ações</th>
+					<!--<th rowspan="1" colspan="1">Ações</th>-->
 					@foreach($filiaisAcomprar as $f)
 						<th rowspan="1" colspan="1">{{$f->filial->codigo}}</th>
 					@endforeach

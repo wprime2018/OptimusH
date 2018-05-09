@@ -61,14 +61,6 @@ class AppServiceProvider extends ServiceProvider
                     [
                         'text'        => 'Comissões de Vendedores',
                         'url'         => 'ranking_vend',
-                    ],
-                    [
-                        'text'        => 'Ranking',
-                        'url'         => 'ranking',
-                    ],
-                    [
-                        'text'        => 'Tipos de Pagamentos',
-                        'url'         => 'vendas/tp_pgto',
                     ]
                 ]
             ]);

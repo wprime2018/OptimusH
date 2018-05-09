@@ -331,7 +331,7 @@ class SicTabEst1Controller extends Controller
                 'path_file' => $request->file('imported-file2')->path()
             ];
 
-            if(!empty($data2) && $data2->count())
+            if(!empty($data2) && $data2->count() > 0)
             {
                 DB::statement("SET foreign_key_checks=0");
                 MSicTabEst3A::where('filial_id','=',$request['filial_id'])->delete();

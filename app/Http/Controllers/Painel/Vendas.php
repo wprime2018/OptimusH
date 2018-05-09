@@ -43,6 +43,7 @@ class Vendas extends Controller
         $gran_qtde = 0;
         $gran_cred = 0;
         $gran_deb = 0;
+        $gran_din = 0;
         $gran_ticket = 0;
 
         foreach ($Filiais as $f) {
@@ -58,13 +59,14 @@ class Vendas extends Controller
             $tot_filial_qtde_cred = 0;
             $tot_filial_deb = 0;
             $tot_filial_qtde_deb = 0;
+            $tot_filial_din = 0;
+            $tot_filial_qtde_din = 0;
             foreach($TipoRecebimentos  as $Tr ) {
                 $tot_pgto = 0;
                 //$formas[$f->codigo][] = $Tr->Recebimento;
                 $Vendas = MSicTabEst3A::where('LkReceb',$Tr->Controle)
                                         ->orderBy('LkReceb')
                                         ->where('filial_id',$f->id)
-                                        ->where('Cancelada','0')
                                         ->wherebetween('Data',[$data1,$data2])
                                         ->with('prodVendidos')
                                         ->get();
@@ -79,19 +81,18 @@ class Vendas extends Controller
                 }else{
                     $formas[$Tr->Recebimento][$f->codigo] = Array ('Qtde' => $tot_qtde_receb, 'Total' => 0) ;
                 }
-                if ($Tr->tipo == 'C') { 
+                switch ($Tr->tipo) {
+                    case 'C':
                         $tot_filial_cred = $tot_filial_cred + $tot_pgto;
                         $tot_filial_qtde_cred = $tot_filial_qtde_cred + 1;
-                }
-                if ($Tr->tipo == 'D') {
+                        break;
+                    case 'D':
                         $tot_filial_deb = $tot_filial_deb + $tot_pgto; 
-                        $tot_filial_qtde_deb = $tot_filial_qtde_deb + 1;
-                }
-                if ($Tr->tipo == null) {
-                        $tot_filial_cred = $tot_filial_cred + 0; 
-                        $tot_filial_deb = $tot_filial_deb + 0;
-                        $tot_filial_qtde_cred = $tot_filial_qtde_cred + 0;
-                        $tot_filial_qtde_deb = $tot_filial_qtde_deb + 0;
+                        $tot_filial_qtde_deb = $tot_filial_qtde_deb + 1;                        
+                        break;
+                    default:
+                        $tot_filial_din = $tot_filial_din + $tot_pgto;
+                        $tot_filial_qtde_din = $tot_filial_qtde_din + 1;
                 }
             }
             if ($tot_filial_qtde > 0){
@@ -103,9 +104,11 @@ class Vendas extends Controller
             $gran_qtde = $gran_qtde + $tot_filial_qtde;
             $gran_cred = $gran_cred + $tot_filial_cred;
             $gran_deb = $gran_deb + $tot_filial_deb;
+            $gran_din = $gran_din + $tot_filial_din;
         
             $formas[$Tr->Recebimento][$f->codigo]['Qtde_Vendas'] = $tot_filial_qtde;
             $formas[$Tr->Recebimento][$f->codigo]['TicketM'] = $ticket_medio;
+            $formas[$Tr->Recebimento][$f->codigo]['Din'] = $tot_filial_din;
             $formas[$Tr->Recebimento][$f->codigo]['Cred'] = $tot_filial_cred;
             $formas[$Tr->Recebimento][$f->codigo]['Deb'] = $tot_filial_deb;
             $formas[$Tr->Recebimento][$f->codigo]['TotalVendas'] = $tot_filial_valor;
@@ -116,6 +119,7 @@ class Vendas extends Controller
         $formas['GranTotalVendas'] = $gran_total;
         $formas['GranTotalQtde'] = $gran_qtde;
         $formas['GranTotalCred'] = $gran_cred;
+        $formas['GranTotalDin'] = $gran_din;
         $formas['GranTotalDeb'] = $gran_deb;
         return view('painel.vendas.Vendas', compact('ListFiliais','Filiais','TipoRecebimentos','data1','data2','formas'));
     }
@@ -135,6 +139,7 @@ class Vendas extends Controller
         $gran_qtde = 0;
         $gran_cred = 0;
         $gran_deb = 0;
+        $gran_din = 0;
         $gran_ticket = 0;
 
         foreach ($Filiais as $f) {
@@ -154,11 +159,12 @@ class Vendas extends Controller
                 $tot_pgto = 0;
                 //$formas[$f->codigo][] = $Tr->Recebimento;
                 $Vendas = MSicTabEst3A::where('LkReceb',$Tr->Controle)
-                                        ->orderBy('LkReceb')
                                         ->where('filial_id',$f->id)
                                         ->where('Cancelada','0')
+                                        ->where('LkTipo','2')
                                         ->wherebetween('Data',[$data1,$data2])
                                         ->with('prodVendidos')
+                                        ->orderBy('LkReceb')
                                         ->get();
                 $tot_qtde_receb = $Vendas->count();
                 if(count($Vendas)>0){
@@ -172,19 +178,17 @@ class Vendas extends Controller
                 }else{
                     $formas[$Tr->Recebimento][$f->codigo] = Array ('Qtde' => $tot_qtde_receb, 'Total' => 0) ;
                 }
-                if ($Tr->tipo == 'C') { 
+                switch ($v->Receb->tipo) {
+                    case 'C':
                         $tot_filial_cred = $tot_filial_cred + $tot_pgto;
                         $tot_filial_qtde_cred = $tot_filial_qtde_cred + 1;
-                }
-                if ($Tr->tipo == 'D') {
+                        break;
+                    case 'D':
                         $tot_filial_deb = $tot_filial_deb + $tot_pgto; 
-                        $tot_filial_qtde_deb = $tot_filial_qtde_deb + 1;
-                }
-                if ($Tr->tipo == null) {
-                        $tot_filial_cred = $tot_filial_cred + 0; 
-                        $tot_filial_deb = $tot_filial_deb + 0;
-                        $tot_filial_qtde_cred = $tot_filial_qtde_cred + 0;
-                        $tot_filial_qtde_deb = $tot_filial_qtde_deb + 0;
+                        $tot_filial_qtde_deb = $tot_filial_qtde_deb + 1;                        
+                        break;
+                    default:
+                        $tot_filial_din = $tot_filial_deb + $tot_pgto;
                 }
             }
             if ($tot_filial_qtde > 0){
@@ -197,19 +201,20 @@ class Vendas extends Controller
             $gran_cred = $gran_cred + $tot_filial_cred;
             $gran_deb = $gran_deb + $tot_filial_deb;
         
-            $formas[$Tr->Recebimento][$f->codigo]['Qtde_Vendas'] = $tot_filial_qtde;
-            $formas[$Tr->Recebimento][$f->codigo]['TicketM'] = $ticket_medio;
-            $formas[$Tr->Recebimento][$f->codigo]['Cred'] = $tot_filial_cred;
-            $formas[$Tr->Recebimento][$f->codigo]['Deb'] = $tot_filial_deb;
-            $formas[$Tr->Recebimento][$f->codigo]['TotalVendas'] = $tot_filial_valor;
+            $formas[$Tr->Recebimento][$f->codigo]['Qtde_Vendas']    = $tot_filial_qtde;
+            $formas[$Tr->Recebimento][$f->codigo]['TicketM']        = $ticket_medio;
+            $formas[$Tr->Recebimento][$f->codigo]['Cred']           = $tot_filial_cred;
+            $formas[$Tr->Recebimento][$f->codigo]['Deb']            = $tot_filial_deb;
+            $formas[$Tr->Recebimento][$f->codigo]['Din']            = $tot_filial_din;
+            $formas[$Tr->Recebimento][$f->codigo]['TotalVendas']    = $tot_filial_valor;
             
             /*echo 'Totais da Filial -->' . $tot_filial_qtde . ' - ' . $tot_filial_valor . ' Ticket Médio = ' . $ticket_medio . "</br>";
             echo "<hr>";*/
         }
-        $formas['GranTotalVendas'] = $gran_total;
-        $formas['GranTotalQtde'] = $gran_qtde;
-        $formas['GranTotalCred'] = $gran_cred;
-        $formas['GranTotalDeb'] = $gran_deb;
+        $formas['GranTotalVendas']  = $gran_total;
+        $formas['GranTotalQtde']    = $gran_qtde;
+        $formas['GranTotalCred']    = $gran_cred;
+        $formas['GranTotalDeb']     = $gran_deb;
         return view('painel.vendas.ranking', compact('ListFiliais','Filiais','TipoRecebimentos','data1','data2','formas'));
     }
     public function ranking_vendedores()
@@ -237,9 +242,7 @@ class Vendas extends Controller
                 ->where('Cancelada','0')
                 ->where('LkTipo','2')
                 ->wherebetween('Data',[$data1,$data2])
-                ->with('prodVendidos')
-                ->with('vendedor')
-                ->with('Receb')
+                ->with(['prodVendidos','vendedor','Receb'])
                 ->orderBy('LkVendedor')
                 ->get();
                 $tot_vendas_vendedor = 0;
@@ -256,9 +259,16 @@ class Vendas extends Controller
                         $tot_valor_vendas_vendedor = $tot_valor_vendas_vendedor + $v->prodVendidos->sum('Total');
                         
                         if ($v->Receb()->count() > 0) {
-                            if ($v->Receb->tipo == 'C') {$tot_valor_vendas_cred = $tot_valor_vendas_cred + $v->prodVendidos->sum('Total');}
-                            if ($v->Receb->tipo == 'D') {$tot_valor_vendas_deb = $tot_valor_vendas_deb + $v->prodVendidos->sum('Total');}
-                            if (is_null($v->Receb->tipo)) {$tot_valor_vendas_din = $tot_valor_vendas_din + $v->prodVendidos->sum('Total');}
+                            switch ($v->Receb->tipo) {
+                                case 'C':
+                                    $tot_valor_vendas_cred = $tot_valor_vendas_cred + $v->prodVendidos->sum('Total');
+                                    break;
+                                case 'D':
+                                    $tot_valor_vendas_deb = $tot_valor_vendas_deb + $v->prodVendidos->sum('Total');
+                                    break;
+                                default:
+                                    $tot_valor_vendas_din = $tot_valor_vendas_din + $v->prodVendidos->sum('Total');
+                            }
                         }
                     }
                     $tot_valor_com_vendedor = (($v->vendedor->Comissao / 100) * $tot_valor_vendas_vendedor);
