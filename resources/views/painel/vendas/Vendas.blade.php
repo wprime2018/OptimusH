@@ -68,40 +68,40 @@
 					<tr role="row" class="odd" id="{{$Tr->Recebimento}}">
 						<td class="sorting_1">{{$Tr->Recebimento}}</td>
 						@foreach($Filiais as $f)
-							<td>R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Total"],2,',','.')}}</td>
+							<td align="right">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Total"],2,',','.')}}</td>
 						@endforeach
 					</tr>
 				@endforeach
-			</tbody>
+			</tbody>	
 			<tfoot>
 				<tr >
 					<th rowspan="1" colspan="1"><font color="green">Dinheiro</th>
 					@foreach($Filiais as $f)	
-						<th rowspan="1" colspan="1"><font color="green">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Din"],2,',','.')}}</th>
+						<th rowspan="1" colspan="1" align="right"><font color="green">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Din"],2,',','.')}}</th>
 					@endforeach
 				</tr>
 				<tr >
 					<th rowspan="1" colspan="1"><font color="green">Crédito</th>
 					@foreach($Filiais as $f)	
-						<th rowspan="1" colspan="1"><font color="green">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Cred"],2,',','.')}}</th>
+						<th rowspan="1" colspan="1" align="right"><font color="green">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Cred"],2,',','.')}}</th>
 					@endforeach
 				</tr>
 				<tr>
-					<th rowspan="1" colspan="1"><font color="orange">Débito</th>
+					<th rowspan="1" colspan="1"><font color="green">Débito</th>
 					@foreach($Filiais as $f)	
-						<th rowspan="1" colspan="1"><font color="orange">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Deb"],2,',','.')}}</th>
+						<th rowspan="1" colspan="1" align="right"><font color="green">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Deb"],2,',','.')}}</th>
 					@endforeach
 				</tr>
 				<tr>
 					<th rowspan="1" colspan="1"><font color="blue">Total de Vendas</th>
 					@foreach($Filiais as $f)	
-						<th rowspan="1" colspan="1"><font color="blue">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TotalVendas"],2,',','.')}}</th>
+						<th align="right"><font color="blue">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TotalVendas"],2,',','.')}}</th>
 					@endforeach
 				</tr>
 				<tr>
 					<th rowspan="1" colspan="1"><font color="#C71585">Ticket Médio</th>
 					@foreach($Filiais as $f)	
-						<th rowspan="1" colspan="1"><font color="#C71585">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TicketM"],2,',','.')}}</th>
+						<th rowspan="1" colspan="1" align="right"><font color="#C71585">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TicketM"],2,',','.')}}</th>
 					@endforeach
 				</tr>
 			</tfoot>
@@ -111,17 +111,16 @@
 
 <div class="box box-info">
 	<div class="box-header with-border">
-	  <h3 class="box-title">Ranking Vendas</h3>
+		<h3 class="box-title">Ranking Vendas</h3>
 
-	  <div class="box-tools pull-right">
-		<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-		</button>
+		<div class="box-tools pull-right">
+		<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
 		<button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-	  </div>
+	</div>
 	</div>
 	<!-- /.box-header -->
 	<div class="box-body">
-	  <div class="table-responsive">
+		<div class="table-responsive">
 			<table id="table_r_filiais" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
 				<thead>
 					<tr role="row">
@@ -145,12 +144,12 @@
 					@foreach($Filiais as $f)	
 						<tr role="row" class="odd" id="{{$f->id}}">
 							<td class="sorting_1">{{$f->codigo}}-{{$f->fantasia}}</td>
-							<td><font color="blue">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TotalVendas"],2,',','.')}}</td>
-								<td><font color="green">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Din"],2,',','.')}}</td>
-							<td><font color="green">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Cred"],2,',','.')}}</td>
-							<td><font color="#CC9900">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Deb"],2,',','.')}}</td>
-							<td><font color="green">{{$formas["$Tr->Recebimento"]["$f->codigo"]["Qtde_Vendas"]}} Vendas</td>
-							<td><font color="#C71585">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TicketM"],2,',','.')}}</td>
+							<td align="right"><font color="green" >R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TotalVendas"],2,',','.')}}</td>
+							<td align="right"><font color="green" >R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Din"],2,',','.')}}</td>
+							<td align="right"><font color="green" >R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Cred"],2,',','.')}}</td>
+							<td align="right"><font color="green" >R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Deb"],2,',','.')}}</td>
+							<td align="right"><font color="green" >{{$formas["$Tr->Recebimento"]["$f->codigo"]["Qtde_Vendas"]}} Vendas</td>
+							<td align="right"><font color="#C71585">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TicketM"],2,',','.')}}</td>
 						</tr>
 					@endforeach
 				</tbody>
@@ -166,8 +165,8 @@
 					</tr>
 				</tfoot>
 			</table>
-	  </div>
-	  <!-- /.table-responsive -->
+		</div>
+		<!-- /.table-responsive -->
 	</div>
 	</div>
 	

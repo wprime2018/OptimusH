@@ -100,11 +100,11 @@ class Vendas extends Controller
             } else {
                 $ticket_medio = 0;
             }
-            $gran_total = $gran_total + $tot_filial_valor;
-            $gran_qtde = $gran_qtde + $tot_filial_qtde;
-            $gran_cred = $gran_cred + $tot_filial_cred;
-            $gran_deb = $gran_deb + $tot_filial_deb;
-            $gran_din = $gran_din + $tot_filial_din;
+            $gran_total = $gran_total   + $tot_filial_valor;
+            $gran_qtde = $gran_qtde     + $tot_filial_qtde;
+            $gran_cred = $gran_cred     + $tot_filial_cred;
+            $gran_deb = $gran_deb       + $tot_filial_deb;
+            $gran_din = $gran_din       + $tot_filial_din;
         
             $formas[$Tr->Recebimento][$f->codigo]['Qtde_Vendas'] = $tot_filial_qtde;
             $formas[$Tr->Recebimento][$f->codigo]['TicketM'] = $ticket_medio;
