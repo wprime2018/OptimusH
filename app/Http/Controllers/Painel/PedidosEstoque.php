@@ -134,8 +134,9 @@ class PedidosEstoque extends Controller
     public function ProdutosMaisVendidos()
     {
         $prod         = Estoque::distinct('LkProduto')
-                                ->with('produto')
+                                ->with(['produto','filial'])
                                 ->orderby('LkProduto')
+                                ->where('Vendidos','>','0')
                                 ->get(['LkProduto']);
                                 
         $prodFilial   = Estoque::orderby('LkProduto')

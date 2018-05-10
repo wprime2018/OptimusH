@@ -58,12 +58,17 @@
 					<td>{{date_format(new DateTime($dadosProd->DataInc), 'd/m/Y H:i:s')}}</td>
 					@foreach($filiaisAcomprar as $f)
 						@php
-							$prodFilial   = App\Models\Painel\Estoque::where('filial_id',$f->filial_id)
+						$prodFilial   = App\Models\Painel\Estoque::where('filial_id',$f->filial_id)
 							->where('LkProduto',$p->LkProduto)
+							->where('Vendidos','>','0')
 							->orderby('LkProduto')
 							->first();
 						@endphp
-						<td align="center" style="width: 15px;">{{number_format($prodFilial->Vendidos,0)}}</td>
+						@if(count($prodFilial)>0)
+							<td align="center" style="width: 15px;">{{number_format($prodFilial->Vendidos,0)}}</td>
+						@else 
+							<td align="center" style="width: 15px;">0</td>
+						@endif
 					@endforeach
 				</tr>
 				@endif
