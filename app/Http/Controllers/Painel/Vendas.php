@@ -295,4 +295,122 @@ class Vendas extends Controller
         }*/
         return view('painel.vendas.ranking_vendedor', compact('ListFiliais','Filiais','TipoRecebimentos','data1','data2','formas'));
     }
-}
+    public function ranking_diario()
+    {
+        $Filiais            = Filiais::where('ativo', '=', 1)->get();
+        $ListFiliais        = $Filiais;
+        $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
+        //$data1 = $request->initial_date . ' 00:00:00';
+        //$data2 = $request->final_date   . ' 23:59:59';
+        $data1 = '2018-04-01 00:00:00';
+        $data2 = '2018-04-30 23:59:59';
+        $carbonData1 = new Carbon($data1);
+        $carbonData2 = new Carbon($data2);
+        $diaData1 = $carbonData1->day;
+        $diaData2 = $carbonData2->day;
+        $formas = array();
+        $gran_total = array();
+        
+        $dataInicial = $carbonData1;
+        for ($i = $diaData1; $i <= $diaData2; $i++) {
+            $dt1 = $dataInicial->toDateTimeString();
+            $dataFinal = $dataInicial;
+            $dataFinal->hour = 23;
+            $dataFinal->minute = 59;
+            $dataFinal->second = 59;
+            $dt2 = $dataFinal->toDateTimeString();
+            $diadaSemana = $dataInicial->format('D');
+            switch ($diadaSemana) {
+                case 'Sun':
+                    $diadaSemana = 'Dom';
+                    break;
+                case 'Mon':
+                    $diadaSemana = 'Seg';
+                    break;
+                case 'Tue':
+                    $diadaSemana = 'Ter';
+                    break;
+                case 'Wed':
+                    $diadaSemana = 'Qua';
+                    break;
+                case 'Thu':
+                    $diadaSemana = 'Qui';
+                    break;
+                case 'Fri':
+                    $diadaSemana = 'Sex';
+                    break;
+                case 'Sat':
+                    $diadaSemana = 'Sáb';
+                    break;
+            }
+            $dataFormat = $dataInicial->format('d/m/Y') . " ". $diadaSemana;
+            foreach($Filiais as $f) {
+                $Vendas = MSicTabEst3A::where('filial_id',$f->id)
+                                        ->where('Cancelada','0')
+                                        ->where('LkTipo','2')
+                                        ->wherebetween('Data',[$dt1,$dt2])
+                                        ->with(['prodVendidos','vendedor','Receb'])
+                                        ->orderBy('LkReceb')
+                                        ->get();
+                $qtde_vendas_dia = $Vendas->count();
+                $tot_valor_vendas_dia = 0;
+                $tot_valor_vendas_diaCred = 0;
+                $tot_valor_vendas_diaDeb = 0;
+                $tot_valor_vendas_diaDin = 0;
+                if ($qtde_vendas_dia > 0) {
+                    foreach ($Vendas as $v) {
+                        $tot_valor_vendas_dia = $tot_valor_vendas_dia + $v->prodVendidos->sum('Total');
+                        if ($v->Receb()->count() > 0) {
+                            switch ($v->Receb->tipo) {
+                                case 'C':
+                                    $tot_valor_vendas_diaCred = $tot_valor_vendas_diaCred + $v->prodVendidos->sum('Total');
+                                    break;
+                                case 'D':
+                                    $tot_valor_vendas_diaDeb = $tot_valor_vendas_diaDeb + $v->prodVendidos->sum('Total');
+                                    break;
+                                default:
+                                    $tot_valor_vendas_diaDin = $tot_valor_vendas_diaDin + $v->prodVendidos->sum('Total');
+                            }
+                        }
+                        $dataFormat = $dataInicial->format('d/m/Y') . " ". $diadaSemana;
+                        $formas[$dataFormat][$f->codigo]['Total'] = $tot_valor_vendas_dia;
+                        $formas[$dataFormat][$f->codigo]['Qtde']  = $qtde_vendas_dia;
+                        $formas[$dataFormat][$f->codigo]['Cred']  = $tot_valor_vendas_diaCred;
+                        $formas[$dataFormat][$f->codigo]['Deb']   = $tot_valor_vendas_diaDeb;
+                        $formas[$dataFormat][$f->codigo]['Din']   = $tot_valor_vendas_diaDin;
+                 }
+                } else {
+                    $formas[$dataFormat][$f->codigo]['Total'] = 0;
+                    $formas[$dataFormat][$f->codigo]['Qtde']  = 0;
+                    $formas[$dataFormat][$f->codigo]['Cred']  = 0;
+                    $formas[$dataFormat][$f->codigo]['Deb']   = 0;
+                    $formas[$dataFormat][$f->codigo]['Din']   = 0;
+                }
+                
+           //Calculando vendas Canceladas 
+                $Vendas = MSicTabEst3A::where('filial_id',$f->id)
+                                        ->where('Cancelada','1')
+                                        ->where('LkTipo','2')
+                                        ->wherebetween('Data',[$dt1,$dt2])
+                                        ->with(['prodVendidos','vendedor','Receb'])
+                                        ->orderBy('LkReceb')
+                                        ->get();
+                $qtde_vendas_dia = $Vendas->count();
+                $tot_valor_vendas_dia = 0;
+                if ($qtde_vendas_dia > 0) {
+                    foreach ($Vendas as $v) {
+                        $tot_valor_vendas_dia = $tot_valor_vendas_dia + $v->prodVendidos->sum('Total');
+                        $formas[$dataFormat][$f->codigo]['Total_Canc'] = $tot_valor_vendas_dia;
+                        $formas[$dataFormat][$f->codigo]['Qtde_Canc'] = $qtde_vendas_dia; 
+                    }
+                }
+            }
+            
+            $dataInicial = $dataInicial->addDay();
+            $dataInicial->hour = 00;
+            $dataInicial->minute = 00;
+            $dataInicial->second = 00;
+        }
+        return view('painel.vendas.ranking_diario', compact('ListFiliais','Filiais','data1','data2','formas'));
+    }
+}   

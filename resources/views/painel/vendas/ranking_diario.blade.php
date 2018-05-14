@@ -6,7 +6,7 @@
 
 <h1>
 	Vendas
-	<small>Importadas</small>
+	<small>Diárias</small>
 </h1>
 <ol class="breadcrumb">
 	<li>
@@ -22,7 +22,7 @@
 @section('content')
 <div class="box box-info">
 	<div class="box-header with-border">
-        <h3 class="box-title">Ranking Vendas</h3>
+        <h3 class="box-title">Ranking Vendas Diárias</h3>
     <div class="box-tools pull-right">
 		<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
 		</button>
@@ -45,40 +45,24 @@
 				<thead>
 					<tr role="row">
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-							style="width: 100px;">Filial</th>
-						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-							style="width: 100px;">Vendas</th>
-						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-							style="width: 100px;">Crédito</th>
-						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-							style="width: 100px;">Débito</th>
-						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-							style="width: 100px;">Qtde Vendas</th>
-						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-							style="width: 100px;">Ticket Médio</th>
+							style="width: 100px;">Data</th>
+					@foreach($Filiais as $f)	
+						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" 
+						aria-label="Browser: activate to sort column ascending">{{$f->codigo}}</th>
+					@endforeach
 					</tr>
 				</thead>
 				<tbody>
-					@foreach($formas as $fm)	
-						<tr role="row" class="odd" id="{{$f->id}}">
-							<td class="sorting_1">{{$f->codigo}}-{{$f->fantasia}}</td>
-							<td><font color="blue">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TotalVendas"],2,',','.')}}</td>
-							<td><font color="green">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Cred"],2,',','.')}}</td>
-							<td><font color="#CC9900">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Deb"],2,',','.')}}</td>
-							<td><font color="green">{{$formas["$Tr->Recebimento"]["$f->codigo"]["Qtde_Vendas"]}} Vendas</td>
-							<td><font color="#C71585">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TicketM"],2,',','.')}}</td>
+					@foreach($formas as $data => $filial)	
+						<tr role="row" class="odd" id="{{$data}}">
+							<td class="sorting_1">{{$data}}</td>
+							@foreach($filial as $fCodigo => $valores)
+								<td align="Right">R$ {{number_format($formas["$data"]["$fCodigo"]["Total"],2,',','.')}}</td>
+							@endforeach
 						</tr>
 					@endforeach
 				</tbody>
 				<tfoot>
-					<tr>
-						<th rowspan="1" colspan="1">Totais</th>
-						<th rowspan="1" colspan="1"><font color="blue">R$ {{number_format($formas['GranTotalVendas'],2,',','.')}}</th>
-						<th rowspan="1" colspan="1"><font color="blue">R$ {{number_format($formas['GranTotalCred'],2,',','.')}}</th>
-						<th rowspan="1" colspan="1"><font color="blue">R$ {{number_format($formas['GranTotalDeb'],2,',','.')}}</th>
-						<th rowspan="1" colspan="1"><font color="blue">{{number_format($formas['GranTotalQtde'],0,',','.')}} Vendas</th>
-						<th rowspan="1" colspan="1"><font color="blue">Ticket Médio</th>
-					</tr>
 				</tfoot>
 			</table>
 	  </div>

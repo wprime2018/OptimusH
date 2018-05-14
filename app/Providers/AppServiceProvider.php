@@ -61,6 +61,10 @@ class AppServiceProvider extends ServiceProvider
                     [
                         'text'        => 'Comissões de Vendedores',
                         'url'         => 'ranking_vend',
+                    ],
+                    [
+                        'text'        => 'Ranking Diario',
+                        'url'         => 'ranking_diario',
                     ]
                 ]
             ]);
