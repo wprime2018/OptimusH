@@ -84,6 +84,14 @@ class AppServiceProvider extends ServiceProvider
                         'text'        => 'Ranking dos Vendidos',
                         'url'         => 'produtos/MaisVendidos',
                     ],
+                    [
+                        'text'        => 'Produtos Encalhados',
+                        'url'         => 'produtos/NaoVendidos',
+                    ],
+                    [
+                        'text'        => 'Transferir do CD',
+                        'url'         => 'produtos/transferir',
+                    ],
                 ]
             ]);
             $event->menu->add([

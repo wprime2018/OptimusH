@@ -16,27 +16,27 @@ use App\Models\Painel\MSicTabEst3B;     //Produtos Vendidos
 
 class Vendas extends Controller
 {
-    public function indexVendas()
-    {
-        $Vendas = MSicTabEst3A::join('m_sic_tab_est7s', 'm_sic_tab_est3_as.LkReceb', '=', 'm_sic_tab_est7s.Controle')
-                                ->join('tb_filiais', 'm_sic_tab_est3_as.filial_id', '=', 'tb_filiais.id')
-                                ->join('m_sic_tab_vends', 'm_sic_tab_est3_as.LkVendedor', '=', 'm_sic_tab_vends.Controle')
-                                ->select('m_sic_tab_est3_as.*', 'tb_filiais.fantasia','m_sic_tab_vends.Nome','m_sic_tab_est7s.Recebimento')
-                                ->with('prodVendidos')
-                                ->limit(100)
-                                ->get();
-        $ListFiliais = Filiais::get();
-        return view('painel.vendas.Vendas', compact('ListFiliais','Vendas'));
-    }
-    public function index_vendas_pgto()
+    public function index_vendas_pgto(Request $request)
     {
         $Filiais            = Filiais::where('ativo', '=', 1)->get();
         $ListFiliais        = $Filiais;
         $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
         //$data1 = $request->initial_date . ' 00:00:00';
         //$data2 = $request->final_date   . ' 23:59:59';
-        $data1 = '2018-04-01 00:00:00';
-        $data2 = '2018-04-30 23:59:59';
+        if (isset($request)) {
+            $data1 = $request->initial_date . ' 00:00:00';
+            $data2 = $request->final_date   . ' 23:59:59';
+        } else {
+            $data1 = Carbon::now()->SubDays(30)->StartOfDay();
+            $data2 = Carbon::now()->EndOfDay();
+            $data1 = $data1->toDateTimeString();
+            $data2 = $data2->toDateTimeString();
+            echo var_dump($data2);
+        }
+        $carbonData1 = new Carbon($data1);
+        $carbonData2 = new Carbon($data2);
+        $diaData1 = $carbonData1->day;
+        $diaData2 = $carbonData2->day;
         $formas = array();
         $tot_vendas = 0;
         $gran_total = 0;
@@ -47,12 +47,6 @@ class Vendas extends Controller
         $gran_ticket = 0;
 
         foreach ($Filiais as $f) {
-            /*$test =& $array[1]['test'];
-
-            $test[] = 'stack';
-
-            $test[] = 'overflow';*/
-
             $tot_filial_qtde = 0;
             $tot_filial_valor = 0;
             $tot_filial_cred = 0;
@@ -217,7 +211,7 @@ class Vendas extends Controller
         $formas['GranTotalDeb']     = $gran_deb;
         return view('painel.vendas.ranking', compact('ListFiliais','Filiais','TipoRecebimentos','data1','data2','formas'));
     }
-    public function ranking_vendedores()
+    public function ranking_vendedores(Request $request)
     {
         $Filiais            = Filiais::where('ativo', '=', 1)->get();
         $ListFiliais        = $Filiais;
@@ -225,8 +219,22 @@ class Vendas extends Controller
         $listVend           = MSicTabVend::get(['id','Controle','Nome','Comissao', 'DataInc']);
         //$data1 = $request->initial_date . ' 00:00:00';
         //$data2 = $request->final_date   . ' 23:59:59';
-        $data1 = '2018-04-01 00:00:00';
-        $data2 = '2018-04-30 23:59:59';
+//      $data1 = '2018-04-01 00:00:00';
+//      $data2 = '2018-04-30 23:59:59';
+        if (isset($request)) {
+            $data1 = $request->initial_date . ' 00:00:00';
+            $data2 = $request->final_date   . ' 23:59:59';
+        } else {
+            $data1 = Carbon::now(-30);
+            $data2 = Carbon::now();
+            $data1 = $data1->toDateTimeString();
+            $data2 = $data2->toDateTimeString();
+            echo var_dump($data2);
+        }
+        $carbonData1 = new Carbon($data1);
+        $carbonData2 = new Carbon($data2);
+        $diaData1 = $carbonData1->day;
+        $diaData2 = $carbonData2->day;
         $formas = array();
         $tot_vendas = 0;
         $gran_total = 0;
@@ -295,15 +303,21 @@ class Vendas extends Controller
         }*/
         return view('painel.vendas.ranking_vendedor', compact('ListFiliais','Filiais','TipoRecebimentos','data1','data2','formas'));
     }
-    public function ranking_diario()
+    public function ranking_diario(Request $request)
     {
         $Filiais            = Filiais::where('ativo', '=', 1)->get();
         $ListFiliais        = $Filiais;
         $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
-        //$data1 = $request->initial_date . ' 00:00:00';
-        //$data2 = $request->final_date   . ' 23:59:59';
-        $data1 = '2018-04-01 00:00:00';
-        $data2 = '2018-04-30 23:59:59';
+        if(isset($request)) {
+            $data1 = Carbon::create($request->year_date, $request->month_date, 10, 0, 0, 0)->firstOfMonth()->toDateTimeString();
+            $data2 = Carbon::create($request->year_date, $request->month_date, 10, 0, 0, 0)->lastOfMonth()->toDateTimeString(); 
+        } else {
+            $data1 = Carbon::now()->subDays(30)->toDateTimeString();
+            $data2 = Carbon::now()->toDateTimeString();
+            echo var_dump($data2);
+        }
+        //$data1 = '2018-04-01 00:00:00';
+        //$data2 = '2018-04-30 23:59:59';
         $carbonData1 = new Carbon($data1);
         $carbonData2 = new Carbon($data2);
         $diaData1 = $carbonData1->day;
@@ -411,6 +425,17 @@ class Vendas extends Controller
             $dataInicial->minute = 00;
             $dataInicial->second = 00;
         }
-        return view('painel.vendas.ranking_diario', compact('ListFiliais','Filiais','data1','data2','formas'));
+        $message = "Período informado de ". $data1 . "até" . $data2;
+        $soma = array();
+        foreach($formas as $i => $value1) {
+            foreach($value1 as $j => $value2){
+                if (isset($soma[$j]['Total'])) {
+                    $soma[$j]['Total'] = $soma[$j]['Total'] + $value2['Total'];
+                } else {
+                    $soma[$j]['Total'] = $value2['Total'];
+                }
+            }
+        }            
+        return view('painel.vendas.ranking_diario', compact('ListFiliais','Filiais','data1','data2','formas','soma'));
     }
 }   

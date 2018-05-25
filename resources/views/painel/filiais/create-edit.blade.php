@@ -37,7 +37,8 @@
 	{!! Form::open(['route' => 'filial.store', 'class' => 'form'])!!} 
 @endif
 
-<input type="hidden" name="ativo" value="0" />
+<input type="hidden" name="ativo" value="0">
+<input type="hidden" name="filial_cd" value="0">
 	
 	<div class="box box-primary">
 		<div class="box-header with-border">
@@ -47,7 +48,7 @@
 		<div class="box-body">
 			<!--<form role="form">
 				 text input -->
-			<div class="col-md-6">
+			<div class="col-md-12">
 				<div class="form-group col-md-2">
 					<label>Código Interno</label>
 					{!! Form::text('codigo',null,['class' => 'form-control', 'maxlength' => '3', 'id'=>"codigo",'onkeyup'=>'javascript:this.value=this.value.toUpperCase();']) !!}
@@ -100,6 +101,8 @@
 					<!--<input type="text" class="form-control" id = "cnpj" maxlength="18" data-inputmask="mask": "99.999.999/9999-99" data-mask="">-->
 					{!! Form::number('cnpj',null,['class' => 'form-control', 'maxlength' => '14', 'id'=>"cnpj"]) !!}
 					<!--<input type="text" name="cnpj" id="cnpj" onkeyup="FormataCnpj(this,event)" onblur="if(!validarCNPJ(this.value)){alert('CNPJ Informado é inválido'); this.value='';}" maxlength="18"  class="form-control input-md" ng-model="cadastro.cnpj" required>-->
+					<label>Centro de Distribuição?</label>
+					{!! Form::checkbox('filial_cd') !!}
 				</div>
 				<div class="form-group col-md-3">
 					<label>Inscrição Estadual</label>

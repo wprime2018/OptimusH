@@ -29,6 +29,7 @@ class Filiais extends Model
             'cnpj',
             'ie', 
             'im',
-            'ativo' 
+            'ativo',
+            'filial_cd' 
 		    ];
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Painel\MSicTabEst3A;
 use App\Models\Painel\Estoque;
 use App\Models\Painel\Filiais;
+use Carbon\Carbon;
 use DB;
 class PedidosEstoque extends Controller
 {
@@ -14,7 +15,13 @@ class PedidosEstoque extends Controller
     {
         $data1 = $request->initial_date . ' 00:00:00';
         $data2 = $request->final_date   . ' 23:59:59';
+        $carbonData1 = new Carbon($data1);
+        $carbonData2 = new Carbon($data2);
+        $diaData1 = $carbonData1->day;
+        $diaData2 = $carbonData2->day;
+    
         $ListFiliais = Filiais::where('ativo','=', '1')->get();
+        $ListFiliaisCD = Filiais::where('ativo','=', '1')->where('filial_cd','=','1')->get();
         $totalProd = array();
         foreach($ListFiliais as $Filiais) {
             $ProdVendidosPorFilial = 
@@ -32,11 +39,10 @@ class PedidosEstoque extends Controller
                             ->get();
             $countProdVend = count($ProdVendidosPorFilial);
             if($countProdVend > 0) {
-                $qtde_dias = strtotime($data2) - strtotime($data1);
-                $qtde_dias = floor($qtde_dias / (60 * 60 * 24));
+                $qtde_dias = $diaData2 - $diaData1;
                 foreach ($ProdVendidosPorFilial as $pv => $valor) {
                     $estMinimo = $valor->Vendidos;
-                    $estIdeal = ($valor->Vendidos / 7) * 11;
+                    $estIdeal = ($valor->Vendidos / $qtde_dias) * ($qtde_dias * 1.5);
                     $estIdeal = round($estIdeal,0);
 
                     $prodAtualizado = Estoque::where('filial_id', $Filiais->id)
@@ -53,11 +59,24 @@ class PedidosEstoque extends Controller
                         case ($pA->Atual < $estIdeal and $pA->Atual > $estMinimo):
                             $Status = "Atenção";
                             $Comprar = $estIdeal - $pA->Atual;
+                            if (count($ListFiliaisCD)>0) {
+                                $estqCD = self::EstoqueAtualCD($pA->LkProduto);
+                                if ($Comprar < $estqCD) {
+                                    $Status = "Transferir";
+                                }
+                            }
                             break;
                         
                         case ($pA->Atual < $estMinimo):
                             $Status = "Urgente!";
                             $Comprar = $estIdeal - $pA->Atual;
+                            if (count($ListFiliaisCD)>0) {
+                                $estqCD = self::EstoqueAtualCD($pA->LkProduto);
+                                if ($Comprar < $estqCD) {
+                                    $Status = "Transferir";
+                                    echo "Passou Aqui 2" . "</br>";
+                                }
+                            }
                             break;
 
                         default :
@@ -117,40 +136,53 @@ class PedidosEstoque extends Controller
     }
     public function ProdutosEstoqueAtual()
     {
-        $prod       = Estoque::distinct('LkProduto')
-                                ->with('produto')
-                                ->orderby('LkProduto')
-                                ->get(['LkProduto']);
+        $prod       = Estoque::distinct('LkProduto')->with('produto')->orderby('LkProduto')->get(['LkProduto']);
                                 
         $prodFilial = Estoque::orderby('LkProduto')->get();
 
-        $filiaisAcomprar = Estoque::with('filial')
-                                ->distinct()
-                                ->groupby('filial_id')
-                                ->get(['filial_id']);
+        $filiaisAcomprar = Estoque::with('filial')->distinct()->groupby('filial_id')->get(['filial_id']);
 
         return view ('painel.produtos.EstoqueAtual',compact('prod', 'filiaisAcomprar','prodFilial'));
     }
     public function ProdutosMaisVendidos()
     {
-        $prod         = Estoque::distinct('LkProduto')
-                                ->with(['produto','filial'])
-                                ->orderby('LkProduto')
-                                ->where('Vendidos','>','0')
-                                ->get(['LkProduto']);
+        $prod         = Estoque::distinct('LkProduto')->with(['produto','filial'])->orderby('LkProduto')->where('Vendidos','>','0')->get(['LkProduto']);
                                 
-        $prodFilial   = Estoque::orderby('LkProduto')
-                                ->get();
+        $prodFilial   = Estoque::orderby('LkProduto')->get();
 
-        $filiaisAcomprar        = Estoque::with('filial')
-                                ->distinct()
-                                ->groupby('filial_id')
-                                ->get(['filial_id']);
+        $filiaisAcomprar        = Estoque::with('filial')->distinct()->groupby('filial_id')->get(['filial_id']);
 
         return view ('painel.produtos.MaisVendidos',compact('prod', 'filiaisAcomprar','prodFilial'));
     }
-    public function ProdutosNaoVendidos()
+    public function ProdutosTransferirCD()
     {
+        $prod         = Estoque::distinct('LkProduto')->with(['produto','filial'])->orderby('LkProduto')->where('Status','Transferir')->get(['LkProduto']);
+                                
+        $prodFilial   = Estoque::orderby('LkProduto')->get();
+
+        $filiaisAcomprar        = Estoque::with('filial')->distinct()->groupby('filial_id')->get(['filial_id']);
+
+        return view ('painel.produtos.Transferir',compact('prod', 'filiaisAcomprar','prodFilial'));
+    }
+    public function ProdutosNaoVendidos($lkProduto,$filial,$data1,$data2)
+    {
+        $Vendas = MSicTabEst3A::where('filial_id',$filial)
+                                ->where('Cancelada','0')
+                                ->where('LkTipo','2')
+                                ->wherebetween('Data',[$data1,$data2])
+                                ->with(['prodVendidos','vendedor','Receb'])
+                                ->orderBy('LkVendedor')
+                                ->get();
+                                
+        if (count($Vendas)>0) {
+            $estqAtual = 0;
+            foreach($Vendas as $v){
+                if($v->prodVendidos->LkProduto == $lkProduto) {
+                    $estqAtual = $estqAtual + $v->prodVendidos->sum('Quantidade');
+                }
+            }
+        }
+    
         $prod         = Estoque::distinct('LkProduto')
                                 ->where('Atual','>','0')
                                 ->whereNull('Vendidos')
@@ -179,5 +211,48 @@ class PedidosEstoque extends Controller
             return redirect()->route('estoques.destroy', $id)->with(['errors' => 'Falha ao deletar']);
         }
         
+    }
+    public function EstoqueAtualCD($lkProduto)
+    {
+        $filiaisCD = Filiais::where('ativo','1')->where('filial_cd','1')->get();
+        if (count($filiaisCD)> 0) {
+            foreach($filiaisCD as $fCD) {
+                $prodCDEstqAtual = Estoque::where('LkProduto', $lkProduto)->where('filial_id', $fCD)->with('produto')->get();
+                if (count($prodCDEstqAtual)>0) {
+                    return $prodCDEstqAtual->Atual;
+                } else {
+                    return 0;   
+                }
+            }    
+        }
+    }
+    public function CalculaNaoVendidos($data1, $data2)
+    {
+        $filiaisNCD = Filiais::where('ativo','1')->where('filial_cd','0')->get();
+        if (count($filiaisNCD)> 0) {
+            foreach($filiaisNCD as $fNCD) {
+                $Vendas = MSicTabEst3A::where('filial_id',$fNCD->id)
+                                        ->where('Cancelada','0')
+                                        ->where('LkTipo','2')
+                                        ->wherebetween('Data',[$data1,$data2])
+                                        ->with(['prodVendidos','vendedor','Receb'])
+                                        ->orderBy('LkReceb')
+                                        ->get();
+                if (count($Vendas)>0) {
+                    $valueTable = array();
+                    foreach($Vendas as $v) {
+                        foreach($v->prodVendidos as $prodVend) {
+                            $key = array_search($prodVend->LkProduto, $valueTable);
+                            if ($key > 0) {
+                                $valueTable[$key][0] = $valueTable[$key][0] + $prodVend->Quantidade;
+                            } else {
+                                $valueTable[$prodVend->LkProduto][0] = $valueTable[$key][0] + $prodVend->Quantidade;
+                            }
+                        }
+                    }
+                }
+            }
+            dd($valueTable);
+        }        
     }
 }

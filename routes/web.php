@@ -22,7 +22,6 @@ Route::get('/home/filiais'              , 'HomeController@index_Filiais')->name(
 
 //Route::post('register'                  , 'RegisterController')->middleware('auth');
 
-Route::get('vendas'                     , 'Painel\SicTabEst1Controller@indexVendas')->middleware('auth');
 Route::get('vendas_pgto'                , 'Painel\Vendas@index_vendas_pgto')->middleware('auth');
 Route::get('ranking'                    , 'Painel\Vendas@ranking_vendas')->middleware('auth');
 Route::get('ranking_vend'               , 'Painel\Vendas@ranking_vendedores')->middleware('auth');
@@ -44,6 +43,8 @@ Route::get('produtos/pedComprar'        , 'Painel\PedidosEstoque@pedidosComprarT
 Route::get('produtos/EstoqueAtual'      , 'Painel\PedidosEstoque@ProdutosEstoqueAtual')->middleware('auth')->name('EstoqueAtual');
 Route::get('produtos/MaisVendidos'      , 'Painel\PedidosEstoque@ProdutosMaisVendidos')->middleware('auth')->name('MaisVendidos');
 Route::get('produtos/NaoVendidos'       , 'Painel\PedidosEstoque@ProdutosNaoVendidos')->middleware('auth')->name('NaoVendidos');
+Route::get('produtos/transferir'        , 'Painel\PedidosEstoque@ProdutosTransferirCD')->middleware('auth')->name('Transferir');
+
 
 Route::resource('tpDespesa'             , 'Painel\TpDespesasController')->middleware('auth');
 

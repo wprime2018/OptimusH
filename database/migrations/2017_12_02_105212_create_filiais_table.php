@@ -31,6 +31,7 @@ class CreateFiliaisTable extends Migration
             $table->integer('ie', false, true)->length(10)->nullable();
             $table->bigInteger('im',false,true)->nullable();
             $table->boolean('ativo');
+            $table->boolean('filial_cd');
             $table->timestamps();
             $table->index('codigo');
             $table->index(['fantasia','razao_social']);
