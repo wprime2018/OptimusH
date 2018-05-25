@@ -26,10 +26,6 @@
 
 @section('content')
 <div class="box-body">
-	<div class="form-group col-md-12">
-		<a data-toggle="modal" data-target="b6" id="btnModal6" class="btn btn-primary btn-lg active btn-add">
-			<span class="glyphicon glyphicon-filter"></span>Selecionar Período</a>
-	</div>
 	@php $num_filial = 0;@endphp
 	@foreach($formas as $filiais => $vendedores)	
 
