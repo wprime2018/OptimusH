@@ -16,6 +16,7 @@ return array(
     'App\\Http\\Controllers\\HomeController' => $baseDir . '/app/Http/Controllers/HomeController.php',
     'App\\Http\\Controllers\\Painel\\DespesasController' => $baseDir . '/app/Http/Controllers/Painel/DespesasController.php',
     'App\\Http\\Controllers\\Painel\\FiliaisController' => $baseDir . '/app/Http/Controllers/Painel/FiliaisController.php',
+    'App\\Http\\Controllers\\Painel\\FuncoesEstoqueController' => $baseDir . '/app/Http/Controllers/Painel/FuncoesEstoqueController.php',
     'App\\Http\\Controllers\\Painel\\PedidosEstoque' => $baseDir . '/app/Http/Controllers/Painel/PedidosEstoque.php',
     'App\\Http\\Controllers\\Painel\\SicTabEst1Controller' => $baseDir . '/app/Http/Controllers/Painel/SicTabEst1Controller.php',
     'App\\Http\\Controllers\\Painel\\TpDespesasController' => $baseDir . '/app/Http/Controllers/Painel/TpDespesasController.php',

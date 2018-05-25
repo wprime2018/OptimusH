@@ -362,6 +362,7 @@ class ComposerStaticInit23014f365df643074e541c3f53683b68
         'App\\Http\\Controllers\\HomeController' => __DIR__ . '/../..' . '/app/Http/Controllers/HomeController.php',
         'App\\Http\\Controllers\\Painel\\DespesasController' => __DIR__ . '/../..' . '/app/Http/Controllers/Painel/DespesasController.php',
         'App\\Http\\Controllers\\Painel\\FiliaisController' => __DIR__ . '/../..' . '/app/Http/Controllers/Painel/FiliaisController.php',
+        'App\\Http\\Controllers\\Painel\\FuncoesEstoqueController' => __DIR__ . '/../..' . '/app/Http/Controllers/Painel/FuncoesEstoqueController.php',
         'App\\Http\\Controllers\\Painel\\PedidosEstoque' => __DIR__ . '/../..' . '/app/Http/Controllers/Painel/PedidosEstoque.php',
         'App\\Http\\Controllers\\Painel\\SicTabEst1Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Painel/SicTabEst1Controller.php',
         'App\\Http\\Controllers\\Painel\\TpDespesasController' => __DIR__ . '/../..' . '/app/Http/Controllers/Painel/TpDespesasController.php',
