@@ -19,7 +19,7 @@
     <!-- BootStrapp Dialog -->
     <link rel="stylesheet" href="{{ asset('BS3DialogMaster\dist\css\bootstrap-dialog.css') }}">
     <link rel="stylesheet" href="{{ asset('BS3DialogMaster\dist\css\bootstrap-dialog.min.css') }}">
-
+    <link rel="stylesheet" href="{{ asset('css/waiting.css') }}">
     
 
     @if(config('adminlte.plugins.select2'))

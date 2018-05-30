@@ -24,19 +24,25 @@ class Vendas extends Controller
         //$data1 = $request->initial_date . ' 00:00:00';
         //$data2 = $request->final_date   . ' 23:59:59';
         if (isset($request)) {
-            $data1 = $request->initial_date . ' 00:00:00';
-            $data2 = $request->final_date   . ' 23:59:59';
+            
+            if (empty($request->initial_date))
+                $data1 = Carbon::now()->startOfDay();
+            else 
+                $data1 = $request->initial_date . ' 00:00:00';
+                $data1 = new Carbon($data1);
+                
+            if (empty($request->final_date))   
+                $data2 = Carbon::now()->endOfDay();
+            else 
+                $data2 = $request->final_date   . ' 23:59:59';
+                $data2 = new Carbon($data2);
+                
         } else {
-            $data1 = Carbon::now()->SubDays(30)->StartOfDay();
-            $data2 = Carbon::now()->EndOfDay();
-            $data1 = $data1->toDateTimeString();
-            $data2 = $data2->toDateTimeString();
-            echo var_dump($data2);
+            $data1 = Carbon::now()->firstOfMonth()->startOfDay();
+            $data2 = Carbon::now()->lastOfMonth()->endOfDay();
         }
-        $carbonData1 = new Carbon($data1);
-        $carbonData2 = new Carbon($data2);
-        $diaData1 = $carbonData1->day;
-        $diaData2 = $carbonData2->day;
+        $diaData1 = $data1->day;
+        $diaData2 = $data2->day;
         $formas = array();
         $tot_vendas = 0;
         $gran_total = 0;
@@ -58,35 +64,39 @@ class Vendas extends Controller
             foreach($TipoRecebimentos  as $Tr ) {
                 $tot_pgto = 0;
                 //$formas[$f->codigo][] = $Tr->Recebimento;
+                $dt1 = $data1->toDateTimeString();
+                $dt2 = $data2->toDateTimeString();
                 $Vendas = MSicTabEst3A::where('LkReceb',$Tr->Controle)
-                                        ->orderBy('LkReceb')
                                         ->where('filial_id',$f->id)
-                                        ->wherebetween('Data',[$data1,$data2])
-                                        ->with('prodVendidos')
+                                        ->where('Cancelada','0')
+                                        ->where('LkTipo','2')
+                                        ->wherebetween('Data',[$dt1,$dt2])
+                                        ->with(['prodVendidos','vendedor','Receb'])
+                                        ->orderBy('LkReceb')
                                         ->get();
                 $tot_qtde_receb = $Vendas->count();
                 if(count($Vendas)>0){
                     foreach($Vendas as $V){
-                        $tot_pgto = $tot_pgto +     $V->prodVendidos->sum('Total');
+                        $tot_pgto += $V->prodVendidos->sum('Total');
                     }
                     $formas[$Tr->Recebimento][$f->codigo] = Array ('Qtde' => $tot_qtde_receb, 'Total' => $tot_pgto) ;
-                    $tot_filial_qtde = $tot_filial_qtde + $tot_qtde_receb;
-                    $tot_filial_valor = $tot_filial_valor + $tot_pgto; 
+                    $tot_filial_qtde  += $tot_qtde_receb;
+                    $tot_filial_valor += $tot_pgto; 
                 }else{
                     $formas[$Tr->Recebimento][$f->codigo] = Array ('Qtde' => $tot_qtde_receb, 'Total' => 0) ;
                 }
                 switch ($Tr->tipo) {
                     case 'C':
-                        $tot_filial_cred = $tot_filial_cred + $tot_pgto;
-                        $tot_filial_qtde_cred = $tot_filial_qtde_cred + 1;
+                        $tot_filial_cred += $tot_pgto;
+                        ++$tot_filial_qtde_cred;
                         break;
                     case 'D':
-                        $tot_filial_deb = $tot_filial_deb + $tot_pgto; 
-                        $tot_filial_qtde_deb = $tot_filial_qtde_deb + 1;                        
+                        $tot_filial_deb += $tot_pgto; 
+                        ++$tot_filial_qtde_deb;                        
                         break;
                     default:
-                        $tot_filial_din = $tot_filial_din + $tot_pgto;
-                        $tot_filial_qtde_din = $tot_filial_qtde_din + 1;
+                        $tot_filial_din += $tot_pgto;
+                        ++$tot_filial_qtde_din;
                 }
             }
             if ($tot_filial_qtde > 0){
@@ -94,17 +104,17 @@ class Vendas extends Controller
             } else {
                 $ticket_medio = 0;
             }
-            $gran_total = $gran_total   + $tot_filial_valor;
-            $gran_qtde = $gran_qtde     + $tot_filial_qtde;
-            $gran_cred = $gran_cred     + $tot_filial_cred;
-            $gran_deb = $gran_deb       + $tot_filial_deb;
-            $gran_din = $gran_din       + $tot_filial_din;
+            $gran_total += $tot_filial_valor;
+            $gran_qtde  += $tot_filial_qtde;
+            $gran_cred  += $tot_filial_cred;
+            $gran_deb   += $tot_filial_deb;
+            $gran_din   += $tot_filial_din;
         
             $formas[$Tr->Recebimento][$f->codigo]['Qtde_Vendas'] = $tot_filial_qtde;
-            $formas[$Tr->Recebimento][$f->codigo]['TicketM'] = $ticket_medio;
-            $formas[$Tr->Recebimento][$f->codigo]['Din'] = $tot_filial_din;
-            $formas[$Tr->Recebimento][$f->codigo]['Cred'] = $tot_filial_cred;
-            $formas[$Tr->Recebimento][$f->codigo]['Deb'] = $tot_filial_deb;
+            $formas[$Tr->Recebimento][$f->codigo]['TicketM']     = $ticket_medio;
+            $formas[$Tr->Recebimento][$f->codigo]['Din']         = $tot_filial_din;
+            $formas[$Tr->Recebimento][$f->codigo]['Cred']        = $tot_filial_cred;
+            $formas[$Tr->Recebimento][$f->codigo]['Deb']         = $tot_filial_deb;
             $formas[$Tr->Recebimento][$f->codigo]['TotalVendas'] = $tot_filial_valor;
             
             /*echo 'Totais da Filial -->' . $tot_filial_qtde . ' - ' . $tot_filial_valor . ' Ticket Médio = ' . $ticket_medio . "</br>";
@@ -164,25 +174,25 @@ class Vendas extends Controller
                 if(count($Vendas)>0){
                     $tot_vendas = 0;
                     foreach($Vendas as $V){
-                        $tot_vendas = $tot_vendas + $V->prodVendidos->sum('Total');
+                        $tot_vendas += $V->prodVendidos->sum('Total');
                     }
                     $formas[$Tr->Recebimento][$f->codigo] = Array ('Qtde' => $tot_qtde_receb, 'Total' => $tot_pgto) ;
-                    $tot_filial_qtde = $tot_filial_qtde + $tot_qtde_receb;
-                    $tot_filial_valor = $tot_filial_valor + $tot_pgto; 
+                    $tot_filial_qtde += $tot_qtde_receb;
+                    $tot_filial_valor += $tot_pgto; 
                 }else{
                     $formas[$Tr->Recebimento][$f->codigo] = Array ('Qtde' => $tot_qtde_receb, 'Total' => 0) ;
                 }
                 switch ($v->Receb->tipo) {
                     case 'C':
-                        $tot_filial_cred = $tot_filial_cred + $tot_pgto;
-                        $tot_filial_qtde_cred = $tot_filial_qtde_cred + 1;
+                        $tot_filial_cred += $tot_pgto;
+                        ++$tot_filial_qtde_cred;
                         break;
                     case 'D':
-                        $tot_filial_deb = $tot_filial_deb + $tot_pgto; 
-                        $tot_filial_qtde_deb = $tot_filial_qtde_deb + 1;                        
+                        $tot_filial_deb += $tot_pgto; 
+                        ++$tot_filial_qtde_deb;                        
                         break;
                     default:
-                        $tot_filial_din = $tot_filial_deb + $tot_pgto;
+                        $tot_filial_din += $tot_pgto;
                 }
             }
             if ($tot_filial_qtde > 0){
@@ -190,10 +200,10 @@ class Vendas extends Controller
             } else {
                 $ticket_medio = 0;
             }
-            $gran_total = $gran_total + $tot_filial_valor;
-            $gran_qtde = $gran_qtde + $tot_filial_qtde;
-            $gran_cred = $gran_cred + $tot_filial_cred;
-            $gran_deb = $gran_deb + $tot_filial_deb;
+            $gran_total += $tot_filial_valor;
+            $gran_qtde  += $tot_filial_qtde;
+            $gran_cred  += $tot_filial_cred;
+            $gran_deb   += $tot_filial_deb;
         
             $formas[$Tr->Recebimento][$f->codigo]['Qtde_Vendas']    = $tot_filial_qtde;
             $formas[$Tr->Recebimento][$f->codigo]['TicketM']        = $ticket_medio;
@@ -264,18 +274,18 @@ class Vendas extends Controller
                     $tot_valor_vendas_din = 0;
                     $ticket_vendedor = 0;
                     foreach ($Vendas as $v) {
-                        $tot_valor_vendas_vendedor = $tot_valor_vendas_vendedor + $v->prodVendidos->sum('Total');
+                        $tot_valor_vendas_vendedor += $v->prodVendidos->sum('Total');
                         
                         if ($v->Receb()->count() > 0) {
                             switch ($v->Receb->tipo) {
                                 case 'C':
-                                    $tot_valor_vendas_cred = $tot_valor_vendas_cred + $v->prodVendidos->sum('Total');
+                                    $tot_valor_vendas_cred += $v->prodVendidos->sum('Total');
                                     break;
                                 case 'D':
-                                    $tot_valor_vendas_deb = $tot_valor_vendas_deb + $v->prodVendidos->sum('Total');
+                                    $tot_valor_vendas_deb += $v->prodVendidos->sum('Total');
                                     break;
                                 default:
-                                    $tot_valor_vendas_din = $tot_valor_vendas_din + $v->prodVendidos->sum('Total');
+                                    $tot_valor_vendas_din += $v->prodVendidos->sum('Total');
                             }
                         }
                     }
@@ -309,30 +319,20 @@ class Vendas extends Controller
         $ListFiliais        = $Filiais;
         $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
         if(isset($request)) {
-            $data1 = Carbon::create($request->year_date, $request->month_date, 10, 0, 0, 0)->firstOfMonth()->toDateTimeString();
-            $data2 = Carbon::create($request->year_date, $request->month_date, 10, 0, 0, 0)->lastOfMonth()->toDateTimeString(); 
+            $data1 = Carbon::create($request->year_date, $request->month_date, 10, 0, 0, 0)->firstOfMonth()->startOfDay();
+            $data2 = Carbon::create($request->year_date, $request->month_date, 10, 0, 0, 0)->lastOfMonth()->endOfDay();
+            $diaData1 = $data1->day;
+            $diaData2 = $data2->day; 
         } else {
-            $data1 = Carbon::now()->subDays(30)->toDateTimeString();
-            $data2 = Carbon::now()->toDateTimeString();
-            echo var_dump($data2);
+            $data1 = Carbon::now()->firstOfMonth()->startOfDay();
+            $data2 = Carbon::now()->lastOfMonth()->endOfDay();
         }
-        //$data1 = '2018-04-01 00:00:00';
-        //$data2 = '2018-04-30 23:59:59';
-        $carbonData1 = new Carbon($data1);
-        $carbonData2 = new Carbon($data2);
-        $diaData1 = $carbonData1->day;
-        $diaData2 = $carbonData2->day;
         $formas = array();
         $gran_total = array();
-        
-        $dataInicial = $carbonData1;
+        $dataInicial = $data1->day(1);
+        $dataFinal = $data2->day(1);
         for ($i = $diaData1; $i <= $diaData2; $i++) {
-            $dt1 = $dataInicial->toDateTimeString();
-            $dataFinal = $dataInicial;
-            $dataFinal->hour = 23;
-            $dataFinal->minute = 59;
-            $dataFinal->second = 59;
-            $dt2 = $dataFinal->toDateTimeString();
+            
             $diadaSemana = $dataInicial->format('D');
             switch ($diadaSemana) {
                 case 'Sun':
@@ -357,6 +357,8 @@ class Vendas extends Controller
                     $diadaSemana = 'Sáb';
                     break;
             }
+            $dt1 = $data1->toDateTimeString();
+            $dt2 = $data2->toDateTimeString();
             $dataFormat = $dataInicial->format('d/m/Y') . " ". $diadaSemana;
             foreach($Filiais as $f) {
                 $Vendas = MSicTabEst3A::where('filial_id',$f->id)
@@ -373,17 +375,17 @@ class Vendas extends Controller
                 $tot_valor_vendas_diaDin = 0;
                 if ($qtde_vendas_dia > 0) {
                     foreach ($Vendas as $v) {
-                        $tot_valor_vendas_dia = $tot_valor_vendas_dia + $v->prodVendidos->sum('Total');
+                        $tot_valor_vendas_dia += $v->prodVendidos->sum('Total');
                         if ($v->Receb()->count() > 0) {
                             switch ($v->Receb->tipo) {
                                 case 'C':
-                                    $tot_valor_vendas_diaCred = $tot_valor_vendas_diaCred + $v->prodVendidos->sum('Total');
+                                    $tot_valor_vendas_diaCred += $v->prodVendidos->sum('Total');
                                     break;
                                 case 'D':
-                                    $tot_valor_vendas_diaDeb = $tot_valor_vendas_diaDeb + $v->prodVendidos->sum('Total');
+                                    $tot_valor_vendas_diaDeb += $v->prodVendidos->sum('Total');
                                     break;
                                 default:
-                                    $tot_valor_vendas_diaDin = $tot_valor_vendas_diaDin + $v->prodVendidos->sum('Total');
+                                    $tot_valor_vendas_diaDin += $v->prodVendidos->sum('Total');
                             }
                         }
                         $dataFormat = $dataInicial->format('d/m/Y') . " ". $diadaSemana;
@@ -413,17 +415,15 @@ class Vendas extends Controller
                 $tot_valor_vendas_dia = 0;
                 if ($qtde_vendas_dia > 0) {
                     foreach ($Vendas as $v) {
-                        $tot_valor_vendas_dia = $tot_valor_vendas_dia + $v->prodVendidos->sum('Total');
+                        $tot_valor_vendas_dia += $v->prodVendidos->sum('Total');
                         $formas[$dataFormat][$f->codigo]['Total_Canc'] = $tot_valor_vendas_dia;
                         $formas[$dataFormat][$f->codigo]['Qtde_Canc'] = $qtde_vendas_dia; 
                     }
                 }
             }
             
-            $dataInicial = $dataInicial->addDay();
-            $dataInicial->hour = 00;
-            $dataInicial->minute = 00;
-            $dataInicial->second = 00;
+            $dataInicial = $data1->day($i);
+            $dataFinal = $data2->day($i);
         }
         $message = "Período informado de ". $data1 . "até" . $data2;
         $soma = array();

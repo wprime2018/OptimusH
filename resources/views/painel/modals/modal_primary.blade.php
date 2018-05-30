@@ -8,12 +8,22 @@
                 <h4 class="modal-title">{{$tituloModal}}</h4>
             </div>
             <div class="modal-body">
+                <div id="blanket"></div>
+                <div id="aguarde">Aguarde...</div>
                 {{$bodyModal}}
-            </div>
+           </div>
             <div class="modal-footer">
-                {!! Form::submit("$btnConfirmar",['class' => 'btn btn-success delete', 'name' => 'confirm_modal']) !!}
+                {!! Form::submit("$btnConfirmar",['class' => 'btn btn-success delete', 'name' => 'confirm_modal', 'onclick'=>'javascript:document.getElementById("blanket").style.display = "block";document.getElementById("aguarde").style.display = "block"']) !!}
                 {!! Form::close() !!}
             </div>
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.confirm_modal').click(function(){
+            $('#aguarde, #blanket').css('display','block');
+        });
+    });
+</script>
