@@ -9,9 +9,9 @@
             </div>
             <div class="modal-body">
                 <div id="blanket"></div>
-                <div id="aguarde">Aguarde...</div>
+                <div id="aguarde"><img src="img/carregando.gif"></div>
                 {{$bodyModal}}
-           </div>
+            </div>
             <div class="modal-footer">
                 {!! Form::submit("$btnConfirmar",['class' => 'btn btn-success delete', 'name' => 'confirm_modal', 'onclick'=>'javascript:document.getElementById("blanket").style.display = "block";document.getElementById("aguarde").style.display = "block"']) !!}
                 {!! Form::close() !!}
