@@ -112,6 +112,19 @@
 										@endif
 								</select>
 							</div>
+							<div class="timeline-item">
+								<span class="time"><i class="fa fa-clock-o"></i>Escolha seu avatar</span>
+				
+								<h3 class="timeline-header"><a href="#">Imagem de Perfil </a> uploaded new photos</h3>
+				
+								<div class="timeline-body">
+									<img src="../img/avatar.png" width="80px" height="80px" alt="..." class="margin">
+									<img src="../img/avatar2.png" width="80px" height="80px" alt="..." class="margin">
+									<img src="../img/avatar3.png" width="80px" height="80px" alt="..." class="margin">
+									<img src="../img/avatar4.png" width="80px" height="80px" alt="..." class="margin">
+									<img src="../img/avatar5.png" width="80px" height="80px" alt="..." class="margin">
+								</div>
+							  </div>
 							<button type="submit"
 									class="btn btn-primary btn-block btn-flat"
 							>{{ trans('adminlte::adminlte.register') }}</button>
