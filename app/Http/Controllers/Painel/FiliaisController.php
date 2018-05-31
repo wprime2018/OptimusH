@@ -127,4 +127,13 @@ class FiliaisController extends Controller
         }
         
     }
+
+    public function filial_NCD() {
+        $Filiais = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
+        return $Filiais;
+    }
+    public function filial_CD() {
+        $Filiais = Filiais::where('ativo', '=', 1)->whereNotNull('filial_cd')->get();
+        return $Filiais;
+    }
 }

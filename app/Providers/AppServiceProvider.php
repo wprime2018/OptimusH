@@ -65,6 +65,10 @@ class AppServiceProvider extends ServiceProvider
                     [
                         'text'        => 'Ranking Diario',
                         'url'         => 'ranking_diario',
+                    ],
+                    [
+                        'text'        => 'Ranking CHIP',
+                        'url'         => 'ranking_chip',
                     ]
                 ]
             ]);

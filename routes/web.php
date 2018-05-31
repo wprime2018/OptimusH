@@ -22,6 +22,7 @@ Route::get('/home/filiais'              , 'HomeController@index_Filiais')->name(
 
 //Route::post('register'                  , 'RegisterController')->middleware('auth');
 
+Route::get('ranking_chip'               , 'Painel\Vendas@ranking_chip')->middleware('auth');
 Route::get('vendas_pgto'                , 'Painel\Vendas@index_vendas_pgto')->middleware('auth');
 Route::get('ranking'                    , 'Painel\Vendas@ranking_vendas')->middleware('auth');
 Route::get('ranking_vend'               , 'Painel\Vendas@ranking_vendedores')->middleware('auth');

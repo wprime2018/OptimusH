@@ -6,7 +6,11 @@
 
 <h1>
 	Ranking 
-	<small>Vendedores</small>
+	@if (isset($carbonData1))
+		<small>Vendedores de {{$carbonData1->format('d/m/Y')}} até {{$carbonData2->format('d/m/Y')}}</small>
+	@else 
+		<small>Vendedores de {{$carbonData1->format('d/m/Y')}} até {{$carbonData2->format('d/m/Y')}}</small>
+	@endif
 </h1>
 <ol class="breadcrumb">
 	<li>
@@ -14,7 +18,7 @@
 			<i class="fa fa-dashboard"></i> Vendas</a>
 	</li>
 	<li>
-		<a href="#">Importadas</a>
+		<a href="#">Importados</a>
 	</li>
 </ol>
 <div class="form-group col-md-12">
@@ -28,7 +32,7 @@
 <div class="box-body">
 	@php $num_filial = 0;@endphp
 	@foreach($formas as $filiais => $vendedores)	
-
+	@include('painel.includes.alerts')
 	<div class="box box-info">
 		<div class="box-header with-border">
 			<h3 class="box-title">{{$filiais}}</h3>
@@ -53,28 +57,46 @@
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
 							style="width: 100px;">Vendedor</th>
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-							style="width: 100px;">Vendas</th>
+							style="width: 80px;">Vendas</th>
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-							style="width: 100px;">Qtde Vendas</th>
+							style="width: 40px;">Qtde</th>
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-							style="width: 100px;">Ticket Médio</th>
+							style="width: 70px;">Ticket Médio</th>
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-							style="width: 100px;">Crédito</th>
+							style="width: 70px;">Crédito</th>
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-							style="width: 100px;">Débito</th>
+							style="width: 70px;">Débito</th>
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-							style="width: 100px;">Dinheiro</th>
+							style="width: 70px;">Dinheiro</th>
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-							style="width: 100px;">Comissão</th>
+							style="width: 70px;">Comissão</th>
+						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
+							style="width: 60px;">Chip Qtde</th>
+						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
+							style="width: 60px;">Chip Comissão</th>
+						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
+							style="width: 60px;">Total a Pagar</th>
 					</tr>
 				</thead>
 				<tbody>
 					@foreach($vendedores as $nomes => $valores)
 						<tr role="row" class="odd" id="{{$nomes}}">
-							<td>{{$nomes}}</td>
-							@foreach($valores as $tipos => $valor)
-								<td align="right">{{$valor}}</td>
-							@endforeach
+						<td>{{$nomes}}</td>
+							<td align="right">{{$valores['Valor']}}</td>
+							<td align="right">{{$valores['Qtde']}}</td>
+							<td align="right">{{$valores['TicketM']}}</td>
+							<td align="right">{{$valores['Cred']}}</td>
+							<td align="right">{{$valores['Deb']}}</td>
+							<td align="right">{{$valores['Din']}}</td>
+							<td align="right">{{$valores['Comissao']}}</td>
+							@if (isset($valores['CHIP']))
+								<td align="right">{{number_format($valores['CHIP']['Quantidade'],0,',','.')}}</td>
+								<td align="right">{{number_format($valores['CHIP']['TotalPagar'],2,',','.')}}</td>
+							@else 
+								<td align="right">0</td>
+								<td align="right">0</td>
+							@endif
+							<td align="right"><b>{{number_format($valores['TotalPagar'],2,',','.')}}</b></td>
 					@endforeach
 						</tr>
 				</tbody>
@@ -117,6 +139,10 @@
 	<div class="form-group col-md-4">
 		<label>Data Final</label>
 		<input class="form-control" type="date" name="final_date" value="{{ Carbon\Carbon::now()->format('d-m-Y')}}" />
+	</div>
+	<div class="form-group col-md-4">
+		<label>% de comissão do chip </label>
+		<input class="form-control" type="number" name="porcComissaoChip" value="25" />
 	</div>
 	@endslot
 	@slot('btnConfirmar')

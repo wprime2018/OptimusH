@@ -227,6 +227,10 @@ class Vendas extends Controller
         $ListFiliais        = $Filiais;
         $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
         $listVend           = MSicTabVend::get(['id','Controle','Nome','Comissao', 'DataInc']);
+        $prod               = MSicTabEst1::where('Codigo','000323')->get();
+        foreach ($prod as $chip) {
+
+        }
         //$data1 = $request->initial_date . ' 00:00:00';
         //$data2 = $request->final_date   . ' 23:59:59';
 //      $data1 = '2018-04-01 00:00:00';
@@ -288,8 +292,32 @@ class Vendas extends Controller
                                     $tot_valor_vendas_din += $v->prodVendidos->sum('Total');
                             }
                         }
+                        // Calculando os Chips Vendidos
+                        if ($v->prodVendidos()->count() > 0) {
+                            foreach($v->prodVendidos as $vPv) {
+                                $prod2 = $vPv->LkProduto;
+                                if  ($prod2 == $chip->Controle) {
+                                    if (isset($formas[$f->fantasia][$lV->Nome]['CHIP']['Total'])) {
+                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['Total']         += $vPv->Total;
+                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['TotVenda']      += $vPv->TotVenda;
+                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['Quantidade']    += $vPv->Quantidade;
+                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['TotalPagar']    += ($vPv->Total * ($request->porcComissaoChip /100));
+                                    } else {
+                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['Total']         = $vPv->Total;
+                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['TotVenda']      = $vPv->TotVenda;
+                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['Quantidade']    = $vPv->Quantidade;
+                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['TotalPagar']    = $vPv->Total * ($request->porcComissaoChip /100);
+                                    }
+                                }
+                            }
+                        }
                     }
                     $tot_valor_com_vendedor = (($v->vendedor->Comissao / 100) * $tot_valor_vendas_vendedor);
+                    if (isset($formas[$f->fantasia][$lV->Nome]['CHIP']))
+                        $formas[$f->fantasia][$lV->Nome]['TotalPagar'] = $tot_valor_com_vendedor + $formas[$f->fantasia][$lV->Nome]['CHIP']['TotalPagar'];
+                    else 
+                        $formas[$f->fantasia][$lV->Nome]['TotalPagar'] = $tot_valor_com_vendedor;
+
                     $tot_valor_com_vendedor = number_format(($tot_valor_com_vendedor),2,',','.');
                     $formas[$f->fantasia][$lV->Nome]['Valor'] = number_format($tot_valor_vendas_vendedor,2,',','.');
                     $formas[$f->fantasia][$lV->Nome]['Qtde'] = $tot_qtde_vendas_vendedor;
@@ -298,6 +326,7 @@ class Vendas extends Controller
                     $formas[$f->fantasia][$lV->Nome]['Deb'] = number_format($tot_valor_vendas_deb,2,',','.');
                     $formas[$f->fantasia][$lV->Nome]['Din'] = number_format($tot_valor_vendas_din,2,',','.');
                     $formas[$f->fantasia][$lV->Nome]['Comissao'] = $tot_valor_com_vendedor;
+                    
                 }
             }
         }
@@ -311,7 +340,15 @@ class Vendas extends Controller
                 }
             echo "<hr>";
         }*/
-        return view('painel.vendas.ranking_vendedor', compact('ListFiliais','Filiais','TipoRecebimentos','data1','data2','formas'));
+        return view('painel.vendas.ranking_vendedor', 
+                                compact('ListFiliais',
+                                        'Filiais',
+                                        'TipoRecebimentos',
+                                        'data1',
+                                        'data2',
+                                        'carbonData1',
+                                        'carbonData2',
+                                        'formas'));
     }
     public function ranking_diario(Request $request)
     {
@@ -437,5 +474,82 @@ class Vendas extends Controller
             }
         }            
         return view('painel.vendas.ranking_diario', compact('ListFiliais','Filiais','data1','data2','formas','soma'));
+    }
+    public function ranking_chip(Request $request) {
+
+        $Filiais            = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
+        $ListFiliais        = $Filiais;
+        $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
+        $listVend           = MSicTabVend::get(['id','Controle','Nome','Comissao', 'DataInc']);
+        $prod               = MSicTabEst1::where('Codigo','000323')->get();
+        foreach($prod as $chip){
+
+        }
+
+        if (isset($request)) {
+            
+            if (empty($request->initial_date))
+                $data1 = Carbon::now()->startOfDay();
+            else 
+                $data1 = $request->initial_date . ' 00:00:00';
+                $data1 = new Carbon($data1);
+                
+            if (empty($request->final_date))   
+                $data2 = Carbon::now()->endOfDay();
+            else 
+                $data2 = $request->final_date   . ' 23:59:59';
+                $data2 = new Carbon($data2);
+                
+        } else {
+            $data1 = Carbon::now()->firstOfMonth()->startOfDay();
+            $data2 = Carbon::now()->lastOfMonth()->endOfDay();
+        }
+        $data1 = Carbon::now()->firstOfMonth()->startOfDay();
+        $data2 = Carbon::now()->lastOfMonth()->endOfDay();
+        $diaData1 = $data1->day;
+        $diaData2 = $data2->day;
+        $formas = array();
+        $tot_vendas = 0;
+        $gran_total = 0;
+        $gran_qtde = 0;
+        $gran_cred = 0;
+        $gran_deb = 0;
+        $gran_ticket = 0;
+        foreach ($Filiais as $f) {
+            foreach ($listVend as $lV) {
+                $Vendas = MSicTabEst3A::where('LkVendedor',$lV->Controle)
+                ->where('filial_id',$f->id)
+                ->where('Cancelada','0')
+                ->where('LkTipo','2')
+                ->wherebetween('Data',[$data1,$data2])
+                ->with(['prodVendidos','vendedor','Receb'])
+                ->orderBy('LkVendedor')
+                ->get();
+                if (count($Vendas) > 0) {
+                    foreach ($Vendas as $v) {
+                        foreach($v->prodVendidos as $vPv) {
+                            $prod = $vPv->LkProduto;
+                            if  ($prod == $chip->Controle) {
+                                if (isset($formas[$f->codigo][$lV->Nome]['Total'])) {
+                                    $formas[$f->codigo][$lV->Nome]['Total']         += $vPv->Total;
+                                    $formas[$f->codigo][$lV->Nome]['TotVenda']      += $vPv->TotVenda;
+                                    $formas[$f->codigo][$lV->Nome]['Quantidade']    += $vPv->Quantidade;
+                                    $formas[$f->codigo][$lV->Nome]['TotalPagar']    = $formas[$f->codigo][$lV->Nome]['Total'] * (25 /100);
+                                    
+                                } else {
+                                    $formas[$f->codigo][$lV->Nome]['Total']         = $vPv->Total;
+                                    $formas[$f->codigo][$lV->Nome]['TotVenda']      = $vPv->TotVenda;
+                                    $formas[$f->codigo][$lV->Nome]['Quantidade']    = $vPv->Quantidade;
+                                    $formas[$f->codigo][$lV->Nome]['TotalPagar']    = $formas[$f->codigo][$lV->Nome]['Total'] * (25 /100);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        var_dump($data1->toDateTimeString());
+        var_dump($data2->toDateTimeString());
+        dd($formas);
     }
 }   
