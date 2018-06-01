@@ -184,5 +184,126 @@ class HomeController extends Controller
         }
         return view('painel.dashboard.DashFiliais',compact('lblTotFilial', 'Filiais','totRecebPorFilial','TipoRecebimentos'));
     }
+    public function dashboard_filiais(Requesst $request)
+    {
+        
+        $Filiais            = Filiais::where('ativo', '=', 1)->get();
+        $ListFiliais        = $Filiais;
+        $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
+        $listVend           = MSicTabVend::get(['id','Controle','Nome','Comissao', 'DataInc']);
+        $prod               = MSicTabEst1::where('Codigo','000323')->get();
+        foreach ($prod as $chip) {
 
+        }
+        //$data1 = $request->initial_date . ' 00:00:00';
+        //$data2 = $request->final_date   . ' 23:59:59';
+//      $data1 = '2018-04-01 00:00:00';
+//      $data2 = '2018-04-30 23:59:59';
+        if (isset($request)) {
+            $data1 = $request->initial_date . ' 00:00:00';
+            $data2 = $request->final_date   . ' 23:59:59';
+        } else {
+            $data1 = Carbon::now(-30);
+            $data2 = Carbon::now();
+            $data1 = $data1->toDateTimeString();
+            $data2 = $data2->toDateTimeString();
+            echo var_dump($data2);
+        }
+        $carbonData1 = new Carbon($data1);
+        $carbonData2 = new Carbon($data2);
+        $diaData1 = $carbonData1->day;
+        $diaData2 = $carbonData2->day;
+        $formas = array();
+        $tot_vendas = 0;
+        $gran_total = 0;
+        $gran_qtde = 0;
+        $gran_cred = 0;
+        $gran_deb = 0;
+        $gran_ticket = 0;
+        $formas = array();
+        foreach ($Filiais as $f) {
+            foreach ($listVend as $lV) {
+                $Vendas = MSicTabEst3A::where('LkVendedor',$lV->Controle)
+                ->where('filial_id',$f->id)
+                ->where('Cancelada','0')
+                ->where('LkTipo','2')
+                ->wherebetween('Data',[$data1,$data2])
+                ->with(['prodVendidos','vendedor','Receb'])
+                ->orderBy('LkVendedor')
+                ->get();
+                $tot_vendas_vendedor = 0;
+                $tot_qtde_vendas_vendedor = $Vendas->count();
+                if (count($Vendas) > 0) {
+                    $tot_qtde_vendas_vendedor = $Vendas->count();
+                    $tot_valor_vendas_vendedor = 0;
+                    $tot_valor_com_vendedor = 0;
+                    $tot_valor_vendas_cred = 0;
+                    $tot_valor_vendas_deb = 0;
+                    $tot_valor_vendas_din = 0;
+                    $ticket_vendedor = 0;
+                    foreach ($Vendas as $v) {
+                        $tot_valor_vendas_vendedor += $v->prodVendidos->sum('Total');
+                        
+                        if ($v->Receb()->count() > 0) {
+                            switch ($v->Receb->tipo) {
+                                case 'C':
+                                    $tot_valor_vendas_cred += $v->prodVendidos->sum('Total');
+                                    break;
+                                case 'D':
+                                    $tot_valor_vendas_deb += $v->prodVendidos->sum('Total');
+                                    break;
+                                default:
+                                    $tot_valor_vendas_din += $v->prodVendidos->sum('Total');
+                            }
+                        }
+                        // Calculando os Chips Vendidos
+                        if ($v->prodVendidos()->count() > 0) {
+                            foreach($v->prodVendidos as $vPv) {
+                                $prod2 = $vPv->LkProduto;
+                                if  ($prod2 == $chip->Controle) {
+                                    if (isset($formas[$f->fantasia][$lV->Nome]['CHIP']['Total'])) {
+                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['Total']         += $vPv->Total;
+                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['TotVenda']      += $vPv->TotVenda;
+                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['Quantidade']    += $vPv->Quantidade;
+                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['TotalPagar']    += ($vPv->Total * ($request->porcComissaoChip /100));
+                                    } else {
+                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['Total']         = $vPv->Total;
+                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['TotVenda']      = $vPv->TotVenda;
+                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['Quantidade']    = $vPv->Quantidade;
+                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['TotalPagar']    = $vPv->Total * ($request->porcComissaoChip /100);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    $tot_valor_com_vendedor = (($v->vendedor->Comissao / 100) * $tot_valor_vendas_vendedor);
+                    if (isset($formas[$f->fantasia][$lV->Nome]['CHIP']))
+                        $formas[$f->fantasia][$lV->Nome]['TotalPagar'] = $tot_valor_com_vendedor + $formas[$f->fantasia][$lV->Nome]['CHIP']['TotalPagar'];
+                    else 
+                        $formas[$f->fantasia][$lV->Nome]['TotalPagar'] = $tot_valor_com_vendedor;
+
+                    $tot_valor_com_vendedor = number_format(($tot_valor_com_vendedor),2,',','.');
+                    $formas[$f->fantasia][$lV->Nome]['Valor'] = number_format($tot_valor_vendas_vendedor,2,',','.');
+                    $formas[$f->fantasia][$lV->Nome]['Qtde'] = $tot_qtde_vendas_vendedor;
+                    $formas[$f->fantasia][$lV->Nome]['TicketM'] = number_format(($tot_valor_vendas_vendedor / $tot_qtde_vendas_vendedor),2,',','.');
+                    $formas[$f->fantasia][$lV->Nome]['Cred'] = number_format($tot_valor_vendas_cred,2,',','.');
+                    $formas[$f->fantasia][$lV->Nome]['Deb'] = number_format($tot_valor_vendas_deb,2,',','.');
+                    $formas[$f->fantasia][$lV->Nome]['Din'] = number_format($tot_valor_vendas_din,2,',','.');
+                    $formas[$f->fantasia][$lV->Nome]['Comissao'] = $tot_valor_com_vendedor;
+                    
+                }
+            }
+        }
+/*        foreach ($formas as $filial => $vendedores) {
+            echo $filial . "</br>";
+                foreach($vendedores as $nomes => $valores) {
+                    echo $nomes . "</br>";
+                    foreach($valores as $tipos => $valor) {
+                        echo "<ul>" . $tipos  . " -> " . $valor . "</ul>" . "</br>";
+                    }
+                }
+            echo "<hr>";
+        }*/
+       return view('painel.dashboard.DashFiliais',compact('lblTotFilial', 'Filiais','totRecebPorFilial','TipoRecebimentos'));
+    }
 }

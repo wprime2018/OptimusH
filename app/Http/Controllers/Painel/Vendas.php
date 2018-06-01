@@ -313,10 +313,14 @@ class Vendas extends Controller
                         }
                     }
                     $tot_valor_com_vendedor = (($v->vendedor->Comissao / 100) * $tot_valor_vendas_vendedor);
-                    if (isset($formas[$f->fantasia][$lV->Nome]['CHIP']))
+                    if (isset($formas[$f->fantasia][$lV->Nome]['CHIP'])) {
+                        $tot_valor_vendas_vendedor -= $formas[$f->fantasia][$lV->Nome]['CHIP']['TotVenda'];
+                        $tot_valor_com_vendedor = (($v->vendedor->Comissao / 100) * $tot_valor_vendas_vendedor);
                         $formas[$f->fantasia][$lV->Nome]['TotalPagar'] = $tot_valor_com_vendedor + $formas[$f->fantasia][$lV->Nome]['CHIP']['TotalPagar'];
-                    else 
+                    } else {
                         $formas[$f->fantasia][$lV->Nome]['TotalPagar'] = $tot_valor_com_vendedor;
+                    } 
+                        
 
                     $tot_valor_com_vendedor = number_format(($tot_valor_com_vendedor),2,',','.');
                     $formas[$f->fantasia][$lV->Nome]['Valor'] = number_format($tot_valor_vendas_vendedor,2,',','.');
