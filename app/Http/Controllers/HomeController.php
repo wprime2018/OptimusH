@@ -9,9 +9,11 @@ use App\Models\Painel\TpDespesas;
 use App\Models\Painel\MSicTabEst1;
 use App\Models\Painel\MSicTabEst7;
 use App\Models\Painel\MSicTabEst3A;
+use App\Models\Painel\MSicTabVend;
 use App\Models\Painel\Estoque;
 use Illuminate\Support\Facades\View;
 use DB;
+use Carbon\Carbon;
 class HomeController extends Controller
 {
     public $lblTotDespesa;
@@ -104,47 +106,6 @@ class HomeController extends Controller
                                     ));
 
     }
-    
-    public function index_Filiais()
-    {
-        
-        $lblTotFilial       = Filiais::where('ativo', '=', 1)->count();
-        $Filiais            = Filiais::where('ativo', '=', 1)->get();
-        $TipoRecebimentos   = MSicTabEst7::get();
-        $totRecebPorFilial = array();        
-        foreach ($Filiais as $c) {
-            $idAgora = $c->id;
-            
-            $Vendas = MSicTabEst3A::join('m_sic_tab_est7s', 'm_sic_tab_est3_as.LkReceb', '=', 'm_sic_tab_est7s.Controle')
-                                ->join('tb_filiais', 'm_sic_tab_est3_as.filial_id', '=', 'tb_filiais.id')
-                                ->join('m_sic_tab_vends', 'm_sic_tab_est3_as.LkVendedor', '=', 'm_sic_tab_vends.Controle')
-                                ->join('m_sic_tab_est3_bs', 'm_sic_tab_est3_as.Controle', '=', 'm_sic_tab_est3_bs.LkEst3A')
-                                ->select(DB::raw('sum(m_sic_tab_est3_bs.Total) AS Total_Recebido'),'m_sic_tab_est3_as.*', 'tb_filiais.fantasia','m_sic_tab_vends.Nome','m_sic_tab_est7s.Recebimento')        
-                                ->orderBy('Recebimento')
-                                ->with('prodVendidos')
-                                ->where('m_sic_tab_est3_as.filial_id',$idAgora)
-                                ->where('m_sic_tab_est3_as.cancelada','0')
-                                ->groupby('m_sic_tab_est3_bs.LkEst3A')
-                                ->get();
-            
-            foreach ($Vendas as $d) {
-                $key = $d->Recebimento;
-                $filial = $c->id;
-
-                if (!isset($totRecebPorFilial[$filial][$key])) {
-
-                    $totRecebPorFilial[$filial][$key] = $d->Total_Recebido;
-                    
-                } else {
-
-                    $totRecebPorFilial[$filial][$key] = $totRecebPorFilial[$filial][$key] + $d->Total_Recebido;
-
-                }
-            }
-        }
-        return view('painel.dashboard.DashFiliais',compact('lblTotFilial', 'Filiais','totRecebPorFilial','TipoRecebimentos'));
-    }
-
     public function index_Produtos()
     {
         
@@ -184,21 +145,15 @@ class HomeController extends Controller
         }
         return view('painel.dashboard.DashFiliais',compact('lblTotFilial', 'Filiais','totRecebPorFilial','TipoRecebimentos'));
     }
-    public function dashboard_filiais(Requesst $request)
+    public function dashboard_filiais(Request $request)
     {
-        
-        $Filiais            = Filiais::where('ativo', '=', 1)->get();
-        $ListFiliais        = $Filiais;
+        $Filiais            = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
         $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
         $listVend           = MSicTabVend::get(['id','Controle','Nome','Comissao', 'DataInc']);
         $prod               = MSicTabEst1::where('Codigo','000323')->get();
         foreach ($prod as $chip) {
 
         }
-        //$data1 = $request->initial_date . ' 00:00:00';
-        //$data2 = $request->final_date   . ' 23:59:59';
-//      $data1 = '2018-04-01 00:00:00';
-//      $data2 = '2018-04-30 23:59:59';
         if (isset($request)) {
             $data1 = $request->initial_date . ' 00:00:00';
             $data2 = $request->final_date   . ' 23:59:59';
@@ -211,9 +166,9 @@ class HomeController extends Controller
         }
         $carbonData1 = new Carbon($data1);
         $carbonData2 = new Carbon($data2);
+        $periodo = 'De' . $carbonData1->format('d/m/Y') . ' até ' . $carbonData2->format('d/m/Y'). '.'; 
         $diaData1 = $carbonData1->day;
         $diaData2 = $carbonData2->day;
-        $formas = array();
         $tot_vendas = 0;
         $gran_total = 0;
         $gran_qtde = 0;
@@ -221,6 +176,7 @@ class HomeController extends Controller
         $gran_deb = 0;
         $gran_ticket = 0;
         $formas = array();
+        $totais = array();
         foreach ($Filiais as $f) {
             foreach ($listVend as $lV) {
                 $Vendas = MSicTabEst3A::where('LkVendedor',$lV->Controle)
@@ -291,19 +247,27 @@ class HomeController extends Controller
                     $formas[$f->fantasia][$lV->Nome]['Din'] = number_format($tot_valor_vendas_din,2,',','.');
                     $formas[$f->fantasia][$lV->Nome]['Comissao'] = $tot_valor_com_vendedor;
                     
+                    if (isset($totais[$f->fantasia]['TotalVendas'])) {
+                        $totais[$f->fantasia]['TotalVendas']        += $tot_valor_vendas_vendedor;
+                        $totais[$f->fantasia]['TotalQtdeVendas']    += $tot_qtde_vendas_vendedor;
+                        $totais[$f->fantasia]['TotalVendasCred']    += $tot_valor_vendas_cred;
+                        $totais[$f->fantasia]['TotalVendasDeb']     += $tot_valor_vendas_deb;
+                        $totais[$f->fantasia]['TotalVendasDin']     += $tot_valor_vendas_din;
+                    }else {
+                        $totais[$f->fantasia]['TotalVendas']     = $tot_valor_vendas_vendedor;
+                        $totais[$f->fantasia]['TotalQtdeVendas'] = $tot_qtde_vendas_vendedor;
+                        $totais[$f->fantasia]['TotalVendasCred'] = $tot_valor_vendas_cred;
+                        $totais[$f->fantasia]['TotalVendasDeb']  = $tot_valor_vendas_deb;
+                        $totais[$f->fantasia]['TotalVendasDin']  = $tot_valor_vendas_din;
+                    } 
                 }
             }
+            foreach ($totais as $key => $row) {
+                $filiais[$key]  = $row['TotalVendas'];
+                //$edition[$key] = $row['edition'];
+            }
+            array_multisort($filiais, SORT_DESC, SORT_NUMERIC);
         }
-/*        foreach ($formas as $filial => $vendedores) {
-            echo $filial . "</br>";
-                foreach($vendedores as $nomes => $valores) {
-                    echo $nomes . "</br>";
-                    foreach($valores as $tipos => $valor) {
-                        echo "<ul>" . $tipos  . " -> " . $valor . "</ul>" . "</br>";
-                    }
-                }
-            echo "<hr>";
-        }*/
-       return view('painel.dashboard.DashFiliais',compact('lblTotFilial', 'Filiais','totRecebPorFilial','TipoRecebimentos'));
+        return view('painel.dashboard.DashFiliais',compact('filiais','periodo','totais'));
     }
 }

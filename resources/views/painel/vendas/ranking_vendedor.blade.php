@@ -15,6 +15,7 @@
 <ol class="breadcrumb">
 	<li>
 		<a href="#">
+		
 			<i class="fa fa-dashboard"></i> Vendas</a>
 	</li>
 	<li>
@@ -37,8 +38,7 @@
 		<div class="box-header with-border">
 			<h3 class="box-title">{{$filiais}}</h3>
 			<div class="box-tools pull-right">
-				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-				</button>
+				<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
 				<button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
 			</div>
 		
@@ -88,7 +88,7 @@
 							<td align="right">{{$valores['Cred']}}</td>
 							<td align="right">{{$valores['Deb']}}</td>
 							<td align="right">{{$valores['Din']}}</td>
-							<td align="right">{{$valores['Comissao']}}</td>
+							<td align="right">{{$valores['Comissao']}} ({{number_format($valores['Comissao_Paga'],0,',','.')}}%)</td>
 							@if (isset($valores['CHIP']))
 								<td align="right">{{number_format($valores['CHIP']['Quantidade'],0,',','.')}}</td>
 								<td align="right">{{number_format($valores['CHIP']['TotalPagar'],2,',','.')}}</td>

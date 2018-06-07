@@ -13,15 +13,36 @@ class PedidosEstoque extends Controller
 {
     public function calculaEstoque(Request $request)
     {
-        $data1 = $request->initial_date . ' 00:00:00';
-        $data2 = $request->final_date   . ' 23:59:59';
-        $carbonData1 = new Carbon($data1);
-        $carbonData2 = new Carbon($data2);
-        $diaData1 = $carbonData1->day;
-        $diaData2 = $carbonData2->day;
-    
-        $ListFiliais = Filiais::where('ativo','=', '1')->get();
-        $ListFiliaisCD = Filiais::where('ativo','=', '1')->where('filial_cd','=','1')->get();
+        switch($request->week_vendas){
+            case ($request->week_vendas == 7):
+                $data1 = Carbon::now()->subWeek()->startOfDay(); 
+                $data2 = Carbon::now()->endOfDay();
+                break;        
+            
+            case ($request->week_vendas == 14):
+                $data1 = Carbon::now()->subWeeks(2)->startOfDay(); 
+                $data2 = Carbon::now()->endOfDay();
+                break;       
+            
+            case ($request->week_vendas == 21):
+                $data1 = Carbon::now()->subWeeks(3)->startOfDay(); 
+                $data2 = Carbon::now()->endOfDay();
+                break;       
+            
+            case ($request->week_vendas == 30):
+                $data1 = Carbon::now()->subMonth()->startOfDay(); 
+                $data2 = Carbon::now()->endOfDay();
+                break;   
+
+            default :
+                $message= 'Favor informar o periodo correto para o cálculo.';
+            };
+        $diaData1 = $data1->day;
+        $diaData2 = $data2->day;
+        $data1 = $data1->toDateTimeString();
+        $data2 = $data2->toDateTimeString();
+        $ListFiliais = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
+        $ListFiliaisCD = Filiais::where('ativo','=', 1)->where('filial_cd','=',1)->get();
         $totalProd = array();
         foreach($ListFiliais as $Filiais) {
             $ProdVendidosPorFilial = 

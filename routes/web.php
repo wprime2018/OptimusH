@@ -18,7 +18,8 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home'                      , 'HomeController@index')->name('home');
-Route::get('/home/filiais'              , 'HomeController@index_Filiais')->name('DashFiliais');
+Route::get('/home/filiais'              , 'HomeController@dashboard_filiais')->name('DashFiliais');
+
 
 //Route::post('register'                  , 'RegisterController')->middleware('auth');
 

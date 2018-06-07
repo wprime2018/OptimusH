@@ -353,6 +353,7 @@ class ComposerStaticInit23014f365df643074e541c3f53683b68
 
     public static $classMap = array (
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
+        'App\\Events\\Event' => __DIR__ . '/../..' . '/app/Events/Event.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\Http\\Controllers\\Auth\\ForgotPasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ForgotPasswordController.php',
         'App\\Http\\Controllers\\Auth\\LoginController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/LoginController.php',
@@ -378,8 +379,12 @@ class ComposerStaticInit23014f365df643074e541c3f53683b68
         'App\\Http\\Requests\\Painel\\FilialFormRequest' => __DIR__ . '/../..' . '/app/Http/Requests/Painel/FilialFormRequest.php',
         'App\\Http\\Requests\\Painel\\TpDespesaFormRequest' => __DIR__ . '/../..' . '/app/Http/Requests/Painel/TpDespesaFormRequest.php',
         'App\\Listeners\\BuildMenuListener' => __DIR__ . '/../..' . '/app/Listeners/BuildMenuListener.php',
+        'App\\Listeners\\EventListener' => __DIR__ . '/../..' . '/app/Listeners/EventListener.php',
+        'App\\Listeners\\UserEventSubscriber' => __DIR__ . '/../..' . '/app/Listeners/UserEventSubscriber.php',
         'App\\Models\\ACL\\Permission' => __DIR__ . '/../..' . '/app/Models/ACL/Permission.php',
         'App\\Models\\ACL\\Role' => __DIR__ . '/../..' . '/app/Models/ACL/Role.php',
+        'App\\Models\\Access' => __DIR__ . '/../..' . '/app/Models/Access.php',
+        'App\\Models\\Painel\\Comissao' => __DIR__ . '/../..' . '/app/Models/Painel/Comissao.php',
         'App\\Models\\Painel\\Despesas' => __DIR__ . '/../..' . '/app/Models/Painel/Despesas.php',
         'App\\Models\\Painel\\Estoque' => __DIR__ . '/../..' . '/app/Models/Painel/Estoque.php',
         'App\\Models\\Painel\\Faturamento' => __DIR__ . '/../..' . '/app/Models/Painel/Faturamento.php',

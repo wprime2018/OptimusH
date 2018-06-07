@@ -9,7 +9,7 @@
             </div>
             <div class="modal-body">
                 <div id="blanket"></div>
-                <div id="aguarde"><img src="img/carregando.gif"></div>
+                <div id="aguarde"><img src="{{ asset('img\carregando.gif') }}"></div>
                 {{$bodyModal}}
             </div>
             <div class="modal-footer">

@@ -303,12 +303,13 @@
 
 	@slot('bodyModal')
 	<div class="form-group col-md-4">
-		<label>Data Inicial</label>
-		<input class="form-control" type="date" name="initial_date" value="{{ Carbon\Carbon::now()->format('d-m-Y')}}" />
-	</div>
-	<div class="form-group col-md-4">
-		<label>Data Final</label>
-		<input class="form-control" type="date" name="final_date" value="{{ Carbon\Carbon::now()->format('d-m-Y')}}" />
+		<label>Período Vendas</label>
+		<select class="form-control" name="week_vendas">
+			<option value="7">1 Semana</option>
+			<option value="14">2 Semanas</option>
+			<option value="21">3 Semanas</option>
+			<option value="30">1 Mês</option>
+		</select>
 	</div>
 	@endslot
 	@slot('btnConfirmar')

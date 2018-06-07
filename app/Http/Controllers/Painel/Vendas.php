@@ -13,12 +13,13 @@ use App\Models\Painel\MSicTabEst7;      //Tipos de Recebimentos
 use App\Models\Painel\MSicTabVend;      //Vendedores
 use App\Models\Painel\MSicTabEst3A;     //Vendas
 use App\Models\Painel\MSicTabEst3B;     //Produtos Vendidos
+use App\Models\Painel\Comissao;
 
 class Vendas extends Controller
 {
     public function index_vendas_pgto(Request $request)
     {
-        $Filiais            = Filiais::where('ativo', '=', 1)->get();
+        $Filiais            = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
         $ListFiliais        = $Filiais;
         $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
         //$data1 = $request->initial_date . ' 00:00:00';
@@ -130,7 +131,7 @@ class Vendas extends Controller
 
     public function ranking_vendas()
     {
-        $Filiais            = Filiais::where('ativo', '=', 1)->get();
+        $Filiais            = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
         $ListFiliais        = $Filiais;
         $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
         //$data1 = $request->initial_date . ' 00:00:00';
@@ -223,7 +224,7 @@ class Vendas extends Controller
     }
     public function ranking_vendedores(Request $request)
     {
-        $Filiais            = Filiais::where('ativo', '=', 1)->get();
+        $Filiais            = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
         $ListFiliais        = $Filiais;
         $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
         $listVend           = MSicTabVend::get(['id','Controle','Nome','Comissao', 'DataInc']);
@@ -231,10 +232,6 @@ class Vendas extends Controller
         foreach ($prod as $chip) {
 
         }
-        //$data1 = $request->initial_date . ' 00:00:00';
-        //$data2 = $request->final_date   . ' 23:59:59';
-//      $data1 = '2018-04-01 00:00:00';
-//      $data2 = '2018-04-30 23:59:59';
         if (isset($request)) {
             $data1 = $request->initial_date . ' 00:00:00';
             $data2 = $request->final_date   . ' 23:59:59';
@@ -312,16 +309,39 @@ class Vendas extends Controller
                             }
                         }
                     }
-                    $tot_valor_com_vendedor = (($v->vendedor->Comissao / 100) * $tot_valor_vendas_vendedor);
+                    // Calculando comissoes conforme tabela de metas. 
+                    $aComissoes = Comissao::where('filial_id',$f->id)
+                                            ->where('tipo','2')
+                                            ->get();
+                    if (count($aComissoes)>0) {
+                        $i = 0;
+                        foreach($aComissoes as $key => $valor) {    // Calculando a comissão pela venda do vendedor
+                            if ($tot_valor_vendas_vendedor > $valor->vendas && $valor->comissao > $v->vendedor->Comissao) {
+                                if (isset($formas[$f->fantasia][$lV->Nome]['CHIP'])) {
+                                    $tot_valor_com_vendedor = (($tot_valor_vendas_vendedor - $formas[$f->fantasia][$lV->Nome]['CHIP']['Total'] ) * ($valor->comissao / 100));
+                                } else {
+                                    $tot_valor_com_vendedor = ($tot_valor_vendas_vendedor * ($valor->comissao / 100));
+                                } 
+                                $comissao_paga = $valor->comissao;
+                                ++$i;
+                                $bateuMeta = $i;
+                            } else {
+                                if (isset($formas[$f->fantasia][$lV->Nome]['CHIP'])) {
+                                    $tot_valor_com_vendedor = (($tot_valor_vendas_vendedor - $formas[$f->fantasia][$lV->Nome]['CHIP']['Total'] ) * ($v->vendedor->Comissao / 100));
+                                } else {
+                                    $tot_valor_com_vendedor = ($tot_valor_vendas_vendedor * ($v->vendedor->Comissao / 100));
+                                } 
+                                
+                            }
+                        }
+                    } 
+                    // Calculando comissoes de CHIPS
                     if (isset($formas[$f->fantasia][$lV->Nome]['CHIP'])) {
-                        $tot_valor_vendas_vendedor -= $formas[$f->fantasia][$lV->Nome]['CHIP']['TotVenda'];
-                        $tot_valor_com_vendedor = (($v->vendedor->Comissao / 100) * $tot_valor_vendas_vendedor);
                         $formas[$f->fantasia][$lV->Nome]['TotalPagar'] = $tot_valor_com_vendedor + $formas[$f->fantasia][$lV->Nome]['CHIP']['TotalPagar'];
                     } else {
                         $formas[$f->fantasia][$lV->Nome]['TotalPagar'] = $tot_valor_com_vendedor;
                     } 
-                        
-
+                    $tot_valor_vendas_din += $v->prodVendidos->sum('Total');
                     $tot_valor_com_vendedor = number_format(($tot_valor_com_vendedor),2,',','.');
                     $formas[$f->fantasia][$lV->Nome]['Valor'] = number_format($tot_valor_vendas_vendedor,2,',','.');
                     $formas[$f->fantasia][$lV->Nome]['Qtde'] = $tot_qtde_vendas_vendedor;
@@ -330,7 +350,15 @@ class Vendas extends Controller
                     $formas[$f->fantasia][$lV->Nome]['Deb'] = number_format($tot_valor_vendas_deb,2,',','.');
                     $formas[$f->fantasia][$lV->Nome]['Din'] = number_format($tot_valor_vendas_din,2,',','.');
                     $formas[$f->fantasia][$lV->Nome]['Comissao'] = $tot_valor_com_vendedor;
+                    if (isset($comissao_paga))
+                        $formas[$f->fantasia][$lV->Nome]['Comissao_Paga'] = $comissao_paga;
+                    else 
+                        $formas[$f->fantasia][$lV->Nome]['Comissao_Paga'] = $v->vendedor->Comissao;
                     
+                    if (isset($bateuMeta) && ($bateuMeta > 0))
+                        $formas[$f->fantasia][$lV->Nome]['BateuMeta'] = true;
+                    else 
+                        $formas[$f->fantasia][$lV->Nome]['BateuMeta'] = false;
                 }
             }
         }
@@ -344,6 +372,7 @@ class Vendas extends Controller
                 }
             echo "<hr>";
         }*/
+        
         return view('painel.vendas.ranking_vendedor', 
                                 compact('ListFiliais',
                                         'Filiais',
@@ -356,7 +385,7 @@ class Vendas extends Controller
     }
     public function ranking_diario(Request $request)
     {
-        $Filiais            = Filiais::where('ativo', '=', 1)->get();
+        $Filiais            = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
         $ListFiliais        = $Filiais;
         $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
         if(isset($request)) {

@@ -4,60 +4,92 @@
 
 @section('content_header')
 
-    <h1>Painel de Controle</h1>
+d<h1>
+    DashBoard Filiais 
+    @if (isset($periodo))
+        <small>Vendedores {{$periodo}}</small>
+    @else 
+        <small>Vendedores {{$periodo}}</small>
+    @endif
+</h1>
+    <div class="form-group col-md-12">
+        <a data-toggle="modal" data-target="b6" id="btnModal6" class="btn btn-primary btn-lg active btn-add">
+            <span class="glyphicon glyphicon-filter"></span>Selecionar Período</a>
+    </div>
+    
 @stop 
 
 @section('content')
     <div class="row"> 
-        @foreach($Filiais as $f)
-        @isset($totRecebPorFilial[$f->id])
-        <div class="col-md-3"> <!-- Gráfico Despesas X Faturamentos -->
-            <div class="box box-default">
-                <div class="box-header with-border">
-                    <h3 class="box-title">{{$f->codigo}} - {{$f->fantasia}}</h3>
-                        
-                    <div class="box-tools pull-right">
-                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                        </button>
-                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-                    </div>
-                </div>
-                <!-- /.box-header -->
-                <!--<div class="box-body" style="">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="chart-responsive">
-                                <canvas id="pieChart{{$f->codigo}}" height="202" width="305" style="width: 244px; height: 162px;"></canvas>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <ul class="chart-legend clearfix">
-                                <li><i class="fa fa-circle-o text-red"></i>Teste</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>-->
-                <!-- /.box-body -->
-                <div class="box-footer no-padding" style="">
-                    <ul class="nav nav-pills nav-stacked">
-                        @foreach($totRecebPorFilial as $filial => $forma)
-                            @if ($filial == $f->id)
-                                <?php $total = 0 ?>
-                                @foreach($forma as $Receb => $valor)
-                                    <li><a href="#">{{$Receb}}<span class="pull-right text-blue"><!--<i class="fa fa-angle-down"></i>-->R$ {{number_format($valor,2,',','.')}}</span></a></li>
-                                    <?php $total = $total + $valor?>
-                                @endforeach
-                                <li><a href="#"><h4>Total de Vendas<span class="pull-right text-blue"><!--<i class="fa fa-angle-down"></i>--><b>R$ {{number_format($total,2,',','.')}}</b></h4></span></a></li>
-                            @endif
-                        @endforeach
-                    </ul>
-                </div>
-                <!-- /.footer -->
+        @php
+        $posicao = 0;
+        @endphp
+        @foreach($filiais as $valor => $valor2)
+        @php
+        ++$posicao;
+        @endphp
+        <div class="col-md-6 col-sm-6 col-xs-12">
+        <div class="info-box bg-green" >
+            <span class="info-box-icon">{{$posicao}}º</span>
+
+            <div class="info-box-content">
+            <span class="info-box-text">{{$valor}}</span>
+            <span class="info-box-number">R$ {{number_format($valor2,2,',','.')}}</span>
+
+            <div class="progress">
+                <div class="progress-bar" style="width: 100%"></div>
             </div>
+                <span class="progress-description">
+                    100% 
+                </span>
+            </div>
+            <a href="#" class="small-box-footer">Mais informações<i class="fa fa-arrow-circle-right"></i></a>
+            <!-- /.info-box-content -->
         </div>
-        @endisset
+        <!-- /.info-box -->
+        </div>
         @endforeach
     </div>
+
+@component('painel.modals.modal_primary')
+	@slot('icoBtnModal')
+		glyphicon glyphicon-plus
+	@endslot
+	@slot('txtBtnModal')
+		Importar do SIC
+	@endslot
+	@slot('triggerModal')
+		b6
+	@endslot
+	@slot('tituloModal')
+		Selecione o Periodo...
+	@endslot
+	@slot('actionModal')
+        HomeController@dashboard_filiais
+	@endslot
+	@slot('methodModal')
+		get
+	@endslot
+
+	@slot('bodyModal')
+	<div class="form-group col-md-4">
+		<label>Data Inicial</label>
+		<input class="form-control" type="date" name="initial_date" value="{{ Carbon\Carbon::now()->format('d-m-Y')}}" />
+	</div>
+	<div class="form-group col-md-4">
+		<label>Data Final</label>
+		<input class="form-control" type="date" name="final_date" value="{{ Carbon\Carbon::now()->format('d-m-Y')}}" />
+	</div>
+	<div class="form-group col-md-4">
+		<label>% de comissão do chip </label>
+		<input class="form-control" type="number" name="porcComissaoChip" value="25" />
+	</div>
+	@endslot
+	@slot('btnConfirmar')
+		Filtrar
+	@endslot
+    @endcomponent
+
 @stop
 
 @section('js')
@@ -152,5 +184,12 @@
 
 
 </script>
-        
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#btnModal6").click(function(){
+            $("#b6").modal('show');
+        });
+    });
+</script>
+    
 @stop

@@ -7,6 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'App\\Console\\Kernel' => $baseDir . '/app/Console/Kernel.php',
+    'App\\Events\\Event' => $baseDir . '/app/Events/Event.php',
     'App\\Exceptions\\Handler' => $baseDir . '/app/Exceptions/Handler.php',
     'App\\Http\\Controllers\\Auth\\ForgotPasswordController' => $baseDir . '/app/Http/Controllers/Auth/ForgotPasswordController.php',
     'App\\Http\\Controllers\\Auth\\LoginController' => $baseDir . '/app/Http/Controllers/Auth/LoginController.php',
@@ -32,8 +33,12 @@ return array(
     'App\\Http\\Requests\\Painel\\FilialFormRequest' => $baseDir . '/app/Http/Requests/Painel/FilialFormRequest.php',
     'App\\Http\\Requests\\Painel\\TpDespesaFormRequest' => $baseDir . '/app/Http/Requests/Painel/TpDespesaFormRequest.php',
     'App\\Listeners\\BuildMenuListener' => $baseDir . '/app/Listeners/BuildMenuListener.php',
+    'App\\Listeners\\EventListener' => $baseDir . '/app/Listeners/EventListener.php',
+    'App\\Listeners\\UserEventSubscriber' => $baseDir . '/app/Listeners/UserEventSubscriber.php',
     'App\\Models\\ACL\\Permission' => $baseDir . '/app/Models/ACL/Permission.php',
     'App\\Models\\ACL\\Role' => $baseDir . '/app/Models/ACL/Role.php',
+    'App\\Models\\Access' => $baseDir . '/app/Models/Access.php',
+    'App\\Models\\Painel\\Comissao' => $baseDir . '/app/Models/Painel/Comissao.php',
     'App\\Models\\Painel\\Despesas' => $baseDir . '/app/Models/Painel/Despesas.php',
     'App\\Models\\Painel\\Estoque' => $baseDir . '/app/Models/Painel/Estoque.php',
     'App\\Models\\Painel\\Faturamento' => $baseDir . '/app/Models/Painel/Faturamento.php',
