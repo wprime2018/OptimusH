@@ -56,6 +56,8 @@
 							style="width: 100px;">Qtde Vendas</th>
 						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
 							style="width: 100px;">Ticket Médio</th>
+						<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
+							style="width: 100px;">Total NFCe</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -67,6 +69,7 @@
 							<td><font color="#CC9900">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["Deb"],2,',','.')}}</td>
 							<td><font color="green">{{$formas["$Tr->Recebimento"]["$f->codigo"]["Qtde_Vendas"]}} Vendas</td>
 							<td><font color="#C71585">R$ {{number_format($formas["$Tr->Recebimento"]["$f->codigo"]["TicketM"],2,',','.')}}</td>
+							<td><font color="green">{{$formas["$Tr->Recebimento"]["$f->codigo"]["TotalNfce"]}} NFCe</td>
 						</tr>
 					@endforeach
 				</tbody>

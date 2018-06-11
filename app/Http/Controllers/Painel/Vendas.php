@@ -52,6 +52,8 @@ class Vendas extends Controller
         $gran_deb = 0;
         $gran_din = 0;
         $gran_ticket = 0;
+        $gran_qNfce = 0;
+        $gran_vNfce = 0;
 
         foreach ($Filiais as $f) {
             $tot_filial_qtde = 0;
@@ -62,6 +64,8 @@ class Vendas extends Controller
             $tot_filial_qtde_deb = 0;
             $tot_filial_din = 0;
             $tot_filial_qtde_din = 0;
+            $tot_filial_qtde_nfce = 0;
+            $tot_filial_valor_nfce = 0;
             foreach($TipoRecebimentos  as $Tr ) {
                 $tot_pgto = 0;
                 //$formas[$f->codigo][] = $Tr->Recebimento;
@@ -83,6 +87,10 @@ class Vendas extends Controller
                     $formas[$Tr->Recebimento][$f->codigo] = Array ('Qtde' => $tot_qtde_receb, 'Total' => $tot_pgto) ;
                     $tot_filial_qtde  += $tot_qtde_receb;
                     $tot_filial_valor += $tot_pgto; 
+                    if ($V->TipoDoc == 'NF') {
+                        $tot_filial_valor_nfce += $tot_pgto;
+                        ++$tot_filial_qtde_nfce;  
+                    }
                 }else{
                     $formas[$Tr->Recebimento][$f->codigo] = Array ('Qtde' => $tot_qtde_receb, 'Total' => 0) ;
                 }
@@ -100,16 +108,18 @@ class Vendas extends Controller
                         ++$tot_filial_qtde_din;
                 }
             }
-            if ($tot_filial_qtde > 0){
+            if ($tot_filial_qtde > 0)
                 $ticket_medio = $tot_filial_valor / $tot_filial_qtde;
-            } else {
+            else 
                 $ticket_medio = 0;
-            }
+            
             $gran_total += $tot_filial_valor;
             $gran_qtde  += $tot_filial_qtde;
             $gran_cred  += $tot_filial_cred;
             $gran_deb   += $tot_filial_deb;
             $gran_din   += $tot_filial_din;
+            $gran_qNfce += $tot_filial_qtde_nfce;
+            $gran_vNfce += $tot_filial_valor_nfce;
         
             $formas[$Tr->Recebimento][$f->codigo]['Qtde_Vendas'] = $tot_filial_qtde;
             $formas[$Tr->Recebimento][$f->codigo]['TicketM']     = $ticket_medio;
@@ -117,6 +127,8 @@ class Vendas extends Controller
             $formas[$Tr->Recebimento][$f->codigo]['Cred']        = $tot_filial_cred;
             $formas[$Tr->Recebimento][$f->codigo]['Deb']         = $tot_filial_deb;
             $formas[$Tr->Recebimento][$f->codigo]['TotalVendas'] = $tot_filial_valor;
+            $formas[$Tr->Recebimento][$f->codigo]['TotalNfce']   = $tot_filial_valor_nfce;
+            $formas[$Tr->Recebimento][$f->codigo]['QtdeNfce']    = $tot_filial_qtde_nfce;
             
             /*echo 'Totais da Filial -->' . $tot_filial_qtde . ' - ' . $tot_filial_valor . ' Ticket Médio = ' . $ticket_medio . "</br>";
             echo "<hr>";*/
@@ -126,6 +138,8 @@ class Vendas extends Controller
         $formas['GranTotalCred'] = $gran_cred;
         $formas['GranTotalDin'] = $gran_din;
         $formas['GranTotalDeb'] = $gran_deb;
+        $formas['GranTotalQtdeNfce'] = $gran_qNfce;
+        $formas['GranTotalNfce'] = $gran_vNfce;
         return view('painel.vendas.Vendas', compact('ListFiliais','Filiais','TipoRecebimentos','data1','data2','formas'));
     }
 
@@ -362,16 +376,6 @@ class Vendas extends Controller
                 }
             }
         }
-/*        foreach ($formas as $filial => $vendedores) {
-            echo $filial . "</br>";
-                foreach($vendedores as $nomes => $valores) {
-                    echo $nomes . "</br>";
-                    foreach($valores as $tipos => $valor) {
-                        echo "<ul>" . $tipos  . " -> " . $valor . "</ul>" . "</br>";
-                    }
-                }
-            echo "<hr>";
-        }*/
         
         return view('painel.vendas.ranking_vendedor', 
                                 compact('ListFiliais',
