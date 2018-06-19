@@ -93,8 +93,8 @@
 								<td align="right">{{number_format($valores['CHIP']['Quantidade'],0,',','.')}}</td>
 								<td align="right">{{number_format($valores['CHIP']['TotalPagar'],2,',','.')}}</td>
 							@else 
-								<td align="right">0</td>
-								<td align="right">0</td>
+								<td align="right">0,00</td>
+								<td align="right">0,00</td>
 							@endif
 							<td align="right"><b>{{number_format($valores['TotalPagar'],2,',','.')}}</b></td>
 					@endforeach

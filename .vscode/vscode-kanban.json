@@ -1,0 +1,24 @@
+{
+  "done": [],
+  "in-progress": [],
+  "testing": [],
+  "todo": [
+    {
+      "assignedTo": {
+        "name": "Neto - Note"
+      },
+      "category": "Dashboard",
+      "creation_time": "2018-06-13T11:46:43.356Z",
+      "description": {
+        "content": "Criar uma tela com o total vendido pela filial",
+        "mime": "text/markdown"
+      },
+      "details": {
+        "content": "Gráfico de Vendas da filial \nRanking dos vendedores \nPercentual e Valor de NFCe emitida ",
+        "mime": "text/markdown"
+      },
+      "prio": 1,
+      "title": "DashBoard das Filiais"
+    }
+  ]
+}

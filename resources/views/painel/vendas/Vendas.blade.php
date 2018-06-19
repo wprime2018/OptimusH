@@ -421,7 +421,16 @@
 				'responsive'  : true,
 				'dom': '<l<B>f<t>ip>',
 				'buttons': [
-					'excelHtml5',
+					{
+						extend: 'excelHtml5',
+						customize: function( xlsx ) {
+							var sheet = xlsx.xl.worksheets['sheet1.xml'];
+							$('row c[r^="G"], row c[r^="H"]', sheet).attr( 's', 57);
+						},
+						footer: true,
+						titleAttr: 'Exporta a EXCEL',
+						text: '<i class="fa fa-file-excel-o"></i>',
+					},
 					'csvHtml5',
 					{
 						extend: 'pdfHtml5',

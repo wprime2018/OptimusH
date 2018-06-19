@@ -11,7 +11,7 @@
 @section('body')
     <div class="login-box">
         <div class="login-logo">
-            <a href="{{ url(config('adminlte.dashboard_url', 'home')) }}">{!! config('adminlte.logo', '<b>Admin</b>LTE') !!}</a>
+            <a href="{{ url(config('adminlte.dashboard_url', 'home')) }}"><img src="{{ asset('img\optimush.png') }}" width="260px" height="100px"></img></a>
         </div>
         <!-- /.login-logo -->
         <div class="login-box-body">
