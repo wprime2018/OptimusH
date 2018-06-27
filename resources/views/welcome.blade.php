@@ -38,7 +38,7 @@
 			<section id="banner">
 				<div class="inner">
 					<header>
-						<img src="img/OptimusH.png" name="logo" id="logo" filter: alpha(opacity=65);>
+						<img src="img/optimush.png" name="logo" id="logo" filter: alpha(opacity=65);>
 					</header>
 
 					<div class="flex ">
