@@ -179,7 +179,7 @@
 			b1
 		@endslot
 		@slot('tituloModal')
-			Importar Vendas SIC (TabEst1 + TabEst3A + TabEst3B)
+			Importar Vendas SIC (TabEst1 + TabEst3A + TabEst3B + TabNFCe)
 		@endslot
 		@slot('actionModal')
 			Painel\SicTabEst1Controller@importVendas
@@ -188,41 +188,47 @@
 			post
 		@endslot
 		@slot('bodyModal')
-		<div class='row'>	
-			<div class="form-group col-md-3">  <!-- testando tudo -->
-				<label>Filial</label>
-				<select name="filial_id" class="form-control">
-					@if( isset($Despesas) ) 
-						@foreach($ListFiliais as $value)
-							<option <?=("{{$value->id}}")? 'selected' : ''?>value="{{$value->id}}">{{$value->codigo}} - {{$value->fantasia}}</option>
-						@endforeach
-					@else 
-						<option selected="disabled">Selecionar</option>
-						@foreach($ListFiliais as $value)
-							<option value="{{$value->id}}">{{$value->codigo}} - {{$value->fantasia}}</option>
-						@endforeach
-					@endif
-				</select>
+			<div class='row'>	
+				<div class="form-group col-md-3">  <!-- testando tudo -->
+					<label>Filial</label>
+					<select name="filial_id" class="form-control">
+						@if( isset($Despesas) ) 
+							@foreach($ListFiliais as $value)
+								<option <?=("{{$value->id}}")? 'selected' : ''?>value="{{$value->id}}">{{$value->codigo}} - {{$value->fantasia}}</option>
+							@endforeach
+						@else 
+							<option selected="disabled">Selecionar</option>
+							@foreach($ListFiliais as $value)
+								<option value="{{$value->id}}">{{$value->codigo}} - {{$value->fantasia}}</option>
+							@endforeach
+						@endif
+					</select>
+				</div>
 			</div>
-		</div>
-		<div class='row'>	
-			<div class="col-md-6">
-				<label>TabEst1</label>
-				<input type="file" name="imported-file1"/>
+			<div class='row'>	
+				<div class="col-md-6">
+					<label>TabEst1</label>
+					<input type="file" name="imported-file1"/>
+				</div>
 			</div>
-		</div>
-		<div class='row'>	
-			<div class="col-md-6">
-				<label>TabEst3A</label>
-				<input type="file" name="imported-file2"/>
+			<div class='row'>	
+				<div class="col-md-6">
+					<label>TabEst3A</label>
+					<input type="file" name="imported-file2"/>
+				</div>
 			</div>
-		</div>
-		<div class='row'>	
-			<div class="col-md-6">
-				<label>TabEst3B</label>
-				<input type="file" name="imported-file3"/>
+			<div class='row'>	
+				<div class="col-md-6">
+					<label>TabEst3B</label>
+					<input type="file" name="imported-file3"/>
+				</div>
 			</div>
-		</div>
+			<div class='row'>	
+				<div class="col-md-6">
+					<label>TabNFCe</label>
+					<input type="file" name="imported-file4"/>
+				</div>
+			</div>
 		@endslot
 		@slot('btnConfirmar')
 			Importar

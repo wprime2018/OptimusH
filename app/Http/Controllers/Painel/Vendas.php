@@ -14,7 +14,7 @@ use App\Models\Painel\MSicTabVend;      //Vendedores
 use App\Models\Painel\MSicTabEst3A;     //Vendas
 use App\Models\Painel\MSicTabEst3B;     //Produtos Vendidos
 use App\Models\Painel\Comissao;
-
+use App\Models\Painel\MSicTabNFCe;
 class Vendas extends Controller
 {
     public function index_vendas_pgto(Request $request)
@@ -589,4 +589,61 @@ class Vendas extends Controller
         var_dump($data2->toDateTimeString());
         dd($formas);
     }
+
+    public function nfce(Request $request) {
+
+        $Filiais            = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
+        $ListFiliais        = $Filiais;
+        
+        if (isset($request)) {
+            
+            if (empty($request->initial_date))
+                $data1 = Carbon::now()->startOfDay();
+            else 
+                $data1 = $request->initial_date . ' 00:00:00';
+                $data1 = new Carbon($data1);
+                
+            if (empty($request->final_date))   
+                $data2 = Carbon::now()->endOfDay();
+            else 
+                $data2 = $request->final_date   . ' 23:59:59';
+                $data2 = new Carbon($data2);
+                
+        } else {
+            $data1 = Carbon::now()->firstOfMonth()->startOfDay();
+            $data2 = Carbon::now()->lastOfMonth()->endOfDay();
+        }
+        $data1 = Carbon::now()->firstOfMonth()->startOfDay();
+        $data2 = Carbon::now()->lastOfMonth()->endOfDay();
+        $diaData1 = $data1->day;
+        $diaData2 = $data2->day;
+        $tot_vendas = 0;
+        $Vendas = MSicTabEst3A::where('filial_id','6')
+                                ->where('Cancelada','0')
+                                ->where('LkTipo','2')
+                                ->where('Nota','>','0')
+                                ->wherebetween('Data',[$data1,$data2])
+                                ->with(['prodVendidos','vendedor','Receb','nfce'])
+                                ->orderBy('LkVendedor')
+                                ->get();
+        
+        $tot_vendas = 0;
+        $qtde_vendas = 0;
+        if (count($Vendas) > 0) {
+
+             foreach($Vendas as $V){
+
+                $tot_vendas += $V->prodVendidos->sum('Total');
+                ++$qtde_vendas;
+            }
+        }
+        return view('painel.vendas.nfce', compact('ListFiliais',
+                                                    'Filiais',
+                                                    'data1',
+                                                    'data2',
+                                                    'tot_vendas',
+                                                    'qtde_vendas',
+                                                    'Vendas'));
+    }
+
 }   

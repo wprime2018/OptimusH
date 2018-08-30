@@ -7,7 +7,7 @@ use App\Models\Painel\MSicTabEst3B;
 use App\Models\Painel\MSicTabEst7;
 use App\Models\Painel\MSicTabVend;
 use App\Models\Painel\Filiais;
-
+use App\Models\Painel\MSicTabNFCe;
 class MSicTabEst3A extends Model
 {
     protected $fillable = [
@@ -58,6 +58,9 @@ class MSicTabEst3A extends Model
     }
     public function vendedor() {
         return $this->hasOne(MSicTabVend::Class, 'Controle', 'LkVendedor');
+    }
+    public function nfce() {
+        return $this->hasOne(MSicTabNFCe::Class, 'LkEst3A', 'Controle');
     }
 
     public function VendasTotais($initial_date, $final_date)

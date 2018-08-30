@@ -4,7 +4,7 @@
 
 @section('content_header')
 
-d<h1>
+<h1>
     DashBoard Filiais 
     @if (isset($periodo))
         <small>Vendedores {{$periodo}}</small>

@@ -12,6 +12,7 @@ use App\Models\Painel\MSicTabEst7;      //Tipos de Recebimentos
 use App\Models\Painel\MSicTabVend;      //Vendedores
 use App\Models\Painel\MSicTabEst3A;     //Vendas
 use App\Models\Painel\MSicTabEst3B;     //Produtos Vendidos
+use App\Models\Painel\MSicTabNFCe;
 use App\Models\Painel\Estoque;          //Produtos Vendidos com estoque calculado
 use App\Models\Painel\Filiais;
 use App\Models\Painel\Setores;
@@ -321,7 +322,7 @@ class SicTabEst1Controller extends Controller
                 }
             }
         } else {$message = "Você não informou o arquivo de produtos";  }
-        if($request->file('imported-file2'))        // Importando table Vendas com dados de Completos
+        if($request->file('imported-file2'))        // Importando table Vendas com dados Completos
         {
             $path2 = $request->file('imported-file2')->getRealPath();
             $data2 = Excel::load($path2, function($reader) {})->get();
@@ -432,6 +433,7 @@ class SicTabEst1Controller extends Controller
                 $message = $message . ", vendas importadas "; 
             }
         } else {$message = $message . ", você não informou o arquivo de Vendas";  }
+
         if($request->file('imported-file3'))        // Importando table de produtos vendidos. 
         {
             $path3 = $request->file('imported-file3')->getRealPath();
@@ -502,11 +504,91 @@ class SicTabEst1Controller extends Controller
                 }    
                 $message = $message . "e produtos vendidos importados com sucesso!"; 
             }
-            return redirect()->back()->with('success', $message);
+           
         } else {
             $message = $message . ", você não informou o arquivo de produtos vendidos";  
         }
+        /**
+         *
+         * Importando arquivo de NFC-e - Arquivos dos cupons fiscais eletrônicos do SIC a fim de atender à contabilidade. 
+         * 
+         */
+        if($request->file('imported-file4'))        // Importando table de NFC-e. 
+        {
+            $path4 = $request->file('imported-file4')->getRealPath();
+            $data4 = Excel::load($path4, function($reader) {})->get();
+
+            $dataImport4[] = [
+                'filial_id' => $request['filial_id'],
+                'path_file' => $path4
+            ];
+    
+            if(!empty($data4) && $data4->count())
+            {
+                DB::statement("SET foreign_key_checks=0");
+                MSicTabNFCe::where('filial_id','=',$request['filial_id'])->delete();
+                
+
+                foreach ($data4->toArray() as $row4)
+                {
+                    if(!empty($row4)) {
+
+                        if (empty($row4['datahora'])) { $row4['datahora'] = "2000-01-01 00:00:00"; } else {
+                            $dataHoraCSV = $row4['datahora'];
+                            $dt  = Carbon::createFromFormat('d/m/Y H:i:s', $dataHoraCSV);
+                            $row4['datahora'] = $dt->toDateTimeString(); 
+                        }
+                        if (empty($row4['recibo'])) { $row4['recibo'] = "2000-01-01 00:00:00"; } else {
+                            $dataHoraCSV2 = $row4['recibo'];
+                            $dt2 = Carbon::createFromFormat('d/m/Y H:i:s', $dataHoraCSV2);
+                            $row4['recibo'] = $dt2->toDateTimeString(); 
+                        } 
+                        if (empty($row4['emitida'])) { $row4['emitida'] = "2000-01-01 00:00:00"; } else {
+                            $dataHoraCSV3 = $row4['emitida'];
+                            $dt3 = Carbon::createFromFormat('d/m/Y H:i:s', $dataHoraCSV3);
+                            $row4['emitida'] = $dt3->toDateTimeString(); 
+                        } 
+                        $dataAtual = Carbon::now();
+
+                        $row4['controle']    = $row4['controle'] + ($request['filial_id'] * 1000000) ;
+                        $row4['lkest3a']     = $row4['lkest3a'] + ($request['filial_id'] * 1000000);
+
+                        $dataArray4[] =
+                        [
+                            'Controle' => $row4['controle'],
+                            'filial_id' => $request['filial_id'],
+                            'LkEst3A' => $row4['lkest3a'],
+                            'DataHora' => $row4['datahora'],
+                            'Numero' => $row4['numero'],
+                            'Serie' => $row4['serie'],
+                            'Chave' => $row4['chave'],
+                            'Ambiente' => $row4['ambiente'],
+                            'Recibo' => $row4['xml'],
+                            'Emitida' => $row4['recibo'],
+                            'Cancelada' => $row4['emitida'],
+                        ];
+                    }
+                }
+                if(!empty($dataArray4))
+                {
+                    foreach (array_chunk($dataArray4,1000) as $t) {
+                        MSicTabNFCe::insert($t);
+                    }
+                }
+                if(!empty($dataImport4))
+                {
+                    ImportFileSic::create($dataImport4);
+                }    
+                DB::statement("SET foreign_key_checks=1");
+                $message = $message . "e NFC-e importadas com sucesso!"; 
+            }
+            return redirect()->back()->with('success', $message);
+        } else {
+            $message = $message . ", você não informou o arquivo de Nfc-e";  
+        }
     }
+
+
     public function importTabEst8(Request $request) //Setores
     {
         

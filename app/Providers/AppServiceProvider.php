@@ -69,7 +69,12 @@ class AppServiceProvider extends ServiceProvider
                     [
                         'text'        => 'Ranking CHIP',
                         'url'         => 'ranking_chip',
+                    ],
+                    [
+                        'text'        => 'NFC-e Emitidas',
+                        'url'         => 'nfce',
                     ]
+
                 ]
             ]);
             $event->menu->add([
