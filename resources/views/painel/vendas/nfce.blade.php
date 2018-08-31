@@ -22,7 +22,7 @@
 @section('content')
 <div class="box">
 	<div class="box-header">
-		<h3 class="box-title">Importações</h3>
+		<h3 class="box-title">{{$filial_changed}} - {{$dados[0]['Periodo']}}</h3>
 	</div>
 	<!-- /.box-header -->
 
@@ -41,9 +41,11 @@
 					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
 						style="width: 100px;">Número</th>
 					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-						style="width: 100px;">Data</th>
+						style="width: 150px;">Data</th>
 					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
 						style="width: 100px;">Chave</th>
+					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
+						style="width: 100px;">Recibo</th>
 					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
 						style="width: 100px;">Forma PGTO</th>
 					<th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
@@ -51,21 +53,23 @@
 				</tr>
 			</thead>
 			<tbody>
-				@foreach($Vendas as $V)	
+				@foreach($dados[0]['VendasComNota'] as $V)	
 					<tr role="row" class="odd" id="{{$V->nfce->Numero}}">
 						<td class="sorting_1">{{$V->nfce->Numero}}</td>
 						<td>{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$V->nfce->Emitida)->format('d/m/Y H:i:s')}}</td>
 						<td>{{$V->nfce->Chave}}</td>
+						<td>{{$V->nfce->Recibo}}</td>
 						<td>{{$V->Receb->Recebimento}}</td>
 						<td>{{number_format($V->prodVendidos->sum('Total'),2,',','.')}}</td>
 					</tr>
 				@endforeach
 			</tbody>	
 			<tfoot>
-				<th rowspan="1" colspan="1"><font color="blue">Total de NFCe´s</th>
-				<th rowspan="1" colspan="2"><font color="blue">R$ {{number_format($tot_vendas,2,',','.')}}</th>
-				<th rowspan="1" colspan="1"><font color="blue">Quantidade de NFCe´s</th>
-				<th rowspan="1" colspan="2"><font color="blue">{{number_format($qtde_vendas,0,',','.')}}</th>
+				<th>Qtde = {{number_format($dados[0]['QtdeComNF'])}}</th>
+				<th>Cartões SNF=</th>
+				<th colspan="2">R$ {{number_format($dados[0]['SemNFCred']['Valor'] + $dados[0]['SemNFDeb']['Valor'],2,',','.')}}</th>
+				<th>Valor = </th>
+				<th>R$ {{number_format($dados[0]['TotalComNF'],2,',','.')}}</th>
 			</tfoot>
 		</table>
 	</div>
@@ -91,7 +95,7 @@
 	@endslot
 
 	@slot('bodyModal')
-	<div class='row'>	
+	<div class="row">
 		<div class="form-group col-md-3">  <!-- testando tudo -->
 			<label>Filial</label>
 			<select name="filial_id" class="form-control">
@@ -101,14 +105,14 @@
 				@endforeach
 			</select>
 		</div>
-	</div>
-	<div class="form-group col-md-4">
-		<label>Data Inicial</label>
-		<input class="form-control" type="date" name="initial_date" value="{{ Carbon\Carbon::now()->format('d-m-Y')}}" />
-	</div>
-	<div class="form-group col-md-4">
-		<label>Data Final</label>
-		<input class="form-control" type="date" name="final_date" value="{{ Carbon\Carbon::now()->format('d-m-Y')}}" />
+		<div class="form-group col-md-4">
+			<label>Data Inicial</label>
+			{!! Form::date('initial_date',\Carbon\Carbon::now()->firstOfMonth(),['class' => 'form-control', 'id'=>"initial_date"]) !!}
+		</div>
+		<div class="form-group col-md-4">
+			<label>Data Final</label>
+			{!! Form::date('final_date',\Carbon\Carbon::now(),['class' => 'form-control', 'id'=>"final_date"]) !!}
+		</div>
 	</div>
 	@endslot
 	@slot('btnConfirmar')
@@ -123,9 +127,6 @@
 			$("#btnModal6").click(function(){
 				$("#b6").modal('show');
 			});
-			var data1 = "{{$data1}}"
-			var data2 = "{{$data2}}"
-			var titulo = 'OptimusH - NFCe Emitidas no período de ' + data1 + ' até ' + data2
 		});
 
 		$(function () {
@@ -144,10 +145,10 @@
 						footer: true,
 						customize: function(doc) {
 							doc.defaultStyle.fontSize = 7; //<-- set fontsize to 16 instead of 10 
+							doc.pageMargins = [5,5,5,5];
 						},
-						title: "OptimusH - NFCe Emitidas no período de " + "{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$data1)->format('d/m/Y')}}" + " - " + "{{\Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$data2)->format('d/m/Y')}}"
+						title: "OptimusH - NFCe Emitidas de " + "{{$filial_changed}}" + " no período de " + "{{$dados[0]['Periodo']}}" 
 					}
-		
 				]
 			})
 		})

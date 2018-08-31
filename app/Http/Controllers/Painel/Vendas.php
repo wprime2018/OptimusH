@@ -597,6 +597,7 @@ class Vendas extends Controller
         
         if (isset($request)) {
             
+            $filial_id = $request->filial_id;
             if (empty($request->initial_date))
                 $data1 = Carbon::now()->startOfDay();
             else 
@@ -608,42 +609,102 @@ class Vendas extends Controller
             else 
                 $data2 = $request->final_date   . ' 23:59:59';
                 $data2 = new Carbon($data2);
-                
+
+            if (empty($request->filial_id))   
+                $filial_id = 6;
         } else {
             $data1 = Carbon::now()->firstOfMonth()->startOfDay();
             $data2 = Carbon::now()->lastOfMonth()->endOfDay();
+            $filial_id = 6;
+        }
+        
+        $filial_changed = Filiais::where('id',"$filial_id")->get(['fantasia']);
+        foreach ($filial_changed as $fc) {
+            $filial_changed = $fc->fantasia;
         }
         $data1 = Carbon::now()->firstOfMonth()->startOfDay();
         $data2 = Carbon::now()->lastOfMonth()->endOfDay();
         $diaData1 = $data1->day;
         $diaData2 = $data2->day;
         $tot_vendas = 0;
-        $Vendas = MSicTabEst3A::where('filial_id','6')
+        $dados = Array();
+        $Vendas = MSicTabEst3A::where('filial_id',"$filial_id")
                                 ->where('Cancelada','0')
                                 ->where('LkTipo','2')
                                 ->where('Nota','>','0')
                                 ->wherebetween('Data',[$data1,$data2])
                                 ->with(['prodVendidos','vendedor','Receb','nfce'])
-                                ->orderBy('LkVendedor')
+                                ->orderBy('Data')
+                                ->get();
+        $VendasSemNFCeCC = MSicTabEst3A::where('filial_id',"$filial_id")
+                                ->where('Cancelada','0')
+                                ->where('LkTipo','2')
+                                ->whereNull('Nota')
+                                ->wherebetween('Data',[$data1,$data2])
+                                ->with(['prodVendidos','vendedor','Receb'])
+                                ->orderBy('Data')
                                 ->get();
         
         $tot_vendas = 0;
         $qtde_vendas = 0;
         if (count($Vendas) > 0) {
 
-             foreach($Vendas as $V){
+            foreach($Vendas as $V){
 
                 $tot_vendas += $V->prodVendidos->sum('Total');
                 ++$qtde_vendas;
+
             }
+        }
+        $semNfceCredito = 0;
+        $semNfceCreditoQtde = 0;
+        $semNfceDebito = 0;
+        $semNfceDebitoQtde = 0;
+        $totVendasSemNF = 0;
+        $qtdeVendasSemNF = 0;
+        if (count($VendasSemNFCeCC) > 0) {
+
+            foreach($VendasSemNFCeCC as $V){
+
+                switch ($V->Receb->tipo) {
+                    case 'C':
+                        $semNfceCredito += $V->prodVendidos->sum('Total');
+                        ++$semNfceCreditoQtde;
+                        break;
+                    case 'D':
+                        $semNfceDebito += $V->prodVendidos->sum('Total');
+                        ++$semNfceDebitoQtde;
+                        break;
+                }
+                $totVendasSemNF += $V->prodVendidos->sum('Total');
+                ++$qtdeVendasSemNF;
+                $dados[0]['SemNFCred']['Valor'] = $semNfceCredito;
+                $dados[0]['SemNFCred']['Qtde']  = $semNfceCreditoQtde;
+                $dados[0]['SemNFDeb']['Valor'] = $semNfceDebito;
+                $dados[0]['SemNFDeb']['Qtde']  = $semNfceDebitoQtde;
+                $dados[0]['Periodo'] = Carbon::createFromFormat('Y-m-d H:i:s',$data1)->format('d/m/Y') . ' - ' . Carbon::createFromFormat('Y-m-d H:i:s',$data2)->format('d/m/Y');
+                $dados[0]['TotalSemNF'] = $totVendasSemNF;
+                $dados[0]['QtdeSemNF'] = $qtdeVendasSemNF;
+                $dados[0]['TotalComNF'] = $tot_vendas;
+                $dados[0]['QtdeComNF'] = $qtde_vendas;
+                $dados[0]['VendasComNota'] = $Vendas;
+                $dados[0]['VendasSemNota'] = $VendasSemNFCeCC;
+            } 
+        } else {
+            $semNfceCredito = 0;
+            $semNfceCreditoQtde = 0;
+            $semNfceDebito = 0;
+            $semNfceDebitoQtde = 0;
+            $totVendasSemNF = 0;
+            $qtdeVendasSemNF = 0;
         }
         return view('painel.vendas.nfce', compact('ListFiliais',
                                                     'Filiais',
-                                                    'data1',
-                                                    'data2',
+                                                    'filial_changed',
+                                                    'dados',
                                                     'tot_vendas',
-                                                    'qtde_vendas',
-                                                    'Vendas'));
+                                                    'qtde_vendas')
+                                                );
     }
 
 }   
