@@ -241,163 +241,15 @@ class Vendas extends Controller
     {
         $Filiais            = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
         $ListFiliais        = $Filiais;
-        $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
-        $listVend           = MSicTabVend::get(['id','Controle','Nome','Comissao', 'DataInc']);
-        $prod               = MSicTabEst1::where('Codigo','000323')->get();
-        foreach ($prod as $chip) {
-
-        }
-        if (isset($request)) {
-            $data1 = $request->initial_date . ' 00:00:00';
-            $data2 = $request->final_date   . ' 23:59:59';
+        if (isset($request->filial_id)) {
+            $dados = FunctionsController::calcula_comissao($request->filial_id, 
+                                                            $request->initial_date, 
+                                                            $request->final_date, 
+                                                            $request->porcComissaoChip);
+            return view('painel.vendas.ranking_vendedor', compact('ListFiliais', 'dados'));
         } else {
-            $data1 = Carbon::now(-30);
-            $data2 = Carbon::now();
-            $data1 = $data1->toDateTimeString();
-            $data2 = $data2->toDateTimeString();
-            echo var_dump($data2);
+            return view('painel.vendas.ranking_vendedor', compact('ListFiliais'));
         }
-        $carbonData1 = new Carbon($data1);
-        $carbonData2 = new Carbon($data2);
-        $diaData1 = $carbonData1->day;
-        $diaData2 = $carbonData2->day;
-        $formas = array();
-        $tot_vendas = 0;
-        $gran_total = 0;
-        $gran_qtde = 0;
-        $gran_cred = 0;
-        $gran_deb = 0;
-        $gran_ticket = 0;
-        $formas = array();
-        foreach ($Filiais as $f) {
-            foreach ($listVend as $lV) {
-                $Vendas = MSicTabEst3A::where('LkVendedor',$lV->Controle)
-                ->where('filial_id',$f->id)
-                ->where('Cancelada','0')
-                ->where('LkTipo','2')
-                ->wherebetween('Data',[$data1,$data2])
-                ->with(['prodVendidos','vendedor','Receb'])
-                ->orderBy('LkVendedor')
-                ->get();
-                $tot_vendas_vendedor = 0;
-                $tot_qtde_vendas_vendedor = $Vendas->count();
-                if (count($Vendas) > 0) {
-                    $tot_qtde_vendas_vendedor = $Vendas->count();
-                    $tot_valor_vendas_vendedor = 0;
-                    $tot_valor_com_vendedor = 0;
-                    $tot_valor_vendas_cred = 0;
-                    $tot_valor_vendas_deb = 0;
-                    $tot_valor_vendas_din = 0;
-                    $ticket_vendedor = 0;
-                    foreach ($Vendas as $v) {
-                        $tot_valor_vendas_vendedor += $v->prodVendidos->sum('Total');
-                        
-                        if ($v->Receb()->count() > 0) {
-                            switch ($v->Receb->tipo) {
-                                case 'C':
-                                    $tot_valor_vendas_cred += $v->prodVendidos->sum('Total');
-                                    break;
-                                case 'D':
-                                    $tot_valor_vendas_deb += $v->prodVendidos->sum('Total');
-                                    break;
-                                default:
-                                    $tot_valor_vendas_din += $v->prodVendidos->sum('Total');
-                            }
-                        }
-                        // Calculando os Chips Vendidos
-                        if ($v->prodVendidos()->count() > 0) {
-                            foreach($v->prodVendidos as $vPv) {
-                                $prod2 = $vPv->LkProduto;
-                                if  ($prod2 == $chip->Controle) {
-                                    if (isset($formas[$f->fantasia][$lV->Nome]['CHIP']['Total'])) {
-                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['Total']         += $vPv->Total;
-                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['TotVenda']      += $vPv->TotVenda;
-                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['Quantidade']    += $vPv->Quantidade;
-                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['TotalPagar']    += ($vPv->Total * ($request->porcComissaoChip /100));
-                                    } else {
-                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['Total']         = $vPv->Total;
-                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['TotVenda']      = $vPv->TotVenda;
-                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['Quantidade']    = $vPv->Quantidade;
-                                        $formas[$f->fantasia][$lV->Nome]['CHIP']['TotalPagar']    = $vPv->Total * ($request->porcComissaoChip /100);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    // Calculando comissoes conforme tabela de metas. 
-                    $aComFilial = Comissao::where('filial_id',$f->id)
-                                            ->where('tipo','1')
-                                            ->orderby('Vendas')
-                                            ->get();
-                    $aComVend = Comissao::where('filial_id',$f->id)
-                                            ->where('tipo','2')
-                                            ->orderby('Vendas')
-                                            ->get();
-                    
-                    $totalVendasFilial = FunctionsController::ranking_vendas($f->id,$data1,$data2);
-                    
-                    $totalVendasFilial->GranTotal;
-
-                    dd($totalVendasFilial);
-   
-                    if (count($aComVend)>0) {
-                        $i = 0;
-                        foreach($aComVend as $key => $valor) {    // Calculando a comissão pela venda do vendedor
-                            if ($tot_valor_vendas_vendedor > $valor->vendas && $valor->comissao > $v->vendedor->Comissao) {
-                                if (isset($formas[$f->fantasia][$lV->Nome]['CHIP'])) {
-                                    $tot_valor_com_vendedor = (($tot_valor_vendas_vendedor - $formas[$f->fantasia][$lV->Nome]['CHIP']['Total'] ) * ($valor->comissao / 100));
-                                } else {
-                                    $tot_valor_com_vendedor = ($tot_valor_vendas_vendedor * ($valor->comissao / 100));
-                                } 
-                                $comissao_paga = $valor->comissao;
-                                ++$i;
-                                $bateuMeta = $i;
-                            } else {
-                                if (isset($formas[$f->fantasia][$lV->Nome]['CHIP'])) {
-                                    $tot_valor_com_vendedor = (($tot_valor_vendas_vendedor - $formas[$f->fantasia][$lV->Nome]['CHIP']['Total'] ) * ($v->vendedor->Comissao / 100));
-                                } else {
-                                    $tot_valor_com_vendedor = ($tot_valor_vendas_vendedor * ($v->vendedor->Comissao / 100));
-                                } 
-                            }
-                        }
-                    } 
-                    // Calculando comissoes de CHIPS
-                    if (isset($formas[$f->fantasia][$lV->Nome]['CHIP'])) {
-                        $formas[$f->fantasia][$lV->Nome]['TotalPagar'] = $tot_valor_com_vendedor + $formas[$f->fantasia][$lV->Nome]['CHIP']['TotalPagar'];
-                    } else {
-                        $formas[$f->fantasia][$lV->Nome]['TotalPagar'] = $tot_valor_com_vendedor;
-                    } 
-                    $tot_valor_vendas_din += $v->prodVendidos->sum('Total');
-                    $tot_valor_com_vendedor = number_format(($tot_valor_com_vendedor),2,',','.');
-                    $formas[$f->fantasia][$lV->Nome]['Valor'] = number_format($tot_valor_vendas_vendedor,2,',','.');
-                    $formas[$f->fantasia][$lV->Nome]['Qtde'] = $tot_qtde_vendas_vendedor;
-                    $formas[$f->fantasia][$lV->Nome]['TicketM'] = number_format(($tot_valor_vendas_vendedor / $tot_qtde_vendas_vendedor),2,',','.');
-                    $formas[$f->fantasia][$lV->Nome]['Cred'] = number_format($tot_valor_vendas_cred,2,',','.');
-                    $formas[$f->fantasia][$lV->Nome]['Deb'] = number_format($tot_valor_vendas_deb,2,',','.');
-                    $formas[$f->fantasia][$lV->Nome]['Din'] = number_format($tot_valor_vendas_din,2,',','.');
-                    $formas[$f->fantasia][$lV->Nome]['Comissao'] = $tot_valor_com_vendedor;
-                    if (isset($comissao_paga))
-                        $formas[$f->fantasia][$lV->Nome]['Comissao_Paga'] = $comissao_paga;
-                    else 
-                        $formas[$f->fantasia][$lV->Nome]['Comissao_Paga'] = $v->vendedor->Comissao;
-                    
-                    if (isset($bateuMeta) && ($bateuMeta > 0))
-                        $formas[$f->fantasia][$lV->Nome]['BateuMeta'] = true;
-                    else 
-                        $formas[$f->fantasia][$lV->Nome]['BateuMeta'] = false;
-                }
-            }
-        }
-        
-        return view('painel.vendas.ranking_vendedor', 
-                                compact('ListFiliais',
-                                        'Filiais',
-                                        'TipoRecebimentos',
-                                        'data1',
-                                        'data2',
-                                        'carbonData1',
-                                        'carbonData2',
-                                        'formas'));
     }
     public function ranking_diario(Request $request)
     {
@@ -524,83 +376,6 @@ class Vendas extends Controller
         }            
         return view('painel.vendas.ranking_diario', compact('ListFiliais','Filiais','data1','data2','formas','soma'));
     }
-    public function ranking_chip(Request $request) {
-
-        $Filiais            = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
-        $ListFiliais        = $Filiais;
-        $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
-        $listVend           = MSicTabVend::get(['id','Controle','Nome','Comissao', 'DataInc']);
-        $prod               = MSicTabEst1::where('Codigo','000323')->get();
-        foreach($prod as $chip){
-
-        }
-
-        if (isset($request)) {
-            
-            if (empty($request->initial_date))
-                $data1 = Carbon::now()->startOfDay();
-            else 
-                $data1 = $request->initial_date . ' 00:00:00';
-                $data1 = new Carbon($data1);
-                
-            if (empty($request->final_date))   
-                $data2 = Carbon::now()->endOfDay();
-            else 
-                $data2 = $request->final_date   . ' 23:59:59';
-                $data2 = new Carbon($data2);
-                
-        } else {
-            $data1 = Carbon::now()->firstOfMonth()->startOfDay();
-            $data2 = Carbon::now()->lastOfMonth()->endOfDay();
-        }
-        $data1 = Carbon::now()->firstOfMonth()->startOfDay();
-        $data2 = Carbon::now()->lastOfMonth()->endOfDay();
-        $diaData1 = $data1->day;
-        $diaData2 = $data2->day;
-        $formas = array();
-        $tot_vendas = 0;
-        $gran_total = 0;
-        $gran_qtde = 0;
-        $gran_cred = 0;
-        $gran_deb = 0;
-        $gran_ticket = 0;
-        foreach ($Filiais as $f) {
-            foreach ($listVend as $lV) {
-                $Vendas = MSicTabEst3A::where('LkVendedor',$lV->Controle)
-                ->where('filial_id',$f->id)
-                ->where('Cancelada','0')
-                ->where('LkTipo','2')
-                ->wherebetween('Data',[$data1,$data2])
-                ->with(['prodVendidos','vendedor','Receb'])
-                ->orderBy('LkVendedor')
-                ->get();
-                if (count($Vendas) > 0) {
-                    foreach ($Vendas as $v) {
-                        foreach($v->prodVendidos as $vPv) {
-                            $prod = $vPv->LkProduto;
-                            if  ($prod == $chip->Controle) {
-                                if (isset($formas[$f->codigo][$lV->Nome]['Total'])) {
-                                    $formas[$f->codigo][$lV->Nome]['Total']         += $vPv->Total;
-                                    $formas[$f->codigo][$lV->Nome]['TotVenda']      += $vPv->TotVenda;
-                                    $formas[$f->codigo][$lV->Nome]['Quantidade']    += $vPv->Quantidade;
-                                    $formas[$f->codigo][$lV->Nome]['TotalPagar']    = $formas[$f->codigo][$lV->Nome]['Total'] * (25 /100);
-                                    
-                                } else {
-                                    $formas[$f->codigo][$lV->Nome]['Total']         = $vPv->Total;
-                                    $formas[$f->codigo][$lV->Nome]['TotVenda']      = $vPv->TotVenda;
-                                    $formas[$f->codigo][$lV->Nome]['Quantidade']    = $vPv->Quantidade;
-                                    $formas[$f->codigo][$lV->Nome]['TotalPagar']    = $formas[$f->codigo][$lV->Nome]['Total'] * (25 /100);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        var_dump($data1->toDateTimeString());
-        var_dump($data2->toDateTimeString());
-        dd($formas);
-    }
 
     public function nfce(Request $request) {
 
@@ -611,7 +386,6 @@ class Vendas extends Controller
             return view('painel.vendas.nfce', compact('ListFiliais', 'dados'));
         } else {
             return view('painel.vendas.nfce', compact('ListFiliais', 'filial_changed'));
-
         }
     }
 }   

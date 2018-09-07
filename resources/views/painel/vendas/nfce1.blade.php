@@ -35,6 +35,11 @@
 			<th colspan="2">R$ {{number_format($dados['SemNFCartao']['Valor'],2,',','.')}}</th>
 			<th>Valor = </th>
 			<th>R$ {{number_format($dados['TotalComNF'],2,',','.')}}</th>
+			<tr>
+				<td>Não encontradas</td>
+				<td colspan="5">{{$dados['NoFind']}}</td>
+			</tr>
+
 		</tfoot>
 	</table>
 </div>
@@ -63,7 +68,9 @@
 						footer: true,
 						customize: function(doc) {
 							doc.defaultStyle.fontSize = 7; //<-- set fontsize to 16 instead of 10 
+							// margin: [left, top, right, bottom]
 							doc.pageMargins = [5,5,5,5];
+							doc.image = "{{ asset('img/optimush.png') }}";
 						},
 						title: "OptimusH - NFCe Emitidas de " + "{{$dados['filial_changed']}}" + " no período de " + "{{$dados['Periodo']}}" 
 					}

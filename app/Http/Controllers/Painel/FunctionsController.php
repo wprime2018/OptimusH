@@ -10,6 +10,7 @@ use App\Models\Painel\MSicTabEst1;
 use App\Models\Painel\MSicTabEst7;
 use App\Models\Painel\Filiais;
 use App\Models\Painel\MSicTabNFCe;
+use App\Models\Painel\MSicTabVend;
 use Carbon\Carbon;
 
 class FunctionsController extends Controller
@@ -98,7 +99,14 @@ class FunctionsController extends Controller
             $tot_vendas = 0;
             $qtde_vendas = 0;
             $dados = Array();
-            $seq_nfce = $nfces['Numero'];                
+            $seq_nfce = MSicTabNFCe::where('filial_id',"$filial_id")
+                        ->wherebetween('DataHora',[$initial_date,$final_date])
+                        ->orderBy('DataHora')
+                        ->min('Numero');
+            $seq_nfce_max = MSicTabNFCe::where('filial_id',"$filial_id")
+                        ->wherebetween('DataHora',[$initial_date,$final_date])
+                        ->orderBy('DataHora')
+                        ->max('Numero');
             $teste_seq_nfce = '';
             foreach($nfces as $nfce) {
                 $venda = MSicTabEst3A::where('filial_id',"$filial_id")
@@ -106,8 +114,10 @@ class FunctionsController extends Controller
                                         ->with(['prodVendidos','Receb'])
                                         ->get();
                 
-                if ($nfce->Numero != $seq_nfce) 
-                    $teste_seq_nfce = $teste_seq_nfce .','. $seq_nfce;
+                if ($nfce->Numero != $seq_nfce) {
+                    $teste_seq_nfce = $teste_seq_nfce .', '. $seq_nfce;
+                    $seq_nfce = $nfce->Numero;
+                } 
                 
                 if (count($venda) > 0 ) {
                     foreach ($venda as $v) {
@@ -177,7 +187,144 @@ class FunctionsController extends Controller
         $dados['QtdeComNF'] = $qtde_vendas;
         $dados['filial_changed'] = $filial_changed;
         $dados['NoFind'] = $teste_seq_nfce;
-        dd($dados);
         return $dados;
+    }
+
+    public static function calcula_comissao($filial_id, $initial_date, $final_date, $perc_comissao_chip) {
+        $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
+        $listVend           = MSicTabVend::get(['id','Controle','Nome','Comissao', 'DataInc']);
+        $prod               = MSicTabEst1::where('Codigo','000323')->get();
+        foreach ($prod as $chip) {
+
+        }
+        $tot_vendas = 0;
+        $gran_total = 0;
+        $gran_qtde = 0;
+        $gran_cred = 0;
+        $gran_deb = 0;
+        $gran_ticket = 0;
+        $formas = array();
+        $Vendas = MSicTabEst3A::where('filial_id',"$filial_id")
+                                ->where('Cancelada','0')
+                                ->where('LkTipo','2')
+                                ->wherebetween('Data',[$initial_date,$final_date])
+                                ->with(['prodVendidos','vendedor','Receb'])
+                                ->orderBy('LkVendedor')
+                                ->get();
+        $vendedores = MSicTabEst3A::where('filial_id',"$filial_id")
+                                ->where('Cancelada','0')
+                                ->where('LkTipo','2')
+                                ->wherebetween('Data',[$initial_date,$final_date])
+                                ->with(['prodVendidos','vendedor','Receb'])
+                                ->orderBy('LkVendedor')
+                                ->distinct('LkVendedor');
+        dd($vendedores);
+        $tot_vendas_vendedor = 0;
+        $tot_qtde_vendas_vendedor = $Vendas->count();
+        if (count($Vendas) > 0) {
+            $tot_qtde_vendas_vendedor = $Vendas->count();
+            $tot_valor_vendas_vendedor = 0;
+            $tot_valor_com_vendedor = 0;
+            $tot_valor_vendas_cred = 0;
+            $tot_valor_vendas_deb = 0;
+            $tot_valor_vendas_din = 0;
+            $ticket_vendedor = 0;
+            foreach ($Vendas as $v) {
+                $tot_valor_vendas_vendedor += $v->prodVendidos->sum('Total');
+                
+                if ($v->Receb()->count() > 0) {
+                    switch ($v->Receb->tipo) {
+                        case 'C':
+                            $tot_valor_vendas_cred += $v->prodVendidos->sum('Total');
+                            break;
+                        case 'D':
+                            $tot_valor_vendas_deb += $v->prodVendidos->sum('Total');
+                            break;
+                        default:
+                            $tot_valor_vendas_din += $v->prodVendidos->sum('Total');
+                    }
+                }
+                // Calculando os Chips Vendidos
+                if ($v->prodVendidos()->count() > 0) {
+                    foreach($v->prodVendidos as $vPv) {
+                        $prod2 = $vPv->LkProduto;
+                        if  ($prod2 == $chip->Controle) {
+                            if (isset($formas[$f->fantasia][$lV->Nome]['CHIP']['Total'])) {
+                                $formas[$f->fantasia][$lV->Nome]['CHIP']['Total']         += $vPv->Total;
+                                $formas[$f->fantasia][$lV->Nome]['CHIP']['TotVenda']      += $vPv->TotVenda;
+                                $formas[$f->fantasia][$lV->Nome]['CHIP']['Quantidade']    += $vPv->Quantidade;
+                                $formas[$f->fantasia][$lV->Nome]['CHIP']['TotalPagar']    += ($vPv->Total * ($request->porcComissaoChip /100));
+                            } else {
+                                $formas[$f->fantasia][$lV->Nome]['CHIP']['Total']         = $vPv->Total;
+                                $formas[$f->fantasia][$lV->Nome]['CHIP']['TotVenda']      = $vPv->TotVenda;
+                                $formas[$f->fantasia][$lV->Nome]['CHIP']['Quantidade']    = $vPv->Quantidade;
+                                $formas[$f->fantasia][$lV->Nome]['CHIP']['TotalPagar']    = $vPv->Total * ($request->porcComissaoChip /100);
+                            }
+                        }
+                    }
+                }
+            }
+            // Calculando comissoes conforme tabela de metas. 
+            $aComFilial = Comissao::where('filial_id',$f->id)
+                                    ->where('tipo','1')
+                                    ->orderby('Vendas')
+                                    ->get();
+            $aComVend = Comissao::where('filial_id',$f->id)
+                                    ->where('tipo','2')
+                                    ->orderby('Vendas')
+                                    ->get();
+            
+            $totalVendasFilial = FunctionsController::ranking_vendas($f->id,$data1,$data2);
+            
+            $totalVendasFilial->GranTotal;
+
+            dd($totalVendasFilial);
+
+            if (count($aComVend)>0) {
+                $i = 0;
+                foreach($aComVend as $key => $valor) {    // Calculando a comissão pela venda do vendedor
+                    if ($tot_valor_vendas_vendedor > $valor->vendas && $valor->comissao > $v->vendedor->Comissao) {
+                        if (isset($formas[$f->fantasia][$lV->Nome]['CHIP'])) {
+                            $tot_valor_com_vendedor = (($tot_valor_vendas_vendedor - $formas[$f->fantasia][$lV->Nome]['CHIP']['Total'] ) * ($valor->comissao / 100));
+                        } else {
+                            $tot_valor_com_vendedor = ($tot_valor_vendas_vendedor * ($valor->comissao / 100));
+                        } 
+                        $comissao_paga = $valor->comissao;
+                        ++$i;
+                        $bateuMeta = $i;
+                    } else {
+                        if (isset($formas[$f->fantasia][$lV->Nome]['CHIP'])) {
+                            $tot_valor_com_vendedor = (($tot_valor_vendas_vendedor - $formas[$f->fantasia][$lV->Nome]['CHIP']['Total'] ) * ($v->vendedor->Comissao / 100));
+                        } else {
+                            $tot_valor_com_vendedor = ($tot_valor_vendas_vendedor * ($v->vendedor->Comissao / 100));
+                        } 
+                    }
+                }
+            } 
+            // Calculando comissoes de CHIPS
+            if (isset($formas[$f->fantasia][$lV->Nome]['CHIP'])) {
+                $formas[$f->fantasia][$lV->Nome]['TotalPagar'] = $tot_valor_com_vendedor + $formas[$f->fantasia][$lV->Nome]['CHIP']['TotalPagar'];
+            } else {
+                $formas[$f->fantasia][$lV->Nome]['TotalPagar'] = $tot_valor_com_vendedor;
+            } 
+            $tot_valor_vendas_din += $v->prodVendidos->sum('Total');
+            $tot_valor_com_vendedor = number_format(($tot_valor_com_vendedor),2,',','.');
+            $formas[$f->fantasia][$lV->Nome]['Valor'] = number_format($tot_valor_vendas_vendedor,2,',','.');
+            $formas[$f->fantasia][$lV->Nome]['Qtde'] = $tot_qtde_vendas_vendedor;
+            $formas[$f->fantasia][$lV->Nome]['TicketM'] = number_format(($tot_valor_vendas_vendedor / $tot_qtde_vendas_vendedor),2,',','.');
+            $formas[$f->fantasia][$lV->Nome]['Cred'] = number_format($tot_valor_vendas_cred,2,',','.');
+            $formas[$f->fantasia][$lV->Nome]['Deb'] = number_format($tot_valor_vendas_deb,2,',','.');
+            $formas[$f->fantasia][$lV->Nome]['Din'] = number_format($tot_valor_vendas_din,2,',','.');
+            $formas[$f->fantasia][$lV->Nome]['Comissao'] = $tot_valor_com_vendedor;
+            if (isset($comissao_paga))
+                $formas[$f->fantasia][$lV->Nome]['Comissao_Paga'] = $comissao_paga;
+            else 
+                $formas[$f->fantasia][$lV->Nome]['Comissao_Paga'] = $v->vendedor->Comissao;
+            
+            if (isset($bateuMeta) && ($bateuMeta > 0))
+                $formas[$f->fantasia][$lV->Nome]['BateuMeta'] = true;
+            else 
+                $formas[$f->fantasia][$lV->Nome]['BateuMeta'] = false;
+        }
     }
 }
