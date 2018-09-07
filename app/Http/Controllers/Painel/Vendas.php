@@ -15,6 +15,7 @@ use App\Models\Painel\MSicTabEst3A;     //Vendas
 use App\Models\Painel\MSicTabEst3B;     //Produtos Vendidos
 use App\Models\Painel\Comissao;
 use App\Models\Painel\MSicTabNFCe;
+use App\Http\Controllers\Painel\FunctionsController;
 class Vendas extends Controller
 {
     public function index_vendas_pgto(Request $request)
@@ -87,7 +88,7 @@ class Vendas extends Controller
                     $formas[$Tr->Recebimento][$f->codigo] = Array ('Qtde' => $tot_qtde_receb, 'Total' => $tot_pgto) ;
                     $tot_filial_qtde  += $tot_qtde_receb;
                     $tot_filial_valor += $tot_pgto; 
-                    if ($V->TipoDoc == 'NF') {
+                    if (!is_null($V->Nota)) {
                         $tot_filial_valor_nfce += $tot_pgto;
                         ++$tot_filial_qtde_nfce;  
                     }
@@ -324,12 +325,24 @@ class Vendas extends Controller
                         }
                     }
                     // Calculando comissoes conforme tabela de metas. 
-                    $aComissoes = Comissao::where('filial_id',$f->id)
-                                            ->where('tipo','2')
+                    $aComFilial = Comissao::where('filial_id',$f->id)
+                                            ->where('tipo','1')
+                                            ->orderby('Vendas')
                                             ->get();
-                    if (count($aComissoes)>0) {
+                    $aComVend = Comissao::where('filial_id',$f->id)
+                                            ->where('tipo','2')
+                                            ->orderby('Vendas')
+                                            ->get();
+                    
+                    $totalVendasFilial = FunctionsController::ranking_vendas($f->id,$data1,$data2);
+                    
+                    $totalVendasFilial->GranTotal;
+
+                    dd($totalVendasFilial);
+   
+                    if (count($aComVend)>0) {
                         $i = 0;
-                        foreach($aComissoes as $key => $valor) {    // Calculando a comissão pela venda do vendedor
+                        foreach($aComVend as $key => $valor) {    // Calculando a comissão pela venda do vendedor
                             if ($tot_valor_vendas_vendedor > $valor->vendas && $valor->comissao > $v->vendedor->Comissao) {
                                 if (isset($formas[$f->fantasia][$lV->Nome]['CHIP'])) {
                                     $tot_valor_com_vendedor = (($tot_valor_vendas_vendedor - $formas[$f->fantasia][$lV->Nome]['CHIP']['Total'] ) * ($valor->comissao / 100));
@@ -345,7 +358,6 @@ class Vendas extends Controller
                                 } else {
                                     $tot_valor_com_vendedor = ($tot_valor_vendas_vendedor * ($v->vendedor->Comissao / 100));
                                 } 
-                                
                             }
                         }
                     } 
@@ -592,119 +604,14 @@ class Vendas extends Controller
 
     public function nfce(Request $request) {
 
-        $Filiais            = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
-        $ListFiliais        = $Filiais;
-        
-        if (isset($request)) {
-            
-            $filial_id = $request->filial_id;
-            if (empty($request->initial_date))
-                $data1 = Carbon::now()->startOfDay();
-            else 
-                $data1 = $request->initial_date . ' 00:00:00';
-                $data1 = new Carbon($data1);
-                
-            if (empty($request->final_date))   
-                $data2 = Carbon::now()->endOfDay();
-            else 
-                $data2 = $request->final_date   . ' 23:59:59';
-                $data2 = new Carbon($data2);
-
-            if (empty($request->filial_id))   
-                $filial_id = 6;
+        $ListFiliais        = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
+        $filial_changed     = '';
+        if (isset($request->filial_id)) {
+            $dados = FunctionsController::calcula_nfce($request->filial_id, $request->initial_date, $request->final_date);
+            return view('painel.vendas.nfce', compact('ListFiliais', 'dados'));
         } else {
-            $data1 = Carbon::now()->firstOfMonth()->startOfDay();
-            $data2 = Carbon::now()->lastOfMonth()->endOfDay();
-            $filial_id = 6;
+            return view('painel.vendas.nfce', compact('ListFiliais', 'filial_changed'));
+
         }
-        
-        $filial_changed = Filiais::where('id',"$filial_id")->get(['fantasia']);
-        foreach ($filial_changed as $fc) {
-            $filial_changed = $fc->fantasia;
-        }
-        $data1 = Carbon::now()->firstOfMonth()->startOfDay();
-        $data2 = Carbon::now()->lastOfMonth()->endOfDay();
-        $diaData1 = $data1->day;
-        $diaData2 = $data2->day;
-        $tot_vendas = 0;
-        $dados = Array();
-        $Vendas = MSicTabEst3A::where('filial_id',"$filial_id")
-                                ->where('Cancelada','0')
-                                ->where('LkTipo','2')
-                                ->where('Nota','>','0')
-                                ->wherebetween('Data',[$data1,$data2])
-                                ->with(['prodVendidos','vendedor','Receb','nfce'])
-                                ->orderBy('Data')
-                                ->get();
-        $VendasSemNFCeCC = MSicTabEst3A::where('filial_id',"$filial_id")
-                                ->where('Cancelada','0')
-                                ->where('LkTipo','2')
-                                ->whereNull('Nota')
-                                ->wherebetween('Data',[$data1,$data2])
-                                ->with(['prodVendidos','vendedor','Receb'])
-                                ->orderBy('Data')
-                                ->get();
-        
-        $tot_vendas = 0;
-        $qtde_vendas = 0;
-        if (count($Vendas) > 0) {
-
-            foreach($Vendas as $V){
-
-                $tot_vendas += $V->prodVendidos->sum('Total');
-                ++$qtde_vendas;
-
-            }
-        }
-        $semNfceCredito = 0;
-        $semNfceCreditoQtde = 0;
-        $semNfceDebito = 0;
-        $semNfceDebitoQtde = 0;
-        $totVendasSemNF = 0;
-        $qtdeVendasSemNF = 0;
-        if (count($VendasSemNFCeCC) > 0) {
-
-            foreach($VendasSemNFCeCC as $V){
-
-                switch ($V->Receb->tipo) {
-                    case 'C':
-                        $semNfceCredito += $V->prodVendidos->sum('Total');
-                        ++$semNfceCreditoQtde;
-                        break;
-                    case 'D':
-                        $semNfceDebito += $V->prodVendidos->sum('Total');
-                        ++$semNfceDebitoQtde;
-                        break;
-                }
-                $totVendasSemNF += $V->prodVendidos->sum('Total');
-                ++$qtdeVendasSemNF;
-                $dados[0]['SemNFCred']['Valor'] = $semNfceCredito;
-                $dados[0]['SemNFCred']['Qtde']  = $semNfceCreditoQtde;
-                $dados[0]['SemNFDeb']['Valor'] = $semNfceDebito;
-                $dados[0]['SemNFDeb']['Qtde']  = $semNfceDebitoQtde;
-                $dados[0]['Periodo'] = Carbon::createFromFormat('Y-m-d H:i:s',$data1)->format('d/m/Y') . ' - ' . Carbon::createFromFormat('Y-m-d H:i:s',$data2)->format('d/m/Y');
-                $dados[0]['TotalSemNF'] = $totVendasSemNF;
-                $dados[0]['QtdeSemNF'] = $qtdeVendasSemNF;
-                $dados[0]['TotalComNF'] = $tot_vendas;
-                $dados[0]['QtdeComNF'] = $qtde_vendas;
-                $dados[0]['VendasComNota'] = $Vendas;
-                $dados[0]['VendasSemNota'] = $VendasSemNFCeCC;
-            } 
-        } else {
-            $semNfceCredito = 0;
-            $semNfceCreditoQtde = 0;
-            $semNfceDebito = 0;
-            $semNfceDebitoQtde = 0;
-            $totVendasSemNF = 0;
-            $qtdeVendasSemNF = 0;
-        }
-        return view('painel.vendas.nfce', compact('ListFiliais',
-                                                    'Filiais',
-                                                    'filial_changed',
-                                                    'dados',
-                                                    'tot_vendas',
-                                                    'qtde_vendas')
-                                                );
     }
-
 }   

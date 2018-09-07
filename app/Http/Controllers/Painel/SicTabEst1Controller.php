@@ -305,12 +305,12 @@ class SicTabEst1Controller extends Controller
                 if(!empty($dataArray))
                 {
                     //dd($dataArray);
-                    foreach (array_chunk($dataArray,1000) as $t) {
+                    foreach (array_chunk($dataArray,500) as $t) {
                         MSicTabEst1::insert($t);
                     }
                     if(!empty($dataEstoque))
                     {
-                        foreach (array_chunk($dataEstoque,1000) as $e) {
+                        foreach (array_chunk($dataEstoque,500) as $e) {
                             Estoque::insert($e);
                         }    
                     }
@@ -422,7 +422,7 @@ class SicTabEst1Controller extends Controller
                 }
                 if(!empty($dataArray2) && $row2['lktipo'] <> 5)
                 {
-                    foreach (array_chunk($dataArray2,1000) as $t) {
+                    foreach (array_chunk($dataArray2,500) as $t) {
                         MSicTabEst3A::insert($t);
                     }
                 }
@@ -494,7 +494,7 @@ class SicTabEst1Controller extends Controller
                 }
                 if(!empty($dataArray3))
                 {
-                    foreach (array_chunk($dataArray3,1000) as $t) {
+                    foreach (array_chunk($dataArray3,500) as $t) {
                         MSicTabEst3B::insert($t);
                     }
                 }
@@ -571,7 +571,7 @@ class SicTabEst1Controller extends Controller
                 }
                 if(!empty($dataArray4))
                 {
-                    foreach (array_chunk($dataArray4,1000) as $t) {
+                    foreach (array_chunk($dataArray4,500) as $t) {
                         MSicTabNFCe::insert($t);
                     }
                 }

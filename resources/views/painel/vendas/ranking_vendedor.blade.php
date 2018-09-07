@@ -134,11 +134,11 @@
 	@slot('bodyModal')
 	<div class="form-group col-md-4">
 		<label>Data Inicial</label>
-		<input class="form-control" type="date" name="initial_date" value="{{ Carbon\Carbon::now()->format('d-m-Y')}}" />
+		{!! Form::date('initial_date',\Carbon\Carbon::now()->firstOfMonth(),['class' => 'form-control', 'id'=>"initial_date"]) !!}
 	</div>
 	<div class="form-group col-md-4">
 		<label>Data Final</label>
-		<input class="form-control" type="date" name="final_date" value="{{ Carbon\Carbon::now()->format('d-m-Y')}}" />
+		{!! Form::date('final_date',\Carbon\Carbon::now(),['class' => 'form-control', 'id'=>"final_date"]) !!}
 	</div>
 	<div class="form-group col-md-4">
 		<label>% de comissão do chip </label>
