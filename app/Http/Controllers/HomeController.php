@@ -266,7 +266,7 @@ class HomeController extends Controller
                 $filiais[$key]  = $row['TotalVendas'];
                 //$edition[$key] = $row['edition'];
             }
-            array_multisort($filiais, SORT_DESC, SORT_NUMERIC);
+            //array_multisort($filiais, SORT_DESC, SORT_NUMERIC);
         }
         return view('painel.dashboard.DashFiliais',compact('filiais','periodo','totais'));
     }

@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Controllers\Painel;
-
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use DB;
@@ -239,16 +238,21 @@ class Vendas extends Controller
     }
     public function ranking_vendedores(Request $request)
     {
-        $Filiais            = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
-        $ListFiliais        = $Filiais;
+        $Filiais = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
         if (isset($request->filial_id)) {
+            $filial_change = Filiais::where('id',$request->filial_id)->get(['fantasia']);
+            foreach ($filial_change as $f) {
+                $filial_changed = $f->fantasia;
+            }
+            $periodo = Carbon::createFromFormat('Y-m-d',$request->initial_date)->format('d/m/Y') . ' - ' . Carbon::createFromFormat('Y-m-d',$request->final_date)->format('d/m/Y');
+
             $dados = FunctionsController::calcula_comissao($request->filial_id, 
                                                             $request->initial_date, 
                                                             $request->final_date, 
                                                             $request->porcComissaoChip);
-            return view('painel.vendas.ranking_vendedor', compact('ListFiliais', 'dados'));
+            return view('painel.vendas.ranking_vendedor', compact('Filiais', 'dados', 'filial_changed', 'periodo'));
         } else {
-            return view('painel.vendas.ranking_vendedor', compact('ListFiliais'));
+            return view('painel.vendas.ranking_vendedor', compact('Filiais'));
         }
     }
     public function ranking_diario(Request $request)
@@ -380,7 +384,6 @@ class Vendas extends Controller
     public function nfce(Request $request) {
 
         $ListFiliais        = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
-        $filial_changed     = '';
         if (isset($request->filial_id)) {
             $dados = FunctionsController::calcula_nfce($request->filial_id, $request->initial_date, $request->final_date);
             return view('painel.vendas.nfce', compact('ListFiliais', 'dados'));
