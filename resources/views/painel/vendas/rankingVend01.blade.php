@@ -9,10 +9,6 @@
                     <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
                         style="width: 80px;">Vendas</th>
                     <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-                        style="width: 40px;">Qtde</th>
-                    <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
-                        style="width: 70px;">Ticket Médio</th>
-                    <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
                         style="width: 70px;">Crédito</th>
                     <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
                         style="width: 70px;">Débito</th>
@@ -29,9 +25,10 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($dados['formas'] as $nomes => $valores)
+                @foreach($dados as $nomes => $valores)
+                    @if (is_array($nomes))
                     <tr role="row" class="odd" id="{{$nomes}}">
-                    <td>{{$nomes}}</td>
+                        <td>{{$nomes}}</td>
                         <td align="right">{{number_format($valores['Valor'],2,',','')}}</td>
                         <td align="right">{{$valores['Qtde']}}</td>
                         <td align="right">{{number_format($valores['TicketM'],2,',','.')}}</td>
@@ -46,8 +43,9 @@
                             <td align="right">0</td>
                             <td align="right">0,00</td>
                         @endif
-                    <td align="right"><b>{{number_format($valores['TotalPagar'],2,',','.')}}</b></td>
+                        <td align="right"><b>{{number_format($valores['TotalPagar'],2,',','.')}}</b></td>
                     </tr>
+                    @endif
                 @endforeach
             </tbody>
             <tfoot>

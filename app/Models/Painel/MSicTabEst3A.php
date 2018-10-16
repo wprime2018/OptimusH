@@ -62,6 +62,9 @@ class MSicTabEst3A extends Model
     public function nfce() {
         return $this->hasOne(MSicTabNFCe::Class, 'LkEst3A', 'Controle');
     }
+    public function filial() {
+        return $this->hasOne(Filiais::Class, 'id', 'filial_id');
+    }
 
     public function VendasTotais($initial_date, $final_date)
     {
