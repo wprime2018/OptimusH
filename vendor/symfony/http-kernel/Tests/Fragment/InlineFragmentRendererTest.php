@@ -16,9 +16,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ControllerReference;
-use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
 use Symfony\Component\HttpKernel\Fragment\InlineFragmentRenderer;
 use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -53,48 +51,6 @@ class InlineFragmentRendererTest extends TestCase
         $strategy = new InlineFragmentRenderer($this->getKernelExpectingRequest($subRequest));
 
         $this->assertSame('foo', $strategy->render(new ControllerReference('main_controller', array('object' => $object), array()), Request::create('/'))->getContent());
-    }
-
-    /**
-     * @group legacy
-     */
-    public function testRenderWithObjectsAsAttributesPassedAsObjectsInTheControllerLegacy()
-    {
-        $resolver = $this->getMockBuilder('Symfony\\Component\\HttpKernel\\Controller\\ControllerResolver')->setMethods(array('getController'))->getMock();
-        $resolver
-            ->expects($this->once())
-            ->method('getController')
-            ->will($this->returnValue(function (\stdClass $object, Bar $object1) {
-                return new Response($object1->getBar());
-            }))
-        ;
-
-        $kernel = new HttpKernel(new EventDispatcher(), $resolver, new RequestStack());
-        $renderer = new InlineFragmentRenderer($kernel);
-
-        $response = $renderer->render(new ControllerReference('main_controller', array('object' => new \stdClass(), 'object1' => new Bar()), array()), Request::create('/'));
-        $this->assertEquals('bar', $response->getContent());
-    }
-
-    /**
-     * @group legacy
-     */
-    public function testRenderWithObjectsAsAttributesPassedAsObjectsInTheController()
-    {
-        $resolver = $this->getMockBuilder(ControllerResolverInterface::class)->getMock();
-        $resolver
-            ->expects($this->once())
-            ->method('getController')
-            ->will($this->returnValue(function (\stdClass $object, Bar $object1) {
-                return new Response($object1->getBar());
-            }))
-        ;
-
-        $kernel = new HttpKernel(new EventDispatcher(), $resolver, new RequestStack(), new ArgumentResolver());
-        $renderer = new InlineFragmentRenderer($kernel);
-
-        $response = $renderer->render(new ControllerReference('main_controller', array('object' => new \stdClass(), 'object1' => new Bar()), array()), Request::create('/'));
-        $this->assertEquals('bar', $response->getContent());
     }
 
     public function testRenderWithTrustedHeaderDisabled()
@@ -187,6 +143,26 @@ class InlineFragmentRendererTest extends TestCase
         $renderer->render('/', Request::create('/'), array('ignore_errors' => true));
 
         $this->assertEquals('Foo', ob_get_clean());
+    }
+
+    public function testLocaleAndFormatAreIsKeptInSubrequest()
+    {
+        $expectedSubRequest = Request::create('/');
+        $expectedSubRequest->attributes->set('_format', 'foo');
+        $expectedSubRequest->setLocale('fr');
+        if (Request::HEADER_X_FORWARDED_FOR & Request::getTrustedHeaderSet()) {
+            $expectedSubRequest->headers->set('x-forwarded-for', array('127.0.0.1'));
+            $expectedSubRequest->server->set('HTTP_X_FORWARDED_FOR', '127.0.0.1');
+        }
+        $expectedSubRequest->headers->set('forwarded', array('for="127.0.0.1";host="localhost";proto=http'));
+        $expectedSubRequest->server->set('HTTP_FORWARDED', 'for="127.0.0.1";host="localhost";proto=http');
+
+        $strategy = new InlineFragmentRenderer($this->getKernelExpectingRequest($expectedSubRequest));
+
+        $request = Request::create('/');
+        $request->attributes->set('_format', 'foo');
+        $request->setLocale('fr');
+        $strategy->render('/', $request);
     }
 
     public function testESIHeaderIsKeptInSubrequest()
