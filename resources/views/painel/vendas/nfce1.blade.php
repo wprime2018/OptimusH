@@ -39,7 +39,6 @@
 				<td>Não encontradas</td>
 				<td colspan="5">{{$dados['NoFind']}}</td>
 			</tr>
-
 		</tfoot>
 	</table>
 </div>

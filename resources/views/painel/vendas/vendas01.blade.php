@@ -13,12 +13,23 @@
         </thead>
         <tbody>
             @foreach($dados['recebim'] as $r => $valor)	
-                <tr role="row" class="odd" id="{{$r}}">
-                    <td class="sorting_1">{{$r}}</td>
-                    @foreach($valor as $v)
-                        <td align="right">R$ {{number_format($v["Total"],2,',','.')}}</td>
-                    @endforeach
-                </tr>
+                @php
+                    ksort($valor);
+                @endphp
+                @if($valor['*Totais']['Total'] > 0)
+                    <tr role="row" class="odd" id="{{$r}}">
+                        <td class="sorting_1"><i class="fa fa-circle text-{{($valor['*Totais']['Tipo'] =='C') ? 'blue' : 'green'}}"></i> {{$r}}</td> 
+                        @foreach($valor as $v)
+                            @if($valor['*Totais']['Tipo'] =='C')
+                                <td align="right"><font color="blue">{{number_format($v["Total"],2,',','.')}}</td>
+                            @elseif ($valor['*Totais']['Tipo'] =='D')
+                                <td align="right"><font color="green">{{number_format($v["Total"],2,',','.')}}</td>
+                            @else 
+                                <td align="right">{{number_format($v["Total"],2,',','.')}}</td>
+                            @endif
+                        @endforeach
+                    </tr>
+                @endif 
             @endforeach
         </tbody>	
     </table>
@@ -65,7 +76,6 @@
 						footer: true,
 						title: 'OptimusH - Ranking de Vendas com formas de pagamento'
 					}
-		
 				]
 			});
 		});

@@ -21,32 +21,23 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($dados['filiais'] as $r => $valor)	
+            @foreach($dados['gt'] as $r => $valor)	
                 <tr role="row" class="odd" id="{{$r}}">
                     <td class="sorting_1">{{$r}}</td>
                     @foreach($valor as $v)
-                        <td align="right"><font color="green" >R$ {{number_format($valor['Total'],2,',','.')}}</td>
-                        <td align="right"><font color="green" >R$ {{number_format($valor['Din']['Total'],2,',','.')}}</td>
-                        <td align="right"><font color="green" >R$ {{number_format($valor['Cred']['Total'],2,',','.')}}</td>
-                        <td align="right"><font color="green" >R$ {{number_format($valor['Deb']['Total'],2,',','.')}}</td>
-                        <td align="right"><font color="green" >R$ {{number_format($valor['Qtde_Vendas'],2,',','.')}}</td>
-                        <td align="right"><font color="#C71585">R$ {{number_format($valor['TicketM'],2,',','.')}}</td>
-                        <td align="right"><font color="green" >R$ 0</td>
+                        @if(isset($valor['Din']['Total']))
+                            <td align="right"><font color="green" >R$ {{number_format($valor['Total'],2,',','.')}}</td>
+                            <td align="right"><font color="green" >R$ {{number_format($valor['Din']['Total'],2,',','.')}}</td>
+                            <td align="right"><font color="green" >R$ {{number_format($valor['Cred']['Total'],2,',','.')}}</td>
+                            <td align="right"><font color="green" >R$ {{number_format($valor['Deb']['Total'],2,',','.')}}</td>
+                            <td align="right"><font color="green" >R$ {{number_format($valor['Qtde_Vendas'],2,',','.')}}</td>
+                            <td align="right"><font color="#C71585">R$ {{number_format($valor['TicketM'],2,',','.')}}</td>
+                            <td align="right"><font color="green" >R$ 0</td>
+                        @endif
                     @endforeach
                 </tr>
             @endforeach
         </tbody>
-        <tfoot>
-            <tr>
-                <th rowspan="1" colspan="1">Totais</th>
-                <th rowspan="1" colspan="1"><font color="blue">R$ {{number_format($formas['GranTotalVendas'],2,',','.')}}</th>
-                <th rowspan="1" colspan="1"><font color="blue">R$ {{number_format($formas['GranTotalDin'],2,',','.')}}</th>
-                <th rowspan="1" colspan="1"><font color="blue">R$ {{number_format($formas['GranTotalCred'],2,',','.')}}</th>
-                <th rowspan="1" colspan="1"><font color="blue">R$ {{number_format($formas['GranTotalDeb'],2,',','.')}}</th>
-                <th rowspan="1" colspan="1"><font color="blue">{{number_format($formas['GranTotalQtde'],0,',','.')}} Vendas</th>
-                <th rowspan="1" colspan="1"><font color="blue">Ticket Médio</th>
-                <th rowspan="1" colspan="1"><font color="blue">R$ {{number_format($formas['GranTotalNfce'],2,',','.')}}</th>
-            </tr>
         </tfoot>
     </table>
 </div>

@@ -60,9 +60,9 @@
 		<h3 class="box-title">Ranking Vendas no período de:@if(isset($dados)) ? {{$periodo}}@endif </h3>
 	</div>
 	<div class="box-body">
-		<!--@if (isset($dados['recebim']))
+		@if (isset($dados['recebim']))
 			@include('painel.vendas.vendas02')
-		@endif-->
+		@endif
 	</div>
 </div>
 	

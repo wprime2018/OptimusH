@@ -15,6 +15,7 @@ use App\Models\Painel\MSicTabEst3B;     //Produtos Vendidos
 use App\Models\Painel\Comissao;
 use App\Models\Painel\MSicTabNFCe;
 use App\Http\Controllers\Painel\FunctionsController;
+
 class Vendas extends Controller
 {
     public function index_vendas_pgto(Request $request)
@@ -24,7 +25,9 @@ class Vendas extends Controller
         if (isset($request->initial_date)) {
 
             $periodo = Carbon::createFromFormat('Y-m-d',$request->initial_date)->format('d/m/Y') . ' - ' . Carbon::createFromFormat('Y-m-d',$request->final_date)->format('d/m/Y');
-            $dados = FunctionsController::vendas_pgto($request->initial_date, $request->final_date);
+            $initial_date = Carbon::createFromFormat('Y-m-d',$request->initial_date)->startOfDay()->toDateTimeString();
+            $final_date = Carbon::createFromFormat('Y-m-d',$request->final_date)->endOfDay()->toDateTimeString();
+            $dados = FunctionsController::vendas_pgto($initial_date, $final_date);
             return view('painel.vendas.Vendas', compact('Filiais', 'dados', 'periodo'));
 
         } else {

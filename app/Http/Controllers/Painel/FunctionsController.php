@@ -334,6 +334,7 @@ class FunctionsController extends Controller
             $total_vendas_filialCred = 0;
             $total_vendas_filialDeb = 0;
             $total_vendas_filialDin = 0;
+            
             foreach($Filiais as $f) {
                 $vendas = MSicTabEst3A::where('filial_id',$f->id)
                                         ->where('Cancelada','0')
@@ -524,6 +525,7 @@ class FunctionsController extends Controller
                             ->groupby('LkReceb')
                             ->distinct()
                             ->get(['LkReceb']);
+
         $filial = MSicTabEst3A::where('Cancelada','0')
                             ->where('LkTipo','2')
                             ->orWhere('LkTipo','6')
@@ -533,82 +535,85 @@ class FunctionsController extends Controller
                             ->distinct()
                             ->get(['filial_id']);
 
-        $granTotalVendas = 0;
-        $granTotalDin = 0;
-        $granTotalCred = 0;
-        $granTotalDeb = 0;
-        $granTotalQtde = 0;
-        $granTotalNFCe = 0;
+        $parcialTotal = 0;
+        $parcialQtde  = 0;
+                
         foreach ($receb as $rec) {
+        
+            // Zerando os totais de recebimentos
+            $recebim[$rec->Receb->Recebimento]['*Totais']['Total'] = 0;
+            $recebim[$rec->Receb->Recebimento]['*Totais']['Qtde'] = 0;
+
             foreach ($filial as $f) {
                 $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Total'] = 0; 
                 $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Qtde_Vendas'] = 0; 
-                $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Cred']['Total'] = 0; 
-                $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Cred']['Qtde'] = 0; 
-                $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Deb']['Total'] = 0; 
-                $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Deb']['Qtde'] = 0; 
-                $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Din']['Total'] = 0; 
-                $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Din']['Qtde'] = 0;
+                
                 $vendas = MSicTabEst3A::where('filial_id',$f->filial->id)
-                                    ->where('LkReceb',$rec->Receb->Controle)
-                                    ->where('Cancelada','0')
-                                    ->where('LkTipo','2')
                                     ->wherebetween('Data',[$initial_date,$final_date])
+                                    ->where('LkReceb',$rec->Receb->Controle)
+                                    ->where('LkTipo','2')
+                                    ->where('Cancelada','0')
                                     ->with(['prodVendidos','Receb','filial'])
-                                    ->orderBy('Data')
+                                    ->orderBy('Data','LkReceb')
                                     ->get();
+                $valorVenda = 0;
+                $valorVendaCred = 0;
+                $valorVendaDeb = 0;
+                $valorVendaDin = 0;
+
                 if(count($vendas)>0){
 
-                    $valorVenda = 0;
-                    $valorVendaCred = 0;
-                    $valorVendaDeb = 0;
-                    $valorVendaDin = 0;
                     $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Qtde_Vendas'] = count($vendas);
-                    $granTotalQtde += count($vendas);
+                    $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['NFCe'] = 0;
 
                     foreach($vendas as $V){
-                        $valorVenda += $V->prodVendidos->sum('TotVenda');
-                        $granTotalVendas += $valorVenda;
-                        $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Total'] = $valorVenda;
-                        
-                        if (!is_null($V->Nota))
-                            $granTotalNFCe += $valorVenda;
 
-                        switch ($V->Receb->tipo) {
-                            case 'C':
-                                $valorVendaCred += $valorVenda;
-                                $granTotalCred += $valorVenda;
-                                $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Cred']['Total'] = $valorVendaCred;
-                                ++$recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Cred']['Qtde'];
-                                break;
-                            case 'D':
-                                $valorVendaDeb += $valorVenda;
-                                $granTotalDeb += $valorVenda;
-                                $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Deb']['Total'] = $valorVendaDeb;
-                                ++$recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Deb']['Qtde'];
-                                break;
-                            default:
-                                $valorVendaDin += $valorVenda;
-                                $granTotalDin += $valorVenda;
-                                $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Din']['Total'] = $valorVendaDin;
-                                ++$recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Din']['Qtde'];
-                        }
-                        $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['TicketM'] = $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Total'] / $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Qtde_Vendas'];
+                        $valorVenda += $V->prodVendidos->sum('TotVenda');
+                        $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Total'] = $valorVenda;
+
+                        if (!is_null($V->Nota))
+                            $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['NFCe'] += $valorVenda;
+
                     }
+                    $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['TicketM'] = $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Total'] / $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Qtde_Vendas'];
+                    $tipoReceb = $V->Receb->tipo;
+                    $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Tipo'] = $V->Receb->tipo;
                 }
-                $gt['GranTotalVendas'] = $granTotalVendas;
-                $gt['GranTotalCred'] = $granTotalCred;
-                $gt['GranTotalDeb'] = $granTotalDeb;
-                $gt['GranTotalDin'] = $granTotalDin;
-                $gt['GranTotalQtde'] = $granTotalQtde;
-                $gt['GranTotalNFCe'] = $granTotalNFCe;
             }
         }
-       ksort($recebim);
+        foreach ($filial as $f) {
+            
+            $recebim[$rec->Receb->Recebimento]['*Totais']['Total'] = 0;
+            $totalVendasCred = 0;
+            $totalVendasDeb = 0;
+            $totalVendas = 0;    
+
+            foreach ($receb as $rec) {
+        
+                // Zerando os totais de recebimentos
+                $recebim[$rec->Receb->Recebimento]['*Totais']['Total'] += $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Total'];
+                $recebim[$rec->Receb->Recebimento]['*Totais']['Qtde']  += $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Qtde_Vendas'];
+                $recebim[$rec->Receb->Recebimento]['*Totais']['Tipo'] = $rec->Receb->tipo;
+
+                if (isset($recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Cred']['Total']))
+                    $totalVendasCred += $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Cred']['Total'];
+
+                if (isset($recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Deb']['Total']))
+                    $totalVendasDeb  += $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Deb']['Total'];
+
+                $totalVendas += $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Total'];
+            }
+            $gt[$f->filial->codigo]['Total'] = $totalVendas;
+            $gt[$f->filial->codigo]['Cred']  = $totalVendasCred;
+            $gt[$f->filial->codigo]['Deb']   = $totalVendasDeb;
+        }
+        ksort($recebim);
+        ksort($gt);
+        //dd(compact(['recebim','fl','filiaisRec','rec', 'gt']));
         foreach ($recebim as $rec => $filiais) {
             ksort($filiais);
         }
-        dd(compact(['recebim','filiais','gt']));
-        //return compact(['recebim','filiais']);
+        //dd(compact(['recebim','filiais','gt']));
+        return compact(['recebim','filiais','gt']);
     }
 }
