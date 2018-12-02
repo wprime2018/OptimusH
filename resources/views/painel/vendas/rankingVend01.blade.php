@@ -25,49 +25,40 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($dados as $nomes => $valores)
-                    @if (is_array($nomes))
-                    <tr role="row" class="odd" id="{{$nomes}}">
-                        <td>{{$nomes}}</td>
-                        <td align="right">{{number_format($valores['Valor'],2,',','')}}</td>
-                        <td align="right">{{$valores['Qtde']}}</td>
-                        <td align="right">{{number_format($valores['TicketM'],2,',','.')}}</td>
-                        <td align="right">{{number_format($valores['Cred'],2,',','')}}</td>
-                        <td align="right">{{number_format($valores['Deb'],2,',','')}}</td>
-                        <td align="right">{{number_format($valores['Din'],2,',','')}}</td>
-                        <td align="right">{{number_format($valores['Comissao'],2,',','')}} ({{number_format($valores['Comissao_Paga'],0,',','.')}}%)</td>
-                        @if (isset($valores['CHIP']))
-                            <td align="right">{{number_format($valores['CHIP']['Quantidade'],0,',','.')}}</td>
-                            <td align="right">{{number_format($valores['CHIP']['TotalPagar'],2,',','.')}}</td>
+                @if (isset($dados['dados']))
+                @for ($i = 0; $i < count($dados['dados']); $i++)
+                    <tr role="row" class="odd" id="{{$i}}">
+                        <td>{{$dados['dados'][$i]['Vendedor']}}</td>
+                        <td align="right">{{number_format($dados['dados'][$i]['Valor'],2,',','')}}</td>
+                        <td align="right">{{number_format($dados['dados'][$i]['Cred'],2,',','')}}</td>
+                        <td align="right">{{number_format($dados['dados'][$i]['Deb'],2,',','')}}</td>
+                        <td align="right">{{number_format($dados['dados'][$i]['Din'],2,',','')}}</td>
+                        <td align="right">{{number_format($dados['dados'][$i]['Comissao'],2,',','')}}</td>
+                        @if (isset($dados['dados'][$i]['ChipTotal']))
+                            <td align="right">{{number_format($dados['dados'][$i]['ChipQtde'],0,',','.')}}</td>
+                            <td align="right">{{number_format($dados['dados'][$i]['ChipTotal'],2,',','.')}}</td>
                         @else 
                             <td align="right">0</td>
                             <td align="right">0,00</td>
                         @endif
-                        <td align="right"><b>{{number_format($valores['TotalPagar'],2,',','.')}}</b></td>
+                        <td align="right"><b>{{number_format($dados['dados'][$i]['TotalPagar'],2,',','.')}}</b></td>
                     </tr>
-                    @endif
-                @endforeach
+                @endfor
+                @endif
             </tbody>
             <tfoot>
                 <tr>
                     <th>Totais</th>
-                    @foreach ($dados['total'] as $item => $totais)
-
-                    @endforeach
-                    <th align="right">{{number_format($dados['total']['Valor'],2,',','.')}}</th>
-                    <th colspan="2" align="right">{{$dados['total']['Qtde']}}</th>
-                    <th align="right">{{number_format($dados['total']['Cred'],2,',','.')}}</th>
-                    <th align="right">{{number_format($dados['total']['Deb'],2,',','.')}}</th>
-                    <th align="right">{{number_format($dados['total']['Din'],2,',','.')}}</th>
-                    <th align="right">{{number_format($dados['total']['Comissao'],2,',','.')}}</th>
-                    @if (isset($dados['total']['CHIP']))
-                        <th align="right">{{$dados['total']['CHIP']['Qtde']}}</th>
-                        <th align="right">{{number_format($dados['total']['CHIP']['Pagar'],2,',','.')}}</th>
-                    @else
-                        <th align="right">0</th>
-                        <th align="right">0,00</th>
+                    @if (isset($dados['gt']))
+                        <th align="right">{{number_format($dados['gt'][0]['Valor'],2,',','.')}}</th>
+                        <th align="right">{{number_format($dados['gt'][0]['Cred'],2,',','.')}}</th>
+                        <th align="right">{{number_format($dados['gt'][0]['Deb'],2,',','.')}}</th>
+                        <th align="right">{{number_format($dados['gt'][0]['Din'],2,',','.')}}</th>
+                        <th align="right">{{number_format($dados['gt'][0]['Comissao'],2,',','.')}}</th>
+                        <th align="right">{{$dados['gt'][0]['ChipQtde']}}</th>
+                        <th align="right">{{number_format($dados['gt'][0]['ChipTotal'],2,',','.')}}</th>
+                        <th align="right">{{number_format($dados['gt'][0]['TotalPagar'],2,',','.')}}</th>
                     @endif
-                    <th align="right">{{number_format($dados['total']['TotalPagar'],2,',','.')}}</th>
                 </tr>
             </tfoot>
         </table>

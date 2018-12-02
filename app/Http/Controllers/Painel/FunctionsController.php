@@ -201,12 +201,16 @@ class FunctionsController extends Controller
 
         }
         $tot_vendas = 0;
-        $gran_total = 0;
-        $gran_qtde = 0;
-        $gran_cred = 0;
-        $gran_deb = 0;
-        $gran_ticket = 0;
-        $formas = array();
+        $gtValor = 0;
+        $gtCred = 0;
+        $gtDeb = 0;
+        $gtDin = 0;
+        $gtComissao = 0;
+        $gtChipTotal = 0;
+        $gtChipQtde = 0;
+        $gtTotalPagar = 0;
+        $dados = array();
+        $gt = array();
         $vendedores = MSicTabEst3A::where('filial_id',"$filial_id")
                                 ->where('Cancelada','0')
                                 ->wherebetween('Data',[$initial_date,$final_date])
@@ -215,16 +219,9 @@ class FunctionsController extends Controller
                                 ->distinct('LkVendedor')
                                 ->get(['LkVendedor']);
         if (!empty($vendedores)) {      //Se existe vendas separa por vendedores 
-            $formas['Valor'] = 0;
-            $formas['Cred'] = 0;
-            $formas['Deb'] = 0;
-            $formas['Din'] = 0;
-            $formas['Comissao'] = 0;
-            $formas['CHIP']['Total'] = 0;
-            $formas['CHIP']['Qtde'] = 0;
-            $formas['TotalPagar'] = 0;
 
             foreach ($vendedores as $vendedor) {
+        
                 if ($vendedor->LkVendedor != '999') {
                     $somaVendas = MSicTabEst3A::selectRaw('sum(m_sic_tab_est3_bs.TotVenda) AS TotalVendas')
                     ->join('m_sic_tab_est3_bs', 'm_sic_tab_est3_bs.LkEst3A', '=', 'm_sic_tab_est3_as.Controle')
@@ -285,32 +282,46 @@ class FunctionsController extends Controller
                         $nomeVendedor = $nV->Nome;
                         $comVendedor = $nV->Comissao;
                     }
-                    
                     $tot_valor_vendas_din = $tot_valor_vendas_vendedor - ($tot_valor_vendas_cred + $tot_valor_vendas_deb);
                     $tot_valor_vendas_vendedor -= $totVendaChip;
                     $tot_valor_com_vendedor = $tot_valor_vendas_vendedor * ($comVendedor / 100);
                     $tot_valor_com_chip = $totVendaChip * ($perc_comissao_chip / 100);
-                    
-                    $formas[$nomeVendedor]['Valor'] = $tot_valor_vendas_vendedor;
-                    $formas['Valor'] += $tot_valor_vendas_vendedor;
-                    $formas[$nomeVendedor]['Cred'] = (int)$tot_valor_vendas_cred;
-                    $formas['Cred'] += (int)$tot_valor_vendas_cred;
-                    $formas[$nomeVendedor]['Deb'] = (int)$tot_valor_vendas_deb;
-                    $formas['Deb'] += (int)$tot_valor_vendas_deb;
-                    $formas[$nomeVendedor]['Din'] = $tot_valor_vendas_din;
-                    $formas['Din'] += $tot_valor_vendas_din;
-                    $formas[$nomeVendedor]['Comissao'] = $tot_valor_com_vendedor;
-                    $formas['Comissao'] += $tot_valor_com_vendedor;
-                    $formas[$nomeVendedor]['CHIP']['Total'] = (int)$totVendaChip;
-                    $formas['CHIP']['Total'] += (int)$totVendaChip;
-                    $formas[$nomeVendedor]['CHIP']['Qtde'] = (int)$totQtdeChip;
-                    $formas['CHIP']['Qtde'] += (int)$totQtdeChip;
-                    $formas[$nomeVendedor]['TotalPagar'] = $tot_valor_com_vendedor + $tot_valor_com_chip;
-                    $formas['TotalPagar'] += $tot_valor_com_vendedor + $tot_valor_com_chip;
+                    array_push($dados,[
+                        'Vendedor'  => $nomeVendedor,
+                        'Valor'     => $tot_valor_vendas_vendedor,
+                        'Cred'      => $tot_valor_vendas_cred,
+                        'Deb'       => $tot_valor_vendas_deb,
+                        'Din'       => $tot_valor_vendas_din,
+                        'Comissao'  => $tot_valor_com_vendedor,
+                        'ChipTotal' => $totVendaChip,
+                        'ChipQtde'  => $totQtdeChip,
+                        'TotalPagar' => $tot_valor_com_vendedor + $tot_valor_com_chip
+                    ]);
+                    $gtValor        += $tot_valor_vendas_vendedor;
+                    $gtCred         += $tot_valor_vendas_cred;
+                    $gtDeb          += $tot_valor_vendas_deb;
+                    $gtDin          += $tot_valor_vendas_din;
+                    $gtComissao     += $tot_valor_com_vendedor;
+                    $gtChipTotal    += $totVendaChip;
+                    $gtChipQtde     += $totQtdeChip;
+                    $gtTotalPagar   += ($tot_valor_com_vendedor + $tot_valor_com_chip);
                 }        
             }
         }
-        return $formas;
+        $valoresDados = count($dados);
+        array_push($gt,[
+            'Valor'     => $gtValor,
+            'Cred'      => $gtCred,
+            'Deb'       => $gtDeb,
+            'Din'       => $gtDin,
+            'Comissao'  => $gtComissao,
+            'ChipTotal' => $gtChipTotal,
+            'ChipQtde'  => $gtChipQtde,
+            'TotalPagar'  => $gtTotalPagar
+        ]);
+
+        //dd(compact('dados','gt'));
+        return compact('dados','gt');
     }
 
     public static function ranking_diario($month_date) {
@@ -557,6 +568,7 @@ class FunctionsController extends Controller
                                     ->orderBy('Data','LkReceb')
                                     ->get();
                 $valorVenda = 0;
+                $valorNFCe = 0;
                 $valorVendaCred = 0;
                 $valorVendaDeb = 0;
                 $valorVendaDin = 0;
@@ -568,13 +580,15 @@ class FunctionsController extends Controller
 
                     foreach($vendas as $V){
 
-                        $valorVenda += $V->prodVendidos->sum('TotVenda');
+                        $somaProdutos = $V->prodVendidos->sum('TotVenda');      // Soma os produtos e coloca em uma variável para economizar processamento.
+                        $valorVenda += $somaProdutos;
                         $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Total'] = $valorVenda;
 
-                        if (!is_null($V->Nota))
-                            $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['NFCe'] += $valorVenda;
+                        if ($V->Nota>0)
+                            $valorNFCe += $somaProdutos;
 
                     }
+                    $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['NFCe'] = $valorNFCe;
                     $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['TicketM'] = $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Total'] / $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Qtde_Vendas'];
                     $tipoReceb = $V->Receb->tipo;
                     $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Tipo'] = $V->Receb->tipo;
@@ -584,9 +598,12 @@ class FunctionsController extends Controller
         foreach ($filial as $f) {
             
             $recebim[$rec->Receb->Recebimento]['*Totais']['Total'] = 0;
+            $totalVendasDin = 0;
             $totalVendasCred = 0;
             $totalVendasDeb = 0;
-            $totalVendas = 0;    
+            $totalVendasNFCe = 0;
+            $totalVendas = 0;
+            $totalQtdeVendas = 0;    
 
             foreach ($receb as $rec) {
         
@@ -595,25 +612,53 @@ class FunctionsController extends Controller
                 $recebim[$rec->Receb->Recebimento]['*Totais']['Qtde']  += $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Qtde_Vendas'];
                 $recebim[$rec->Receb->Recebimento]['*Totais']['Tipo'] = $rec->Receb->tipo;
 
-                if (isset($recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Cred']['Total']))
-                    $totalVendasCred += $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Cred']['Total'];
+                if (isset($recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Tipo']) && $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Tipo'] == 'C')
+                    $totalVendasCred += $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Total'];
 
-                if (isset($recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Deb']['Total']))
-                    $totalVendasDeb  += $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Deb']['Total'];
+                if (isset($recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Tipo']) && $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Tipo'] == 'D')
+                    $totalVendasDeb  += $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Total'];
+
+                if (isset($recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Tipo']) && $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Tipo'] == '')
+                    $totalVendasDin  += $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Total'];
+
+                if (isset($recebim[$rec->Receb->Recebimento][$f->filial->codigo]['NFCe']) && $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['NFCe'] > 0)
+                    $totalVendasNFCe  += $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['NFCe'];
 
                 $totalVendas += $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Total'];
+                $totalQtdeVendas += $recebim[$rec->Receb->Recebimento][$f->filial->codigo]['Qtde_Vendas'];
             }
             $gt[$f->filial->codigo]['Total'] = $totalVendas;
             $gt[$f->filial->codigo]['Cred']  = $totalVendasCred;
             $gt[$f->filial->codigo]['Deb']   = $totalVendasDeb;
+            $gt[$f->filial->codigo]['Din']   = $totalVendasDin;
+            $gt[$f->filial->codigo]['NFCe']  = $totalVendasNFCe;
+            $gt[$f->filial->codigo]['Qtde']  = $totalQtdeVendas;
+            $gt[$f->filial->codigo]['TicketM']  = $totalVendas / $totalQtdeVendas;
         }
+        
+        $gt3['Total'] = 0;
+        $gt3['Cred'] = 0;
+        $gt3['Deb'] = 0;
+        $gt3['Din'] = 0;
+        $gt3['NFCe'] = 0;
+        $gt3['Qtde'] = 0;
+
+        foreach ($gt as $gt2) {
+            $gt3['Total'] += $gt2['Total'];
+            $gt3['Cred'] += $gt2['Cred'];
+            $gt3['Deb'] += $gt2['Deb'];
+            $gt3['Din'] += $gt2['Din'];
+            $gt3['NFCe'] += $gt2['NFCe'];
+            $gt3['Qtde'] += $gt2['Qtde'];
+        }
+        $gt3['TicketM'] = $gt2['Total'] / $gt2['Qtde'];
         ksort($recebim);
         ksort($gt);
         //dd(compact(['recebim','fl','filiaisRec','rec', 'gt']));
         foreach ($recebim as $rec => $filiais) {
             ksort($filiais);
         }
-        //dd(compact(['recebim','filiais','gt']));
-        return compact(['recebim','filiais','gt']);
+        //dd(compact(['recebim','filiais','gt','gt3']));
+        return compact(['recebim','filiais','gt','gt3']);
     }
 }

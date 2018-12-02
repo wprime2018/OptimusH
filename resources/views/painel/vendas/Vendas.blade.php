@@ -46,7 +46,7 @@
 </div>
 <div class="box box-info">
 	<div class="box-header">
-		<h3 class="box-title">Vendas por Forma de Pagamento no período de:@if(isset($dados)) ? {{$periodo}}@endif </h3>
+		<h3 class="box-title">Vendas por Forma de Pagamento no período de: {{ isset($dados) ? $periodo : 'Não informado' }} </h3>
 	</div>
 	<div class="box-body">
 		@if (isset($dados['recebim']))
@@ -57,10 +57,10 @@
 
 <div class="box box-info">
 	<div class="box-header with-border">
-		<h3 class="box-title">Ranking Vendas no período de:@if(isset($dados)) ? {{$periodo}}@endif </h3>
+		<h3 class="box-title">Ranking Vendas no período de: {{ isset($dados) ? $periodo : 'Não informado' }} </h3>
 	</div>
 	<div class="box-body">
-		@if (isset($dados['recebim']))
+		@if (isset($dados['gt']))
 			@include('painel.vendas.vendas02')
 		@endif
 	</div>
@@ -286,6 +286,7 @@
 	@endcomponent
 
 @stop
+
 @section ('js')
 	<script type="text/javascript">
 		$(document).ready(function(){
@@ -308,5 +309,57 @@
 				$("#b6").modal('show');
 			});
 		});
+		$(function () {
+			$('#example1').DataTable({
+				'fixedHeader' : true,
+				'lengthChange': true,
+				'ordering'    : true,
+				'info'        : true,
+				'autoWidth'   : true,
+				'responsive'  : true,
+				'dom': '<l<B>f<t>ip>',
+				'buttons': [
+					'excelHtml5',
+				{
+						extend: 'pdfHtml5',
+						orientation: 'landscape',
+						pageSize: 'A4',
+						footer: true,
+						title: 'OptimusH - Ranking de Vendas com formas de pagamento'
+					}
+				]
+			});
+		});
+		$(function () {
+            $('#table_r_filiais').DataTable({
+                'fixedHeader' : true,
+                'lengthChange': true,
+                'ordering'    : true,
+                'info'        : true,
+                'autoWidth'   : true,
+                'responsive'  : true,
+                'dom': '<l<B>f<t>ip>',
+                'buttons': [
+                    {
+                        extend: 'excelHtml5',
+                        customize: function( xlsx ) {
+                            var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                            $('row c[r^="G"], row c[r^="H"]', sheet).attr( 's', 57);
+                        },
+                        footer: true,
+                        titleAttr: 'Exporta a EXCEL',
+                        text: '<i class="fa fa-file-excel-o"></i>',
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        orientation: 'landscape',
+                        pageSize: 'A4',
+                        footer: true,
+                        title: 'OptimusH - Ranking de Vendas resumido por filiais'
+                    }
+        
+                ]
+            });
+        });
 	</script>
 @stop
