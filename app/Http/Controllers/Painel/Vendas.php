@@ -172,7 +172,7 @@ class Vendas extends Controller
         $ListFiliais        = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
 
         if (isset($request->filial_id)) {
-            //$periodo = Carbon::createFromFormat('Y-m-d',$request->initial_date)->format('d/m/Y') . ' - ' . Carbon::createFromFormat('Y-m-d',$request->final_date)->format('d/m/Y');
+            $periodo = Carbon::createFromFormat('Y-m-d',$request->initial_date)->format('d/m/Y') . ' - ' . Carbon::createFromFormat('Y-m-d',$request->final_date)->format('d/m/Y');
             $data1 = Carbon::createFromFormat('Y-m-d',$request->initial_date)->startOfDay()->toDateTimeString();
             $data2 = Carbon::createFromFormat('Y-m-d',$request->final_date)->endOfDay()->toDateTimeString();
 

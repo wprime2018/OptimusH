@@ -182,7 +182,7 @@ class FunctionsController extends Controller
         }
         $dados['SemNFCartao']['Valor'] = $semNfceCredito + $semNfceDebito;
         $dados['SemNFCartao']['Qtde']  = $semNfceCreditoQtde + $semNfceDebitoQtde;
-        $dados['Periodo'] = Carbon::createFromFormat('Y-m-d',$initial_date)->format('d/m/Y') . ' - ' . Carbon::createFromFormat('Y-m-d',$final_date)->format('d/m/Y');
+        $dados['Periodo'] = Carbon::createFromFormat('Y-m-d H:i:s',$initial_date)->format('d/m/Y') . ' - ' . Carbon::createFromFormat('Y-m-d H:i:s',$final_date)->format('d/m/Y');
         $dados['TotalSemNF'] = $totVendasSemNF;
         $dados['QtdeSemNF'] = $qtdeVendasSemNF;
         $dados['TotalComNF'] = $tot_vendas;
