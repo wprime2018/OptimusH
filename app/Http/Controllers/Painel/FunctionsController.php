@@ -94,6 +94,7 @@ class FunctionsController extends Controller
         $nfces = MSicTabNFCe::where('filial_id',"$filial_id")
                             ->wherebetween('DataHora',[$initial_date,$final_date])
                             ->orderBy('DataHora')
+                            ->wherenull('Recibo')
                             ->get();
         
         if (count($nfces) > 0) {

@@ -170,8 +170,13 @@ class Vendas extends Controller
     public function nfce(Request $request) {
 
         $ListFiliais        = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
+
         if (isset($request->filial_id)) {
-            $dados = FunctionsController::calcula_nfce($request->filial_id, $request->initial_date, $request->final_date);
+            //$periodo = Carbon::createFromFormat('Y-m-d',$request->initial_date)->format('d/m/Y') . ' - ' . Carbon::createFromFormat('Y-m-d',$request->final_date)->format('d/m/Y');
+            $data1 = Carbon::createFromFormat('Y-m-d',$request->initial_date)->startOfDay()->toDateTimeString();
+            $data2 = Carbon::createFromFormat('Y-m-d',$request->final_date)->endOfDay()->toDateTimeString();
+
+            $dados = FunctionsController::calcula_nfce($request->filial_id, $data1, $data2);
             return view('painel.vendas.nfce', compact('ListFiliais', 'dados'));
         } else {
             return view('painel.vendas.nfce', compact('ListFiliais', 'filial_changed'));

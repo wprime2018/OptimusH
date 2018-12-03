@@ -30,14 +30,12 @@
 			@endfor
 		</tbody>	
 		<tfoot>
-			<th>Qtde = {{$dados['QtdeComNF']}}</th>
-			<th>Cartões SNF=</th>
-			<th colspan="2">R$ {{number_format($dados['SemNFCartao']['Valor'],2,',','.')}}</th>
+			<th colspan="4">Qtde = {{$dados['QtdeComNF']}}</th>
 			<th>Valor = </th>
 			<th>R$ {{number_format($dados['TotalComNF'],2,',','.')}}</th>
 			<tr>
 				<td>Não encontradas</td>
-				<td colspan="5">{{$dados['NoFind']}}</td>
+				<td colspan="7">{{$dados['NoFind']}}</td>
 			</tr>
 		</tfoot>
 	</table>
