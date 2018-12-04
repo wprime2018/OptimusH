@@ -309,7 +309,6 @@ class FunctionsController extends Controller
                 }        
             }
         }
-        $valoresDados = count($dados);
         array_push($gt,[
             'Valor'     => $gtValor,
             'Cred'      => $gtCred,
