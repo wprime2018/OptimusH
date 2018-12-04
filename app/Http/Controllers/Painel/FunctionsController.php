@@ -284,8 +284,8 @@ class FunctionsController extends Controller
                         $comVendedor = $nV->Comissao;
                     }
                     $tot_valor_vendas_din = $tot_valor_vendas_vendedor - ($tot_valor_vendas_cred + $tot_valor_vendas_deb);
-                    $tot_valor_vendas_vendedor -= $totVendaChip;
-                    $tot_valor_com_vendedor = $tot_valor_vendas_vendedor * ($comVendedor / 100);
+                    ///$tot_valor_vendas_vendedor -= $totVendaChip;
+                    $tot_valor_com_vendedor = ($tot_valor_vendas_vendedor - $totVendaChip) * ($comVendedor / 100);
                     $tot_valor_com_chip = $totVendaChip * ($perc_comissao_chip / 100);
                     array_push($dados,[
                         'Vendedor'  => $nomeVendedor,
@@ -294,7 +294,7 @@ class FunctionsController extends Controller
                         'Deb'       => $tot_valor_vendas_deb,
                         'Din'       => $tot_valor_vendas_din,
                         'Comissao'  => $tot_valor_com_vendedor,
-                        'ChipTotal' => $totVendaChip,
+                        'ChipTotal' => $tot_valor_com_chip,
                         'ChipQtde'  => $totQtdeChip,
                         'TotalPagar' => $tot_valor_com_vendedor + $tot_valor_com_chip
                     ]);

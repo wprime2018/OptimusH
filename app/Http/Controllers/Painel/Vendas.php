@@ -140,10 +140,12 @@ class Vendas extends Controller
                 $filial_changed = $f->fantasia;
             }
             $periodo = Carbon::createFromFormat('Y-m-d',$request->initial_date)->format('d/m/Y') . ' - ' . Carbon::createFromFormat('Y-m-d',$request->final_date)->format('d/m/Y');
+            $data1 = Carbon::createFromFormat('Y-m-d',$request->initial_date)->startOfDay()->toDateTimeString();
+            $data2 = Carbon::createFromFormat('Y-m-d',$request->final_date)->endOfDay()->toDateTimeString();
 
             $dados = FunctionsController::calcula_comissao($request->filial_id, 
-                                                            $request->initial_date, 
-                                                            $request->final_date, 
+                                                            $data1, 
+                                                            $data2, 
                                                             $request->porcComissaoChip);
             return view('painel.vendas.ranking_vendedor', compact('Filiais', 'dados', 'filial_changed', 'periodo'));
         } else {
