@@ -219,6 +219,10 @@ class FunctionsController extends Controller
                                 ->orderBy('LkVendedor')
                                 ->distinct('LkVendedor')
                                 ->get(['LkVendedor']);
+        
+        $comissoesFilial = Comissao::where('filial_id',"$filial_id")->where('tipo','1')->get();
+        $comissoesVendedor = Comissao::where('filial_id',"$filial_id")->where('tipo','2')->get();
+
         if (!empty($vendedores)) {      //Se existe vendas separa por vendedores 
 
             foreach ($vendedores as $vendedor) {
@@ -283,16 +287,49 @@ class FunctionsController extends Controller
                         $nomeVendedor = $nV->Nome;
                         $comVendedor = $nV->Comissao;
                     }
+                    
                     $tot_valor_vendas_din = $tot_valor_vendas_vendedor - ($tot_valor_vendas_cred + $tot_valor_vendas_deb);
-                    ///$tot_valor_vendas_vendedor -= $totVendaChip;
-                    $tot_valor_com_vendedor = ($tot_valor_vendas_vendedor - $totVendaChip) * ($comVendedor / 100);
+                    
+                    $bateuMetaFilial = 0;       //Calculando comissão das filiais
+                    foreach ($comissoesFilial as $comFilial => $valComFilial) {
+                        if($tot_valor_vendas_vendedor >= $valComFilial->vendas) {
+                            ++$bateuMetaFilial;
+                            $comVendedor2 = $valComFilial->comissao;
+                        }
+                        if ($bateuMetaFilial > 0){
+                            $nomeVendedor = $nV->Nome .'('.number_format($comVendedor2,0).'%)';
+                            $comVendedor = $comVendedor2;
+                        }
+                        else {
+                            $comVendedor = $nV->Comissao;
+                        }
+                    }
+
+                    $bateuMeta = 0;         //Calculando comissão dos vendedores.
+                    foreach ($comissoesVendedor as $comVend => $valComVend) {
+                        if($tot_valor_vendas_vendedor >= $valComVend->vendas) {
+                            ++$bateuMeta;
+                            $comVendedor2 = $valComVend->comissao;
+                        }
+                        if ($bateuMeta > 0){
+                            $nomeVendedor = $nV->Nome .'('.number_format($comVendedor2,0).'%)';
+                            $comVendedor = $comVendedor2;
+                        }
+                        else {
+                            $comVendedor = $nV->Comissao;
+                        }
+                    }
+
                     $tot_valor_com_chip = $totVendaChip * ($perc_comissao_chip / 100);
+                    $tot_valor_com_vendedor = ($tot_valor_vendas_vendedor - $totVendaChip) * ($comVendedor / 100);
+
                     array_push($dados,[
                         'Vendedor'  => $nomeVendedor,
                         'Valor'     => $tot_valor_vendas_vendedor,
                         'Cred'      => $tot_valor_vendas_cred,
                         'Deb'       => $tot_valor_vendas_deb,
                         'Din'       => $tot_valor_vendas_din,
+                        'PercCom'   => ($comVendedor / 100),
                         'Comissao'  => $tot_valor_com_vendedor,
                         'ChipTotal' => $tot_valor_com_chip,
                         'ChipQtde'  => $totQtdeChip,
