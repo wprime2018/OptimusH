@@ -303,7 +303,7 @@ class FunctionsController extends Controller
                         else {
                             $comVendedor = $nV->Comissao;
                         }
-                    }
+                    };
 
                     $bateuMeta = 0;         //Calculando comissão dos vendedores.
                     foreach ($comissoesVendedor as $comVend => $valComVend) {
