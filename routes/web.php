@@ -17,7 +17,7 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home'                      , 'HomeController@index')->name('home');
+Route::get('/home'                      , 'Painel\MainController@index')->name('home');
 Route::get('/home/filiais'              , 'HomeController@dashboard_filiais')->name('DashFiliais');
 
 /*$this->group(['prefix' => 'admin', 'namespace' => 'Painel', 'middleware' => 'auth'], function(){

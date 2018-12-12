@@ -1,8 +1,6 @@
 {
   "done": [],
-  "in-progress": [],
-  "testing": [],
-  "todo": [
+  "in-progress": [
     {
       "assignedTo": {
         "name": "Neto - Note"
@@ -17,8 +15,11 @@
         "content": "Gráfico de Vendas da filial \nRanking dos vendedores \nPercentual e Valor de NFCe emitida ",
         "mime": "text/markdown"
       },
+      "id": "1",
       "prio": 1,
       "title": "DashBoard das Filiais"
     }
-  ]
+  ],
+  "testing": [],
+  "todo": []
 }

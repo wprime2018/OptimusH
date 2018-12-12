@@ -136,4 +136,14 @@ class FiliaisController extends Controller
         $Filiais = Filiais::where('ativo', '=', 1)->whereNotNull('filial_cd')->get();
         return $Filiais;
     }
+
+    public static function search_filiais()
+    {
+        $filial             = Filiais::where('ativo','1')
+                                    ->orderby('fantasia')
+                                    ->get(['id','fantasia','codigo']);
+
+        return $filial;
+    }
+
 }

@@ -16,6 +16,7 @@ use Carbon\Carbon;
 
 class FunctionsController extends Controller
 {
+
     public static function ranking_vendas($filial_id, $initial_date, $final_date)
     {
         $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
@@ -361,6 +362,24 @@ class FunctionsController extends Controller
         return compact('dados','gt');
     }
 
+    public static function array_cores() {
+        $cores = array(
+            'MidnightBlue',
+            'MediumBlue',
+            'RoyalBlue',
+            'DeepSkyBlue',
+            'CornflowerBlue',
+            'LightSkyBlue',
+            'LightSteelBlue',
+            'SteelBlue',
+            'CadetBlue',
+            'Aqua',
+            'Turquoise',
+            'DarkTurquoise'
+        );
+        return $cores;
+    }
+
     public static function ranking_diario($month_date) {
     
         $Filiais        = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
@@ -697,5 +716,10 @@ class FunctionsController extends Controller
         }
         //dd(compact(['recebim','filiais','gt','gt3']));
         return compact(['recebim','filiais','gt','gt3']);
+    }
+
+    public static function ArrayPhpToJs ($array) {
+        $arrayJs = json_encode($array); 
+        return $arrayJs;
     }
 }
