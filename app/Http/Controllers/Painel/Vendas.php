@@ -62,11 +62,13 @@ class Vendas extends Controller
     
     public function ranking_diario(Request $request)
     {
-        $minMaxVendas = functionscontroller::vendasMinMaxData();
+        $minMaxVendas = FunctionsController::vendasMinMaxData();
         
         if (isset($request->month_date)) {
-            $Filiais = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
+
+            $filiais = Filiais::filial_NCD();
             $dados = FunctionsController::ranking_diario($request->month_date);
+
             return view('painel.vendas.ranking_diario', compact('minMaxVendas','dados', 'Filiais'));
         
         } else {

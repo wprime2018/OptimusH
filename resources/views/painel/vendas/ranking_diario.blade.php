@@ -28,25 +28,24 @@
 
 @section('content')
 
-<input id="mesChanged" name="mesChanged" type="hidden" value="0">
-<input id="anoChanged" name="anoChanged" type="hidden" value="0">
+	<input id="mesChanged" name="mesChanged" type="hidden" value="0">
+	<input id="anoChanged" name="anoChanged" type="hidden" value="0">
 
-<div class="box box-info">
-	<div class="box-header with-border">
-		@if (isset($dados['periodo']))
-			<h3 class="box-title">Período: {{$dados['periodo']}}</h3>
-		@else 
-			<h3 class="box-title">Clique no botão acima e selecione os dados</h3>
-		@endif
-		<div class="box-tools pull-right">
-			<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-			<button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-		</div>
-		@if (!empty($dados))
+	@component('painel.boxes.box')
+		@slot('boxtitle')
+			@if (isset($dados['periodo']))
+				<h3 class="box-title">Período: {{$dados['periodo']}}</h3>
+			@else 
+				<h3 class="box-title">Clique no botão acima e selecione os dados</h3>
+			@endif
+		@endslot
+		@slot('boxbody')
 			@include('painel.vendas.rankingDiario01')
-		@endif
-	</div>
-</div>
+		@endslot
+		@slot('boxfooter')
+		@endslot
+	@endcomponent
+
 	@component('painel.modals.modal_primary')
 	@slot('icoBtnModal')
 		glyphicon glyphicon-plus

@@ -15,8 +15,8 @@
         <script type="text/javascript">var param2 = <?= $pieFData2 ?>;</script>
         <script type="text/javascript">var param3 = <?= $pieFData3 ?>;</script>
 
-        <script type="text/javascript" src ="{{asset('js/Painel/DashBoards/includes/graphFiliais1.js')}}"></script>
-        <script type="text/javascript" src ="{{asset('js/Painel/DashBoards/includes/graphFiliais2.js')}}"></script>
-        <script type="text/javascript" src ="{{asset('js/Painel/DashBoards/includes/graphFiliais3.js')}}"></script>
+        <script type="text/javascript" src ="{{asset('js/Painel/DashBoards/Includes/graphFiliais1.js')}}"></script>
+        <script type="text/javascript" src ="{{asset('js/Painel/DashBoards/Includes/graphFiliais2.js')}}"></script>
+        <script type="text/javascript" src ="{{asset('js/Painel/DashBoards/Includes/graphFiliais3.js')}}"></script>
     @stop
 </div>

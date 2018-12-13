@@ -16,7 +16,6 @@ use Carbon\Carbon;
 
 class FunctionsController extends Controller
 {
-
     public static function ranking_vendas($filial_id, $initial_date, $final_date)
     {
         $TipoRecebimentos   = MSicTabEst7::get(['id','Controle','Recebimento','tipo']);
@@ -385,6 +384,7 @@ class FunctionsController extends Controller
         $Filiais        = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
         $mes            = (int)substr($month_date,1,2);
         $ano            = (int)substr($month_date,3,7);
+        dd(compact($mes, $ano));
         $initial_date   = carbon::create($ano,$mes)->startOfMonth();
         $final_date     = carbon::create($ano,$mes)->endOfMonth(); 
         $periodo        = FunctionsController::mesExtenso($initial_date)['mesExtenso'] . '-' . $initial_date->year;
