@@ -3,6 +3,24 @@
   "in-progress": [
     {
       "assignedTo": {
+        "name": "Washington Neto"
+      },
+      "category": "Tela de Vendas",
+      "creation_time": "2018-12-13T18:09:34.979Z",
+      "description": {
+        "content": "Quando puxar o ranking diário das filiais estou modulando para que seja feita uma lista com os totais do dia separando cred deb e din.",
+        "mime": "text/markdown"
+      },
+      "id": "2",
+      "prio": 3,
+      "references": [],
+      "title": "Reparando a tela de Rankind Diário de Vendas"
+    }
+  ],
+  "testing": [],
+  "todo": [
+    {
+      "assignedTo": {
         "name": "Neto - Note"
       },
       "category": "Dashboard",
@@ -19,7 +37,5 @@
       "prio": 1,
       "title": "DashBoard das Filiais"
     }
-  ],
-  "testing": [],
-  "todo": []
+  ]
 }

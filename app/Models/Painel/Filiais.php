@@ -11,7 +11,6 @@ class Filiais extends Model
     {
         return $this->hasMany(Despesas::class);
     }*/
-    
     protected $table = 'tb_filiais';
     // Abaixo informo quais os campos da tabela podem ser preenchidas
     protected $fillable = [
@@ -32,4 +31,16 @@ class Filiais extends Model
             'ativo',
             'filial_cd' 
 		    ];
+    
+    public static function Filial_NCD() 
+    {
+        $filiais = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->orderby('fantasia')->get();
+        return $filiais;
+    }
+    
+    public function Filial_CD() {
+        $filiais = Filiais::where('ativo', '=', 1)->whereNotNull('filial_cd')->orderby('fantasia')->get();
+        return $filiais;
+    }
+
 }

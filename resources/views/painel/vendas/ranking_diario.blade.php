@@ -2,6 +2,10 @@
 
 @section('title', 'Vendas') 
 
+@section('css')
+	<link rel="stylesheet" href="{{ asset('css/DataTablesButtons.css') }}">
+@stop
+
 @section('content_header')
 
 <h1>
@@ -31,21 +35,23 @@
 	<input id="mesChanged" name="mesChanged" type="hidden" value="0">
 	<input id="anoChanged" name="anoChanged" type="hidden" value="0">
 
-	@component('painel.boxes.box')
-		@slot('boxtitle')
-			@if (isset($dados['periodo']))
-				<h3 class="box-title">Período: {{$dados['periodo']}}</h3>
-			@else 
-				<h3 class="box-title">Clique no botão acima e selecione os dados</h3>
-			@endif
-		@endslot
-		@slot('boxbody')
-			@include('painel.vendas.rankingDiario01')
-		@endslot
-		@slot('boxfooter')
-		@endslot
-	@endcomponent
-
+	@if(isset($Filiais))
+		@component('painel.boxes.box')
+			@slot('boxtitle')
+				@if (isset($dados['periodo']))
+					<h3 class="box-title">Período: {{$dados['periodo']}}</h3>
+				@else 
+					<h3 class="box-title">Clique no botão acima e selecione os dados</h3>
+				@endif
+			@endslot
+			@slot('boxbody')
+				@include('painel.vendas.rankingDiario01')
+			@endslot
+			@slot('boxfooter')
+			@endslot
+		@endcomponent
+	@endif
+		
 	@component('painel.modals.modal_primary')
 	@slot('icoBtnModal')
 		glyphicon glyphicon-plus
@@ -84,40 +90,84 @@
 	@endcomponent
 @stop
 
-@section ('js')
+@section('js')
 
-	<script type="text/javascript">
-		$(document).ready(function(){
-			$("#btnModal6").click(function(){
-				$("#b6").modal('show');
-			});
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#btnModal6").click(function(){
+			$("#b6").modal('show');
 		});
-	</script>
-	<script>
-		// Tabela das filiais resumidas. 
-		$(function () {
-			$('#table_r_filiais').DataTable({
-				'fixedHeader' : true,
-				'lengthChange': true,
-				'ordering'    : true,
-				'info'        : true,
-				'autoWidth'   : true,
-				'responsive'  : true,
-				'dom': '<l<B>f<t>ip>',
-				'buttons': [
-					'excelHtml5',
-					'csvHtml5',
-					{
-						extend: 'pdfHtml5',
-						orientation: 'landscape',
-						pageSize: 'A4',
-						footer: true,
-						title: 'OptimusH - Ranking de Vendas diário'
+	});
+</script>
+	@if(isset($dados2))
+		<script type="text/javascript">var dados2 = <?= $dados2 ?>;</script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				function format ( d ) {
+					// `d` is the original data object for the row
+					// d.DT_RowId;
+					return '<table id="tablechild" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">'+
+						'<tr>'+
+							'<td>Dinheiro</td>'+
+							'<td>'+din+'</td>'+
+						'</tr>'+
+						'<tr>'+
+							'<td>C.Crédito</td>'+
+							'<td>'+d.extn+'</td>'+
+						'</tr>'+
+						'<tr>'+
+							'<td>C.Débito</td>'+
+							'<td>And any further details here (images etc)...</td>'+
+						'</tr>'+
+					'</table>';
+				}
+			
+				var table = $('#table_r_filiais').DataTable( {
+					'fixedHeader' : true,
+					'lengthChange': true,
+					'ordering'    : true,
+					'info'        : true,
+					'autoWidth'   : true,
+					'responsive'  : true,
+					'dom': '<l<B>f<t>ip>',
+					'buttons': [
+						{
+							extend: 'pdfHtml5',
+							pageSize: 'A4',
+							footer: true,
+							orientation: 'landscape',
+							customize: function(doc) {
+								doc.defaultStyle.fontSize = 12; //<-- set fontsize to 16 instead of 10 
+								//margin: [left, top, right, bottom]
+								doc.pageMargins = [10,10,10,10];
+								doc.image = "{{ asset('img/optimush.png') }}";
+							}
+						}
+					]
+				} );
+				$('#table_r_filiais tbody').on('click', 'td.details-control', function () {
+					var tr = $(this).closest('tr');
+					var row = table.row( tr );
+					var din = "";
+					for (var i = 0, length = dados2[d.DT_RowId].length; i < (length - 1); i++) {
+						var din = din + '<td>'+dados2[d.DT_RowId][i]['Din']+'</td>'+;
+					}    
+			 
+					if ( row.child.isShown() ) {
+						// This row is already open - close it
+						row.child.hide();
+						tr.removeClass('shown');
 					}
-		
-				]
-			})
-		})
-	</script>
-
+					
+					else {
+						// Open this row
+						console.log(row.data().DT_RowId);
+						row.child( format(row.data()) ).show();
+						tr.addClass('shown');
+					}
+				} );
+			} );
+		</script>
+	@endif
 @stop
+

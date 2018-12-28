@@ -66,10 +66,10 @@ class Vendas extends Controller
         
         if (isset($request->month_date)) {
 
-            $filiais = Filiais::filial_NCD();
+            $Filiais = Filiais::filial_NCD();
             $dados = FunctionsController::ranking_diario($request->month_date);
-
-            return view('painel.vendas.ranking_diario', compact('minMaxVendas','dados', 'Filiais'));
+            $dados2 = json_encode($dados);
+            return view('painel.vendas.ranking_diario', compact('minMaxVendas','dados', 'Filiais', 'dados2'));
         
         } else {
         

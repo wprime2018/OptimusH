@@ -381,22 +381,28 @@ class FunctionsController extends Controller
 
     public static function ranking_diario($month_date) {
     
-        $Filiais        = Filiais::where('ativo', '=', 1)->whereNull('filial_cd')->get();
-        $mes            = (int)substr($month_date,1,2);
+        $Filiais        = Filiais::Filial_NCD();
+        
+        $mes            = (int)substr($month_date,0,2);
         $ano            = (int)substr($month_date,3,7);
-        dd(compact($mes, $ano));
         $initial_date   = carbon::create($ano,$mes)->startOfMonth();
         $final_date     = carbon::create($ano,$mes)->endOfMonth(); 
         $periodo        = FunctionsController::mesExtenso($initial_date)['mesExtenso'] . '-' . $initial_date->year;
         $lastDayMonth   = $final_date->day;
-        $formas         = Array();
-    
-        for ($i=1; $i <= $lastDayMonth; $i++) { 
-    
+        $dados         = Array();
+        $i = 1;
+        $k = 0;
+
+        for ($i=1; $i <= $lastDayMonth; ++$i) { 
+            
             $diaSemana = FunctionsController::diaDaSemana($initial_date)['diadaSemanaAbr'];
             $dataFormat = $initial_date->format('d/m/Y') . " ". $diaSemana;
-            $formas[$dataFormat]['data1'] = $initial_date->startOfDay()->toDateTimeString();
-            $formas[$dataFormat]['data2'] = $initial_date->endOfDay()->toDateTimeString();
+
+            $strInitialDate = $initial_date->startOfDay()->toDateTimeString();
+            $strFinalDate   = $initial_date->endOfDay()->toDateTimeString();
+
+            array_push($dados, array($dataFormat));
+            $j = 0;
             $total_vendas_filial = 0;
             $total_vendas_filialCred = 0;
             $total_vendas_filialDeb = 0;
@@ -406,19 +412,20 @@ class FunctionsController extends Controller
                 $vendas = MSicTabEst3A::where('filial_id',$f->id)
                                         ->where('Cancelada','0')
                                         ->where('LkTipo','2')
-                                        ->wherebetween('Data',[$formas[$dataFormat]['data1'],$formas[$dataFormat]['data2']])
+                                        ->wherebetween('Data',[$strInitialDate,$strFinalDate])
                                         ->with(['prodVendidos'])
                                         ->orderBy('Data')
                                         ->get();
                 
-                $formas[$dataFormat][$f->codigo]['Qtde'] = count($vendas);
+                $qtdeVendas = count($vendas);
                 $tot_valor_vendas_dia = 0;
                 $tot_valor_vendas_diaCred = 0;
                 $tot_valor_vendas_diaDeb = 0;
                 $tot_valor_vendas_diaDin = 0;
                 
-                if(count($vendas)) {
+                if($qtdeVendas > 0) {
     
+
                     foreach ($vendas as $v) {
     
                         if ($v->Receb()->count() > 0) {
@@ -437,29 +444,68 @@ class FunctionsController extends Controller
                         }
     
                     }
-    
-                    $formas[$dataFormat][$f->codigo]['Total'] = $tot_valor_vendas_diaCred + $tot_valor_vendas_diaDeb + $tot_valor_vendas_diaDin;
-                    $formas[$dataFormat][$f->codigo]['Cred']  = $tot_valor_vendas_diaCred;
-                    $formas[$dataFormat][$f->codigo]['Deb']   = $tot_valor_vendas_diaDeb;
-                    $formas[$dataFormat][$f->codigo]['Din']   = $tot_valor_vendas_diaDin;
-                    $total_vendas_filial     += $formas[$dataFormat][$f->codigo]['Total'];
+                    if (isset($dados[$k][0]) && ($dados[$k][0] == $dataFormat)) {
+                        array_push($dados[$k],
+                            array(
+                                'Filial' => $f->codigo,
+                                'Total' => $tot_valor_vendas_diaCred + $tot_valor_vendas_diaDeb + $tot_valor_vendas_diaDin,
+                                'Cred'  => $tot_valor_vendas_diaCred,
+                                'Deb'   => $tot_valor_vendas_diaDeb,
+                                'Din'   => $tot_valor_vendas_diaDin,
+                                'Qtde'  => $qtdeVendas
+                            )
+                        );
+                    }
+                    $total_vendas_filial     += ($tot_valor_vendas_diaCred + $tot_valor_vendas_diaDeb + $tot_valor_vendas_diaDin);
                     $total_vendas_filialCred += $tot_valor_vendas_diaCred;
                     $total_vendas_filialDeb  += $tot_valor_vendas_diaDeb;
                     $total_vendas_filialDin  += $tot_valor_vendas_diaDin;
             
-                } else {
-    
-                    $formas[$dataFormat][$f->codigo]['Total'] = 0;
-                    $formas[$dataFormat][$f->codigo]['Cred'] = 0;
-                    $formas[$dataFormat][$f->codigo]['Deb'] = 0;
-                    $formas[$dataFormat][$f->codigo]['Din'] = 0;
+                } else {        /// Quando a filial não tem venda no dia 
+                    if (isset($dados[$k][0]) && ($dados[$k][0] == $dataFormat)) {
+                        array_push($dados[$k],
+                            array(
+                                'Filial' => $f->codigo,
+                                'Total' => 0,
+                                'Cred'  => 0,
+                                'Deb'   => 0,
+                                'Din'   => 0,
+                                'Qtde'  => 0
+                            )
+                        );
+                    }
                 }
+                ++$j;
             }
             $initial_date = $initial_date->addDay();
+            ++$k;
         }
-        
-        $formas['periodo'] = $periodo;
-        return $formas;
+        $dados['periodo'] = $periodo;
+        $i = 0; 
+        for ($i=0; $i < (count($dados) -1 ); $i++) { 
+            
+            $j = 1;
+            $k = 0;
+            $total = 0;
+            $din = 0;
+            $cred = 0;
+            $deb = 0;
+            for ($j=1; $j <= count($Filiais); $j++) { 
+                $total  += $dados[$i][$j]['Total'];
+                $din    += $dados[$i][$j]['Din'];
+                $cred   += $dados[$i][$j]['Cred'];
+                $deb    += $dados[$i][$j]['Deb'];
+                ++$k;
+            }
+            array_push($dados[$i],[
+                'Total' => $total,
+                'Din' => $din,
+                'Cred' => $cred,
+                'Deb' => $deb]);
+            
+        }
+
+        return $dados;
     }
     
     public static function vendasMinMaxData() {

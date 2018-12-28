@@ -128,17 +128,8 @@ class FiliaisController extends Controller
         
     }
 
-    public function Filial_NCD() 
-    {
-        $filiais = $this->Filiais->where('ativo', '=', 1)->whereNull('filial_cd')->get();
-        return $filiais;
-    }
     
-    public function Filial_CD() {
-        $filiais = $this->Filiais->where('ativo', '=', 1)->whereNotNull('filial_cd')->get();
-        return $filiais;
-    }
-
+ 
     public static function Search_Filiais()
     {
         $filial             = Filiais::where('ativo','1')
