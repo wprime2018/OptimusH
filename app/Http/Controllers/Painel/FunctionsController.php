@@ -735,7 +735,10 @@ class FunctionsController extends Controller
             $gt[$f->filial->codigo]['Din']   = $totalVendasDin;
             $gt[$f->filial->codigo]['NFCe']  = $totalVendasNFCe;
             $gt[$f->filial->codigo]['Qtde']  = $totalQtdeVendas;
-            $gt[$f->filial->codigo]['TicketM']  = $totalVendas / $totalQtdeVendas;
+            if ( $totalQtdeVendas == 0 )
+                $gt[$f->filial->codigo]['TicketM']  = 0;
+            else     
+                $gt[$f->filial->codigo]['TicketM']  = $totalVendas / $totalQtdeVendas;
         }
         
         $gt3['Total'] = 0;
@@ -753,7 +756,11 @@ class FunctionsController extends Controller
             $gt3['NFCe'] += $gt2['NFCe'];
             $gt3['Qtde'] += $gt2['Qtde'];
         }
-        $gt3['TicketM'] = $gt2['Total'] / $gt2['Qtde'];
+        if ($gt2['Qtde'] == 0)
+            $gt3['TicketM'] = 0;
+        else 
+            $gt3['TicketM'] = $gt2['Total'] / $gt2['Qtde'];
+            
         ksort($recebim);
         ksort($gt);
         //dd(compact(['recebim','fl','filiaisRec','rec', 'gt']));

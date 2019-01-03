@@ -369,6 +369,11 @@ class SicTabEst1Controller extends Controller
                         if(empty($row2['lkvendedor'])) {$row2['lkvendedor'] = 999; }
                         if($row2['lkvendedor'] == '') {$row2['lkvendedor'] = 999; }
                         if($row2['lkvendedor'] == 0) {$row2['lkvendedor'] = 999; }
+
+                        //Testando se o vendedor está cadastrado. 
+                        $testVendedor = MSicTabVend::where('Controle',$row2['lkvendedor'])->get();
+                        if (count($testVendedor) == 0) {$row2['lkvendedor'] = 999; }
+                        
                         if($row2['lkreceb'] == 0) {$row2['lkreceb'] = 6; }
                         if($row2['obs'] == 'True'){ $row2['obs'] = 1;} else { $row2['obs'] = 0;}
                         if($row2['tipodoc'] == 'True'){ $row2['tipodoc'] = 1;} else { $row2['tipodoc'] = 0;}
