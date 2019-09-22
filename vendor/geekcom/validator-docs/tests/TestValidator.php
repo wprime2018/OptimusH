@@ -1,6 +1,8 @@
 <?php
 
-class TestValidator extends ValidatorTestCase
+namespace geekcom\ValidatorDocs\Tests;
+
+final class TestValidator extends ValidatorTestCase
 {
     public function testCpf()
     {
@@ -137,6 +139,40 @@ class TestValidator extends ValidatorTestCase
         $incorrect = \Validator::make(
             ['errado' => '1000101230190'],
             ['errado' => 'titulo_eleitor']
+        );
+
+        $this->assertTrue($correct->passes());
+
+        $this->assertTrue($incorrect->fails());
+    }
+    
+    public function testNis()
+    {
+        $correct = \Validator::make(
+            ['certo' => '201.73374.34-9'],
+            ['certo' => 'nis']
+        );
+
+        $incorrect = \Validator::make(
+            ['errado' => '201.73374.34-0'],
+            ['errado' => 'nis']
+        );
+
+        $this->assertTrue($correct->passes());
+
+        $this->assertTrue($incorrect->fails());
+    }
+
+    public function testNisormato()
+    {
+        $correct = \Validator::make(
+            ['certo' => '201.73374.34-9'],
+            ['certo' => 'formato-nis']
+        );
+
+        $incorrect = \Validator::make(
+            ['errado' => '201.733.7434-9'],
+            ['errado' => 'formato-nis']
         );
 
         $this->assertTrue($correct->passes());

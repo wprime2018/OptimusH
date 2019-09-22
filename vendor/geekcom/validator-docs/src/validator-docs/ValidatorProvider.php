@@ -23,7 +23,6 @@ class ValidatorProvider extends ServiceProvider
 
     public function boot()
     {
-
         $me = $this;
 
         $this->app['validator']->resolver(function ($translator, $data, $rules, $messages, $attributes) use ($me) {
@@ -42,9 +41,11 @@ class ValidatorProvider extends ServiceProvider
             'cnpj' => 'CNPJ inválido',
             'cpf' => 'CPF inválido',
             'cpf_cnpj' => 'CPF ou CNPJ inválido',
+            'nis' => 'PIS/PASEP/NIT/NIS inválido',
             'formato_cnpj' => 'Formato inválido para CNPJ',
             'formato_cpf' => 'Formato inválido para CPF',
             'formato_cpf_cnpj' => 'Formato inválido para CPF ou CNPJ',
+            'formato_nis' => 'Formato inválido para PIS/PASEP/NIT/NIS',
         ];
     }
 
@@ -64,7 +65,6 @@ class ValidatorProvider extends ServiceProvider
      */
     public function provides()
     {
-        return array();
+        return [];
     }
-
 }
