@@ -236,6 +236,14 @@ class FunctionsController extends Controller
                     ->where('Cancelada','0')
                     ->where('LkTipo','2')
                     ->get();
+                    $countVendas = MSicTabEst3A::selectRaw('count(m_sic_tab_est3_bs.TotVenda) AS QtdeVendas')
+                    ->join('m_sic_tab_est3_bs', 'm_sic_tab_est3_bs.LkEst3A', '=', 'm_sic_tab_est3_as.Controle')
+                    ->where('LkVendedor',$vendedor->LkVendedor)
+                    ->where('m_sic_tab_est3_as.filial_id',$filial_id)
+                    ->wherebetween('Data',[$initial_date,$final_date])
+                    ->where('Cancelada','0')
+                    ->where('LkTipo','2')
+                    ->get();
                     $somaVendasChip = MSicTabEst3A::selectRaw('sum(m_sic_tab_est3_bs.TotVenda) AS TotalVendas')
                     ->selectRaw('sum(m_sic_tab_est3_bs.Quantidade) AS QtdeChip')
                     ->join('m_sic_tab_est3_bs', 'm_sic_tab_est3_bs.LkEst3A', '=', 'm_sic_tab_est3_as.Controle')
@@ -273,8 +281,12 @@ class FunctionsController extends Controller
                         $totVendaChip = $sV->TotalVendas;
                         $totQtdeChip = $sV->QtdeChip;
                     }
+                    $countTicket = 0;
                     foreach($somaVendas as $sV) {
                         $tot_valor_vendas_vendedor = $sV->TotalVendas;
+                    }
+                    foreach($countVendas as $sV) {
+                        $countVendas2 = $sV->QtdeVendas;
                     }
                     foreach($somaVendasCred as $sV) {
                         $tot_valor_vendas_cred = $sV->TotalVendas;
@@ -290,6 +302,8 @@ class FunctionsController extends Controller
                     
                     $tot_valor_vendas_din = $tot_valor_vendas_vendedor - ($tot_valor_vendas_cred + $tot_valor_vendas_deb);
                     
+                    $ticketMedioVend = $tot_valor_vendas_vendedor / $countVendas2;
+
                     $bateuMetaFilial = 0;       //Calculando comissão das filiais
                     foreach ($comissoesFilial as $comFilial => $valComFilial) {
                         if($tot_valor_vendas_vendedor >= $valComFilial->vendas) {
@@ -333,7 +347,8 @@ class FunctionsController extends Controller
                         'Comissao'  => $tot_valor_com_vendedor,
                         'ChipTotal' => $tot_valor_com_chip,
                         'ChipQtde'  => $totQtdeChip,
-                        'TotalPagar' => $tot_valor_com_vendedor + $tot_valor_com_chip
+                        'TotalPagar' => $tot_valor_com_vendedor + $tot_valor_com_chip,
+                        'TicketMedio' => $ticketMedioVend
                     ]);
                     $gtValor        += $tot_valor_vendas_vendedor;
                     $gtCred         += $tot_valor_vendas_cred;

@@ -21,6 +21,8 @@
                     <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
                         style="width: 60px;">Chip Comissão</th>
                     <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
+                        style="width: 60px;">Ticket Médio</th>
+                    <th class="sorting" tabindex="0" aria-controls="example1" rowspan="1" colspan="1" aria-label="Browser: activate to sort column ascending"
                         style="width: 60px;">Total a Pagar</th>
                 </tr>
             </thead>
@@ -41,6 +43,7 @@
                             <td align="right">0</td>
                             <td align="right">0,00</td>
                         @endif
+                        <td align="right"><b>{{ number_format($dados['dados'][$i]['TicketMedio'],2,',','.') }}</b></td>
                         <td align="right"><b>{{number_format($dados['dados'][$i]['TotalPagar'],2,',','.')}}</b></td>
                     </tr>
                 @endfor
@@ -57,6 +60,7 @@
                         <th align="right">{{number_format($dados['gt'][0]['Comissao'],2,',','.')}}</th>
                         <th align="right">{{$dados['gt'][0]['ChipQtde']}}</th>
                         <th align="right">{{number_format($dados['gt'][0]['ChipTotal'],2,',','.')}}</th>
+                        <th align="right">-</th>
                         <th align="right">{{number_format($dados['gt'][0]['TotalPagar'],2,',','.')}}</th>
                     @endif
                 </tr>
